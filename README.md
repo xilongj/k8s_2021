@@ -16,4 +16,4 @@ Kubernetes is a portable, extensible, open-source platform for managing containe
 ```buildoutcfg
 We are building an Adaptable Intelligent World.
 ```
-<font face="楷体" color=Azure size=4>最喜欢的中文字体！</font>
+<font face="正楷" color=Azure size=3>最喜欢的中文字体！</font>
