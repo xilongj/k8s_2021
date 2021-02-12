@@ -1724,4 +1724,453 @@ tcp6       0      0 :::10252                :::*                    LISTEN      
 [root@hdss7-22 kube-controller-manager]# supervisorctl start kube-controller-manager-7-22
 ```
 ***
+### *[kube-scheduler Deployment]*
+|Hostname|Role|IP|
+|:-:|:-:|:-:|:-:|
+|hdss7-21.host.com|kube-scheduler|10.4.7.21|
+|hdss7-22.host.com|kube-scheduler|10.4.7.22|
+#### *[hdss7-21]*
+```angular2html
+[root@hdss7-21 ~]# cat /opt/kubernetes/server/bin/kube-scheduler.sh
+#!/bin/sh
+./kube-scheduler \
+  --leader-elect  \
+  --log-dir /data/logs/kubernetes/kube-scheduler \
+  --master http://127.0.0.1:8080 \
+  --v 2
+```
+```angular2html
+[root@hdss7-21 ~]# chmod +x /opt/kubernetes/server/bin/kube-scheduler.sh
+[root@hdss7-21 ~]# mkdir -p /data/logs/kubernetes/kube-scheduler
+```
+```angular2html
+[root@hdss7-21 ~]# cat /etc/supervisord.d/kube-scheduler.ini
+[program:kube-scheduler-7-21]
+command=/opt/kubernetes/server/bin/kube-scheduler.sh                     ; the program (relative uses PATH, can take args)
+numprocs=1                                                               ; number of processes copies to start (def 1)
+directory=/opt/kubernetes/server/bin                                     ; directory to cwd to before exec (def no cwd)
+autostart=true                                                           ; start at supervisord start (default: true)
+autorestart=true                                                         ; retstart at unexpected quit (default: true)
+startsecs=22                                                             ; number of secs prog must stay running (def. 1)
+startretries=3                                                           ; max # of serial start failures (default 3)
+exitcodes=0,2                                                            ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                                          ; signal used to kill process (default TERM)
+stopwaitsecs=10                                                          ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                                ; setuid to this UNIX account to run the program
+redirect_stderr=false                                                    ; redirect proc stderr to stdout (default false)
+stdout_logfile=/data/logs/kubernetes/kube-scheduler/scheduler.stdout.log ; stdout log path, NONE for none; default AUTO
+stdout_logfile_maxbytes=64MB                                             ; max # logfile bytes b4 rotation (default 50MB)
+stdout_logfile_backups=4                                                 ; # of stdout logfile backups (default 10)
+stdout_capture_maxbytes=1MB                                              ; number of bytes in 'capturemode' (default 0)
+stdout_events_enabled=false                                              ; emit events on stdout writes (default false)
+stderr_logfile=/data/logs/kubernetes/kube-scheduler/scheduler.stderr.log ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                             ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                                 ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                              ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                              ; emit events on stderr writes (default false)
+```
+```angular2html
+[root@hdss7-21 ~]# supervisorctl update
+kube-scheduler-7-21: added process group
 
+[root@hdss7-21 ~]# supervisorctl status
+etcd-server-7-21                 RUNNING   pid 12063, uptime 11:38:20
+kube-apiserver-7-21              RUNNING   pid 38810, uptime 9:42:26
+kube-controller-manager-7-21     RUNNING   pid 47318, uptime 2:46:51
+kube-scheduler-7-21              RUNNING   pid 51411, uptime 0:00:23
+```
+#### *[hdss7-22]*
+```angular2html
+[root@hdss7-22 ~]# cat /opt/kubernetes/server/bin/kube-scheduler.sh
+#!/bin/sh
+./kube-scheduler \
+  --leader-elect  \
+  --log-dir /data/logs/kubernetes/kube-scheduler \
+  --master http://127.0.0.1:8080 \
+  --v 2
+```
+```angular2html
+[root@hdss7-22 ~]# chmod +x /opt/kubernetes/server/bin/kube-scheduler.sh
+[root@hdss7-22 ~]# mkdir -p /data/logs/kubernetes/kube-scheduler
+```
+```angular2html
+[root@hdss7-22 ~]# cat /etc/supervisord.d/kube-scheduler.ini
+[program:kube-scheduler-7-22]
+command=/opt/kubernetes/server/bin/kube-scheduler.sh                     ; the program (relative uses PATH, can take args)
+numprocs=1                                                               ; number of processes copies to start (def 1)
+directory=/opt/kubernetes/server/bin                                     ; directory to cwd to before exec (def no cwd)
+autostart=true                                                           ; start at supervisord start (default: true)
+autorestart=true                                                         ; retstart at unexpected quit (default: true)
+startsecs=22                                                             ; number of secs prog must stay running (def. 1)
+startretries=3                                                           ; max # of serial start failures (default 3)
+exitcodes=0,2                                                            ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                                          ; signal used to kill process (default TERM)
+stopwaitsecs=10                                                          ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                                ; setuid to this UNIX account to run the program
+redirect_stderr=false                                                    ; redirect proc stderr to stdout (default false)
+stdout_logfile=/data/logs/kubernetes/kube-scheduler/scheduler.stdout.log ; stdout log path, NONE for none; default AUTO
+stdout_logfile_maxbytes=64MB                                             ; max # logfile bytes b4 rotation (default 50MB)
+stdout_logfile_backups=4                                                 ; # of stdout logfile backups (default 10)
+stdout_capture_maxbytes=1MB                                              ; number of bytes in 'capturemode' (default 0)
+stdout_events_enabled=false                                              ; emit events on stdout writes (default false)
+stderr_logfile=/data/logs/kubernetes/kube-scheduler/scheduler.stderr.log ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                             ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                                 ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                              ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                              ; emit events on stderr writes (default false)
+```
+```angular2html
+[root@hdss7-22 ~]# supervisorctl update
+kube-scheduler-7-22: added process group
+[root@hdss7-22 ~]# supervisorctl status
+etcd-server-7-22                 RUNNING   pid 8461, uptime 11:32:15
+kube-apiserver-7-22              RUNNING   pid 14815, uptime 9:31:06
+kube-controller-manager-7-22     RUNNING   pid 35431, uptime 2:28:43
+kube-scheduler-7-22              RUNNING   pid 37889, uptime 0:00:24
+```
+```angular2html
+[root@hdss7-21 ~]# ln -s /opt/kubernetes/server/bin/kubectl /usr/bin/kubectl
+[root@hdss7-21 ~]# which kubectl
+/usr/bin/kubectl
+
+[root@hdss7-22 ~]# ln -s /opt/kubernetes/server/bin/kubectl /usr/bin/kubectl
+[root@hdss7-22 ~]# which kubectl
+/usr/bin/kubectl
+```
+```angular2html
+[root@hdss7-21 ~]# kubectl get cs
+NAME                 STATUS    MESSAGE              ERROR
+controller-manager   Healthy   ok
+scheduler            Healthy   ok
+etcd-2               Healthy   {"health": "true"}
+etcd-1               Healthy   {"health": "true"}
+etcd-0               Healthy   {"health": "true"}
+
+[root@hdss7-22 ~]# kubectl get cs
+NAME                 STATUS    MESSAGE              ERROR
+scheduler            Healthy   ok
+controller-manager   Healthy   ok
+etcd-2               Healthy   {"health": "true"}
+etcd-0               Healthy   {"health": "true"}
+etcd-1               Healthy   {"health": "true"}
+```
+***
+### *[kubelet deployment]*
+|Hostname|Role|IP|
+|:-:|:-:|:-:|:-:|
+|hdss7-21.host.com|kubelet|10.4.7.21|
+|hdss7-22.host.com|kubelet|10.4.7.22|
+#### *[hdss7-200]*
+```angular2html
+[root@hdss7-200 ~]# cd /opt/certs/
+[root@hdss7-200 certs]# cat kubelet-csr.json
+{
+    "CN": "kubelet-node",
+    "hosts": [
+    "127.0.0.1",
+    "10.4.7.10",
+    "10.4.7.21",
+    "10.4.7.22",
+    "10.4.7.23",
+    "10.4.7.24",
+    "10.4.7.25",
+    "10.4.7.26",
+    "10.4.7.27",
+    "10.4.7.28"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "ST": "Beijing",
+            "L": "Beijing",
+            "O": "XLNX",
+            "OU": "XEUS"
+        }
+    ]
+}
+```
+```angular2html
+[root@hdss7-200 certs]# cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=server kubelet-csr.json | cfssl-json -bare kubelet
+2021/02/12 19:41:28 [INFO] generate received request
+2021/02/12 19:41:28 [INFO] received CSR
+2021/02/12 19:41:28 [INFO] generating key: rsa-2048
+2021/02/12 19:41:28 [INFO] encoded CSR
+2021/02/12 19:41:28 [INFO] signed certificate with serial number 454852301140440624099455939792355314779592013178
+2021/02/12 19:41:28 [WARNING] This certificate lacks a "hosts" field. This makes it unsuitable for
+websites. For more information see the Baseline Requirements for the Issuance and Management
+of Publicly-Trusted Certificates, v.1.1.6, from the CA/Browser Forum (https://cabforum.org);
+specifically, section 10.2.3 ("Information Requirements").
+```
+```angular2html
+[root@hdss7-200 certs]# ls -l kubelet*
+-rw-r--r-- 1 root root 1123 Feb 12 19:41 kubelet.csr
+-rw-r--r-- 1 root root  456 Feb 12 19:27 kubelet-csr.json
+-rw------- 1 root root 1675 Feb 12 19:41 kubelet-key.pem
+-rw-r--r-- 1 root root 1472 Feb 12 19:41 kubelet.pem
+```
+#### *[hdss7-21]*
+```angular2html
+[root@hdss7-21 ~]# cd /opt/kubernetes/server/bin/certs/
+[root@hdss7-21 certs]# scp hdss7-200:/opt/certs/kubelet.pem .
+[root@hdss7-21 certs]# scp hdss7-200:/opt/certs/kubelet-key.pem .
+```
+```angular2html
+# set-cluster
+[root@hdss7-21 ~]# cd /opt/kubernetes/server/bin/conf
+[root@hdss7-21 conf]# kubectl config set-cluster myk8s \
+  --certificate-authority=/opt/kubernetes/server/bin/certs/ca.pem \
+  --embed-certs=true \
+  --server=https://10.4.7.10:7443 \
+  --kubeconfig=kubelet.kubeconfig
+Cluster "myk8s" set.
+```
+```angular2html
+# set-credentials
+[root@hdss7-21 conf]# kubectl config set-credentials k8s-node \
+  --client-certificate=/opt/kubernetes/server/bin/certs/client.pem \
+  --client-key=/opt/kubernetes/server/bin/certs/client-key.pem \
+  --embed-certs=true \
+  --kubeconfig=kubelet.kubeconfig
+User "k8s-node" set.
+```
+```angular2html
+# set-context
+[root@hdss7-21 conf]# kubectl config set-context myk8s-context \
+  --cluster=myk8s \
+  --user=k8s-node \
+  --kubeconfig=kubelet.kubeconfig
+Context "myk8s-context" created.
+```
+```angular2html
+# use-context
+[root@hdss7-21 conf]# kubectl config use-context myk8s-context --kubeconfig=kubelet.kubeconfig
+Switched to context "myk8s-context".
+```
+```angular2html
+# k8s-node.yaml
+[root@hdss7-21 conf]# cat /opt/kubernetes/server/bin/conf/k8s-node.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8s-node
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:node
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: k8s-node
+```
+```angular2html
+[root@hdss7-21 conf]# kubectl create -f k8s-node.yaml
+clusterrolebinding.rbac.authorization.k8s.io/k8s-node created
+```
+```angular2html
+[root@hdss7-21 conf]# kubectl get clusterrolebinding k8s-node
+NAME       AGE
+k8s-node   85s
+```
+#### *[hdss7-22]*
+```angular2html
+[root@hdss7-22 ~]# cd /opt/kubernetes/server/bin/certs/
+[root@hdss7-22 certs]# scp hdss7-200:/opt/certs/kubelet.pem .
+[root@hdss7-22 certs]# scp hdss7-200:/opt/certs/kubelet-key.pem .
+```
+```angular2html
+[root@hdss7-22 ~]# cd /opt/kubernetes/server/bin/conf/
+[root@hdss7-22 conf]# scp hdss7-21:/opt/kubernetes/server/bin/conf/kubelet.kubeconfig .
+[root@hdss7-22 conf]# ls -l
+total 12
+-rw-r--r-- 1 root root 2223 Feb 12 09:39 audit.yaml
+-rw------- 1 root root 6207 Feb 12 20:28 kubelet.kubeconfig
+```
+#### *[hdss7-200]*
+```angular2html
+[root@hdss7-200 ~]# docker pull kubernetes/pause
+[root@hdss7-200 ~]# docker tag f9d5de079539 harbor.od.com/public/pause:latest
+[root@hdss7-200 ~]# docker images | grep pause
+kubernetes/pause                latest    f9d5de079539   6 years ago    240kB
+harbor.od.com/public/pause      latest    f9d5de079539   6 years ago    240kB
+```
+```angular2html
+[root@hdss7-200 ~]# docker login harbor.od.com
+
+[root@hdss7-200 ~]# docker push harbor.od.com/public/pause:latest
+The push refers to repository [harbor.od.com/public/pause]
+5f70bf18a086: Mounted from public/nginx
+e16a89738269: Pushed
+latest: digest: sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935ad5b105 size: 938
+```
+#### *[hdss7-21]*
+```angular2html
+[root@hdss7-21 ~]# cat /opt/kubernetes/server/bin/kubelet.sh
+#!/bin/sh
+./kubelet \
+  --anonymous-auth=false \
+  --cgroup-driver systemd \
+  --cluster-dns 192.168.0.2 \
+  --cluster-domain cluster.local \
+  --runtime-cgroups=/systemd/system.slice \
+  --kubelet-cgroups=/systemd/system.slice \
+  --fail-swap-on="false" \
+  --client-ca-file ./certs/ca.pem \
+  --tls-cert-file ./certs/kubelet.pem \
+  --tls-private-key-file ./certs/kubelet-key.pem \
+  --hostname-override hdss7-21.host.com \
+  --image-gc-high-threshold 20 \
+  --image-gc-low-threshold 10 \
+  --kubeconfig ./conf/kubelet.kubeconfig \
+  --log-dir /data/logs/kubernetes/kube-kubelet \
+  --pod-infra-container-image harbor.od.com/public/pause:latest \
+  --root-dir /data/kubelet
+```
+```angular2html
+[root@hdss7-21 ~]# chmod +x /opt/kubernetes/server/bin/kubelet.sh
+[root@hdss7-21 ~]# mkdir -p /data/logs/kubernetes/kube-kubelet /data/kubelet
+```
+#### *[hdss7-22]*
+```angular2html
+[root@hdss7-22 ~]# cat /opt/kubernetes/server/bin/kubelet.sh
+#!/bin/sh
+./kubelet \
+  --anonymous-auth=false \
+  --cgroup-driver systemd \
+  --cluster-dns 192.168.0.2 \
+  --cluster-domain cluster.local \
+  --runtime-cgroups=/systemd/system.slice \
+  --kubelet-cgroups=/systemd/system.slice \
+  --fail-swap-on="false" \
+  --client-ca-file ./certs/ca.pem \
+  --tls-cert-file ./certs/kubelet.pem \
+  --tls-private-key-file ./certs/kubelet-key.pem \
+  --hostname-override hdss7-22.host.com \
+  --image-gc-high-threshold 20 \
+  --image-gc-low-threshold 10 \
+  --kubeconfig ./conf/kubelet.kubeconfig \
+  --log-dir /data/logs/kubernetes/kube-kubelet \
+  --pod-infra-container-image harbor.od.com/public/pause:latest \
+  --root-dir /data/kubelet
+```
+```angular2html
+[root@hdss7-22 ~]# chmod +x /opt/kubernetes/server/bin/kubelet.sh
+[root@hdss7-22 ~]# mkdir -p /data/logs/kubernetes/kube-kubelet /data/kubelet
+```
+#### *[hdss7-21]*
+```angular2html
+[root@hdss7-21 ~]# cat /etc/supervisord.d/kube-kubelet.ini
+[program:kube-kubelet-7-21]
+command=/opt/kubernetes/server/bin/kubelet.sh                           ; the program (relative uses PATH, can take args)
+numprocs=1                                                              ; number of processes copies to start (def 1)
+directory=/opt/kubernetes/server/bin                                    ; directory to cwd to before exec (def no cwd)
+autostart=true                                                          ; start at supervisord start (default: true)
+autorestart=true                                                        ; retstart at unexpected quit (default: true)
+startsecs=22                                                            ; number of secs prog must stay running (def. 1)
+startretries=3                                                          ; max # of serial start failures (default 3)
+exitcodes=0,2                                                           ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                                         ; signal used to kill process (default TERM)
+stopwaitsecs=10                                                         ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                               ; setuid to this UNIX account to run the program
+redirect_stderr=false                                                   ; redirect proc stderr to stdout (default false)
+stdout_logfile=/data/logs/kubernetes/kube-kubelet/kubelet.stdout.log    ; stdout log path, NONE for none; default AUTO
+stdout_logfile_maxbytes=64MB                                            ; max # logfile bytes b4 rotation (default 50MB)
+stdout_logfile_backups=4                                                ; # of stdout logfile backups (default 10)
+stdout_capture_maxbytes=1MB                                             ; number of bytes in 'capturemode' (default 0)
+stdout_events_enabled=false                                             ; emit events on stdout writes (default false)
+stderr_logfile=/data/logs/kubernetes/kube-kubelet/kubelet.stderr.log    ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                            ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                                ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                             ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                             ; emit events on stderr writes (default false)
+```
+```angular2html
+[root@hdss7-22 ~]# cat /etc/supervisord.d/kube-kubelet.ini
+[program:kube-kubelet-7-22]
+command=/opt/kubernetes/server/bin/kubelet.sh                           ; the program (relative uses PATH, can take args)
+numprocs=1                                                              ; number of processes copies to start (def 1)
+directory=/opt/kubernetes/server/bin                                    ; directory to cwd to before exec (def no cwd)
+autostart=true                                                          ; start at supervisord start (default: true)
+autorestart=true                                                        ; retstart at unexpected quit (default: true)
+startsecs=22                                                            ; number of secs prog must stay running (def. 1)
+startretries=3                                                          ; max # of serial start failures (default 3)
+exitcodes=0,2                                                           ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                                         ; signal used to kill process (default TERM)
+stopwaitsecs=10                                                         ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                               ; setuid to this UNIX account to run the program
+redirect_stderr=false                                                   ; redirect proc stderr to stdout (default false)
+stdout_logfile=/data/logs/kubernetes/kube-kubelet/kubelet.stdout.log    ; stdout log path, NONE for none; default AUTO
+stdout_logfile_maxbytes=64MB                                            ; max # logfile bytes b4 rotation (default 50MB)
+stdout_logfile_backups=4                                                ; # of stdout logfile backups (default 10)
+stdout_capture_maxbytes=1MB                                             ; number of bytes in 'capturemode' (default 0)
+stdout_events_enabled=false                                             ; emit events on stdout writes (default false)
+stderr_logfile=/data/logs/kubernetes/kube-kubelet/kubelet.stderr.log    ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                            ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                                ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                             ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                             ; emit events on stderr writes (default false)
+```
+```angular2html
+[root@hdss7-21 ~]# supervisorctl update
+[root@hdss7-21 ~]# supervisorctl status
+etcd-server-7-21                 RUNNING   pid 12063, uptime 13:46:19
+kube-apiserver-7-21              RUNNING   pid 38810, uptime 11:50:25
+kube-controller-manager-7-21     RUNNING   pid 68632, uptime 0:38:20
+kube-kubelet-7-21                RUNNING   pid 73965, uptime 0:02:35
+kube-scheduler-7-21              RUNNING   pid 68645, uptime 0:38:19
+```
+```angular2html
+[root@hdss7-22 conf]# supervisorctl status
+etcd-server-7-22                 RUNNING   pid 8461, uptime 13:35:06
+kube-apiserver-7-22              RUNNING   pid 14815, uptime 11:33:57
+kube-controller-manager-7-22     RUNNING   pid 35431, uptime 4:31:34
+kube-kubelet-7-22                FATAL     Exited too quickly (process log may have details)
+kube-scheduler-7-22              RUNNING   pid 37889, uptime 2:03:15
+[root@hdss7-22 conf]# supervisorctl start kube-kubelet-7-22
+kube-kubelet-7-22: started
+[root@hdss7-22 conf]# supervisorctl status
+etcd-server-7-22                 RUNNING   pid 8461, uptime 13:35:41
+kube-apiserver-7-22              RUNNING   pid 14815, uptime 11:34:32
+kube-controller-manager-7-22     RUNNING   pid 35431, uptime 4:32:09
+kube-kubelet-7-22                RUNNING   pid 50018, uptime 0:00:24
+kube-scheduler-7-22              RUNNING   pid 37889, uptime 2:03:50
+```
+```angular2html
+# error
+[root@hdss7-21 ~]# tail /data/logs/kubernetes/kube-kubelet/kubelet.stderr.log
+...
+F0213 00:47:17.369011   72005 server.go:273] failed to run Kubelet: failed to create kubelet: failed to get docker version: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+
+[root@hdss7-21 certs]# systemctl start docker
+```
+```angular2html
+[root@hdss7-21 ~]# kubectl get nodes
+NAME                STATUS   ROLES    AGE     VERSION
+hdss7-21.host.com   Ready    <none>   3h47m   v1.15.2
+hdss7-22.host.com   Ready    <none>   36s     v1.15.2
+[root@hdss7-21 ~]#
+[root@hdss7-21 ~]# kubectl label node hdss7-21.host.com node-role.kubernetes.io/master=
+node/hdss7-21.host.com labeled
+[root@hdss7-21 ~]# kubectl get nodes
+NAME                STATUS   ROLES    AGE     VERSION
+hdss7-21.host.com   Ready    master   3h49m   v1.15.2
+hdss7-22.host.com   Ready    <none>   2m31s   v1.15.2
+[root@hdss7-21 ~]# kubectl label node hdss7-21.host.com node-role.kubernetes.io/node=
+node/hdss7-21.host.com labeled
+[root@hdss7-21 ~]# kubectl get nodes
+NAME                STATUS   ROLES         AGE     VERSION
+hdss7-21.host.com   Ready    master,node   3h49m   v1.15.2
+hdss7-22.host.com   Ready    <none>        2m58s   v1.15.2
+[root@hdss7-21 ~]# kubectl label node hdss7-22.host.com node-role.kubernetes.io/master=
+node/hdss7-22.host.com labeled
+[root@hdss7-21 ~]# kubectl label node hdss7-22.host.com node-role.kubernetes.io/node=
+node/hdss7-22.host.com labeled
+[root@hdss7-21 ~]# kubectl get nodes
+NAME                STATUS   ROLES         AGE     VERSION
+hdss7-21.host.com   Ready    master,node   3h50m   v1.15.2
+hdss7-22.host.com   Ready    master,node   3m41s   v1.15.2
+```
+***
