@@ -1598,3 +1598,130 @@ vrrp_instance VI_1 {
        valid_lft forever preferred_lft forever
 ```
 ***
+### *[Controller-Manager Deployment]*
+
+|Hostname|Role|IP|
+|:-:|:-:|:-:|:-:|
+|hdss7-21.host.com|controller-manager|10.4.7.21|
+|hdss7-22.host.com|controller-manager|10.4.7.22|
+
+#### *[hdss7-21]*
+```angular2html
+[root@hdss7-21 bin]# cat /opt/kubernetes/server/bin/kube-controller-manager.sh
+#!/bin/sh
+./kube-controller-manager \
+  --cluster-cidr 172.7.0.0/16 \
+  --leader-elect true \
+  --log-dir /data/logs/kubernetes/kube-controller-manager \
+  --master http://127.0.0.1:8080 \
+  --service-account-private-key-file ./certs/ca-key.pem \
+  --service-cluster-ip-range 192.168.0.0/16 \
+  --root-ca-file ./certs/ca.pem \
+  --v 2
+```
+```angular2html
+[root@hdss7-21 bin]# chmod +x /opt/kubernetes/server/bin/kube-controller-manager.sh
+[root@hdss7-21 bin]# mkdir -p /data/logs/kubernetes/kube-controller-manager
+```
+```angular2html
+[root@hdss7-21 bin]# cat /etc/supervisord.d/kube-conntroller-manager.ini
+[program:kube-controller-manager-7-21]
+command=/opt/kubernetes/server/bin/kube-controller-manager.sh                     ; the program (relative uses PATH, can take args)
+numprocs=1                                                                        ; number of processes copies to start (def 1)
+directory=/opt/kubernetes/server/bin                                              ; directory to cwd to before exec (def no cwd)
+autostart=true                                                                    ; start at supervisord start (default: true)
+autorestart=true                                                                  ; retstart at unexpected quit (default: true)
+startsecs=22                                                                      ; number of secs prog must stay running (def. 1)
+startretries=3                                                                    ; max # of serial start failures (default 3)
+exitcodes=0,2                                                                     ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                                                   ; signal used to kill process (default TERM)
+stopwaitsecs=10                                                                   ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                                         ; setuid to this UNIX account to run the program
+redirect_stderr=false                                                             ; redirect proc stderr to stdout (default false)
+stdout_logfile=/data/logs/kubernetes/kube-controller-manager/controll.stdout.log  ; stdout log path, NONE for none; default AUTO
+stdout_logfile_maxbytes=64MB                                                      ; max # logfile bytes b4 rotation (default 50MB)
+stdout_logfile_backups=4                                                          ; # of stdout logfile backups (default 10)
+stdout_capture_maxbytes=1MB                                                       ; number of bytes in 'capturemode' (default 0)
+stdout_events_enabled=false                                                       ; emit events on stdout writes (default false)
+stderr_logfile=/data/logs/kubernetes/kube-controller-manager/controll.stderr.log  ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                                      ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                                          ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                                       ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                                       ; emit events on stderr writes (default false)
+```
+```angular2html
+[root@hdss7-21 bin]# supervisorctl update
+kube-controller-manager-7-21: added process group
+[root@hdss7-21 ~]# supervisorctl status
+etcd-server-7-21                 RUNNING   pid 12063, uptime 8:52:30
+kube-apiserver-7-21              RUNNING   pid 38810, uptime 6:56:36
+kube-controller-manager-7-21     RUNNING   pid 47318, uptime 0:01:01
+```
+#### *[hdss7-22]*
+```angular2html
+[root@hdss7-22 ~]# cat /opt/kubernetes/server/bin/kube-controller-manager.sh
+#!/bin/sh
+./kube-controller-manager \
+  --cluster-cidr 172.7.0.0/16 \
+  --leader-elect true \
+  --log-dir /data/logs/kubernetes/kube-controller-manager \
+  --master http://127.0.0.1:8080 \
+  --service-account-private-key-file ./certs/ca-key.pem \
+  --service-cluster-ip-range 192.168.0.0/16 \
+  --root-ca-file ./certs/ca.pem \
+  --v 2
+```
+```angular2html
+[root@hdss7-22 ~]# chmod +x /opt/kubernetes/server/bin/kube-controller-manager.sh
+[root@hdss7-22 ~]# mkdir -p /data/logs/kubernetes/kube-controller-manager
+```
+```angular2html
+[root@hdss7-22 ~]# cat /etc/supervisord.d/kube-conntroller-manager.ini
+[program:kube-controller-manager-7-22]
+command=/opt/kubernetes/server/bin/kube-controller-manager.sh                     ; the program (relative uses PATH, can take args)
+numprocs=1                                                                        ; number of processes copies to start (def 1)
+directory=/opt/kubernetes/server/bin                                              ; directory to cwd to before exec (def no cwd)
+autostart=true                                                                    ; start at supervisord start (default: true)
+autorestart=true                                                                  ; retstart at unexpected quit (default: true)
+startsecs=22                                                                      ; number of secs prog must stay running (def. 1)
+startretries=3                                                                    ; max # of serial start failures (default 3)
+exitcodes=0,2                                                                     ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                                                   ; signal used to kill process (default TERM)
+stopwaitsecs=10                                                                   ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                                         ; setuid to this UNIX account to run the program
+redirect_stderr=false                                                             ; redirect proc stderr to stdout (default false)
+stdout_logfile=/data/logs/kubernetes/kube-controller-manager/controll.stdout.log  ; stdout log path, NONE for none; default AUTO
+stdout_logfile_maxbytes=64MB                                                      ; max # logfile bytes b4 rotation (default 50MB)
+stdout_logfile_backups=4                                                          ; # of stdout logfile backups (default 10)
+stdout_capture_maxbytes=1MB                                                       ; number of bytes in 'capturemode' (default 0)
+stdout_events_enabled=false                                                       ; emit events on stdout writes (default false)
+stderr_logfile=/data/logs/kubernetes/kube-controller-manager/controll.stderr.log  ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                                      ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                                          ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                                       ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                                       ; emit events on stderr writes (default false)
+```
+```angular2html
+[root@hdss7-22 bin]# supervisorctl update
+kube-controller-manager-7-22: added process group
+[root@hdss7-22 ~]# supervisorctl status
+etcd-server-7-22                 RUNNING   pid 8461, uptime 8:46:54
+kube-apiserver-7-22              RUNNING   pid 14815, uptime 6:45:45
+kube-controller-manager-7-22     RUNNING   pid 28325, uptime 0:03:25
+```
+```angular2html
+#error
+
+[root@hdss7-22 kube-controller-manager]# cat controll.stderr.log
+...
+I0212 16:42:39.473553   34036 serving.go:319] Generated self-signed cert in-memory
+failed to create listener: failed to listen on 0.0.0.0:10252: listen tcp 0.0.0.0:10252: bind: address already in use
+
+[root@hdss7-22 kube-controller-manager]# netstat -lntup | grep 10252
+tcp6       0      0 :::10252                :::*                    LISTEN      28326/./kube-contro
+
+[root@hdss7-22 kube-controller-manager]# kill 28326
+[root@hdss7-22 kube-controller-manager]# supervisorctl start kube-controller-manager-7-22
+```
+***
+
