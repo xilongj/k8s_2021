@@ -2558,8 +2558,7 @@ Commercial support is available at
 <p><em>Thank you for using nginx.</em></p>
 </body>
 </html>
-[root@hdss7-21 ~]#
-[root@hdss7-21 ~]#
+
 [root@hdss7-21 ~]#
 [root@hdss7-21 ~]# curl 172.7.22.2
 curl: (7) Failed connect to 172.7.22.2:80; Connection refused
