@@ -7,7 +7,7 @@ Kubernetes is a portable, extensible, open-source platform for managing containe
 #### Github: https://github.com/kubernetes/kubernetes
 
 
-<font face="calibri" color=Azure size=5>Kubernetes the Hard Way</font>
+<font face="calibri" color=Red size=4>Kubernetes the Hard Way</font>
 * https://acloudguru.com/course/kubernetes-the-hard-way
 * https://github.com/kelseyhightower/kubernetes-the-hard-way
 
@@ -15,6 +15,3 @@ Kubernetes is a portable, extensible, open-source platform for managing containe
 ```buildoutcfg
                               Xilong Jin: xilongus@gmail.com
 ```
-
-### Kubernetes the Hard Way
-#### Kubernetes the Hard Way
