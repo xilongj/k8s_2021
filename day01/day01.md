@@ -2174,3 +2174,414 @@ hdss7-21.host.com   Ready    master,node   3h50m   v1.15.2
 hdss7-22.host.com   Ready    master,node   3m41s   v1.15.2
 ```
 ***
+### *[kube-proxy deployment]*
+|Hostname|Role|IP|
+|:-:|:-:|:-:|:-:|
+|hdss7-21.host.com|kube-proxy|10.4.7.21|
+|hdss7-22.host.com|kube-proxy|10.4.7.22|
+
+#### *[hdss7-200]*
+```buildoutcfg
+[root@hdss7-200 ~]# cd /opt/certs/
+[root@hdss7-200 certs]# cat kube-proxy-csr.json
+{
+    "CN": "system:kube-proxy",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "ST": "Beijing",
+            "L": "Beijing",
+            "O": "XLNX",
+            "OU": "XEUS"
+        }
+    ]
+}
+```
+```buildoutcfg
+[root@hdss7-200 certs]# cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=client kube-proxy-csr.json | cfssl-json -bare kube-proxy-client
+```
+```buildoutcfg
+[root@hdss7-200 certs]# ls -l kube-proxy*
+-rw-r--r-- 1 root root 1009 Feb 13 08:52 kube-proxy-client.csr
+-rw------- 1 root root 1679 Feb 13 08:52 kube-proxy-client-key.pem
+-rw-r--r-- 1 root root 1383 Feb 13 08:52 kube-proxy-client.pem
+-rw-r--r-- 1 root root  270 Feb 13 08:47 kube-proxy-csr.json
+```
+#### *[hdss7-21]*
+```buildoutcfg
+[root@hdss7-21 ~]# cd /opt/kubernetes/server/bin/certs/
+[root@hdss7-21 certs]# scp hdss7-200:/opt/certs/kube-proxy-client.pem .
+[root@hdss7-21 certs]# scp hdss7-200:/opt/certs/kube-proxy-client-key.pem .
+```
+#### *[hdss7-22]*
+```buildoutcfg
+[root@hdss7-22 ~]# cd /opt/kubernetes/server/bin/certs/
+[root@hdss7-22 certs]# scp hdss7-200:/opt/certs/kube-proxy-client.pem .
+[root@hdss7-22 certs]# scp hdss7-200:/opt/certs/kube-proxy-client-key.pem .
+```
+#### *[hdss7-21]*
+```buildoutcfg
+# set-cluster
+[root@hdss7-21 ~]# cd /opt/kubernetes/server/bin/conf/
+[root@hdss7-21 conf]# kubectl config set-cluster myk8s \
+  --certificate-authority=/opt/kubernetes/server/bin/certs/ca.pem \
+  --embed-certs=true \
+  --server=https://10.4.7.10:7443 \
+  --kubeconfig=kube-proxy.kubeconfig
+Cluster "myk8s" set.
+```
+```buildoutcfg
+# set-credentials
+[root@hdss7-21 conf]# kubectl config set-credentials kube-proxy \
+  --client-certificate=/opt/kubernetes/server/bin/certs/kube-proxy-client.pem \
+  --client-key=/opt/kubernetes/server/bin/certs/kube-proxy-client-key.pem \
+  --embed-certs=true \
+  --kubeconfig=kube-proxy.kubeconfig
+User "kube-proxy" set.
+```
+```buildoutcfg
+# set-context
+[root@hdss7-21 conf]# kubectl config set-context myk8s-context \
+>   --cluster=myk8s \
+>   --user=kube-proxy \
+>   --kubeconfig=kube-proxy.kubeconfig
+Context "myk8s-context" created.
+```
+```buildoutcfg
+# use-context
+[root@hdss7-21 conf]# kubectl config use-context myk8s-context --kubeconfig=kube-proxy.kubeconfig
+Switched to context "myk8s-context".
+```
+```buildoutcfg
+[root@hdss7-22 ~]# cd /opt/kubernetes/server/bin/conf/
+[root@hdss7-22 conf]# scp hdss7-21:/opt/kubernetes/server/bin/conf/kube-proxy.kubeconfig .
+
+[root@hdss7-22 conf]# ls -l
+total 20
+-rw-r--r-- 1 root root 2223 Feb 12 09:39 audit.yaml
+-rw------- 1 root root 6207 Feb 12 20:28 kubelet.kubeconfig
+-rw------- 1 root root 6227 Feb 13 09:46 kube-proxy.kubeconfig
+```
+#### Enable ipvs module
+```buildoutcfg
+[root@hdss7-21 ~]# cat ipvs.sh
+#!/bin/bash
+ipvs_mods_dir="/usr/lib/modules/$(uname -r)/kernel/net/netfilter/ipvs"
+for i in $(ls $ipvs_mods_dir | grep -o "^[^.]*")
+do
+    /sbin/modinfo -F filename $i &>/dev/null
+    if [ $? -eq 0 ]; then
+        /sbin/modprobe $i
+    fi
+done
+```
+```buildoutcfg
+[root@hdss7-21 ~]# chmod +x ipvs.sh
+[root@hdss7-21 ~]# ./ipvs.sh
+```
+```buildoutcfg
+[root@hdss7-21 ~]# lsmod | grep ip_vs
+ip_vs_wrr              12697  0
+ip_vs_wlc              12519  0
+ip_vs_sh               12688  0
+ip_vs_sed              12519  0
+ip_vs_rr               12600  0
+ip_vs_pe_sip           12740  0
+nf_conntrack_sip       33780  1 ip_vs_pe_sip
+ip_vs_nq               12516  0
+ip_vs_lc               12516  0
+ip_vs_lblcr            12922  0
+ip_vs_lblc             12819  0
+ip_vs_ftp              13079  0
+ip_vs_dh               12688  0
+ip_vs                 145458  24 ip_vs_dh,ip_vs_lc,ip_vs_nq,ip_vs_rr,ip_vs_sh,ip_vs_ftp,ip_vs_sed,ip_vs_wlc,ip_vs_wrr,ip_vs_pe_sip,ip_vs_lblcr,ip_vs_lblc
+nf_nat                 26583  3 ip_vs_ftp,nf_nat_ipv4,nf_nat_masquerade_ipv4
+nf_conntrack          139264  8 ip_vs,nf_nat,nf_nat_ipv4,xt_conntrack,nf_nat_masquerade_ipv4,nf_conntrack_netlink,nf_conntrack_sip,nf_conntrack_ipv4
+libcrc32c              12644  4 xfs,ip_vs,nf_nat,nf_conntrack
+```
+```buildoutcfg
+[root@hdss7-22 ~]# cat ipvs.sh
+#!/bin/bash
+ipvs_mods_dir="/usr/lib/modules/$(uname -r)/kernel/net/netfilter/ipvs"
+for i in $(ls $ipvs_mods_dir | grep -o "^[^.]*")
+do
+    /sbin/modinfo -F filename $i &>/dev/null
+    if [ $? -eq 0 ]; then
+        /sbin/modprobe $i
+    fi
+done
+```
+```buildoutcfg
+[root@hdss7-22 ~]# chmod +x ipvs.sh
+[root@hdss7-22 ~]# ./ipvs.sh
+```
+```buildoutcfg
+[root@hdss7-22 ~]# lsmod | grep ip_vs
+ip_vs_wrr              12697  0
+ip_vs_wlc              12519  0
+ip_vs_sh               12688  0
+ip_vs_sed              12519  0
+ip_vs_rr               12600  0
+ip_vs_pe_sip           12740  0
+nf_conntrack_sip       33780  1 ip_vs_pe_sip
+ip_vs_nq               12516  0
+ip_vs_lc               12516  0
+ip_vs_lblcr            12922  0
+ip_vs_lblc             12819  0
+ip_vs_ftp              13079  0
+ip_vs_dh               12688  0
+ip_vs                 145458  24 ip_vs_dh,ip_vs_lc,ip_vs_nq,ip_vs_rr,ip_vs_sh,ip_vs_ftp,ip_vs_sed,ip_vs_wlc,ip_vs_wrr,ip_vs_pe_sip,ip_vs_lblcr,ip_vs_lblc
+nf_nat                 26583  3 ip_vs_ftp,nf_nat_ipv4,nf_nat_masquerade_ipv4
+nf_conntrack          139264  8 ip_vs,nf_nat,nf_nat_ipv4,xt_conntrack,nf_nat_masquerade_ipv4,nf_conntrack_netlink,nf_conntrack_sip,nf_conntrack_ipv4
+libcrc32c              12644  4 xfs,ip_vs,nf_nat,nf_conntrack
+```
+```buildoutcfg
+[root@hdss7-21 ~]# cat /opt/kubernetes/server/bin/kube-proxy.sh
+#!/bin/sh
+./kube-proxy \
+  --cluster-cidr 172.7.0.0/16 \
+  --hostname-override hdss7-21.host.com \
+  --proxy-mode=ipvs \
+  --ipvs-scheduler=nq \
+  --kubeconfig ./conf/kube-proxy.kubeconfig
+
+[root@hdss7-21 ~]# chmod +x /opt/kubernetes/server/bin/kube-proxy.sh
+```
+```buildoutcfg
+[root@hdss7-22 ~]# cat /opt/kubernetes/server/bin/kube-proxy.sh
+#!/bin/sh
+./kube-proxy \
+  --cluster-cidr 172.7.0.0/16 \
+  --hostname-override hdss7-22.host.com \
+  --proxy-mode=ipvs \
+  --ipvs-scheduler=nq \
+  --kubeconfig ./conf/kube-proxy.kubeconfig
+  
+[root@hdss7-22 ~]# chmod +x /opt/kubernetes/server/bin/kube-proxy.sh
+```
+```buildoutcfg
+[root@hdss7-21 ~]# mkdir -p /data/logs/kubernetes/kube-proxy
+```
+```buildoutcfg
+[root@hdss7-22 ~]# mkdir -p /data/logs/kubernetes/kube-proxy
+```
+```buildoutcfg
+[root@hdss7-21 ~]# cat /etc/supervisord.d/kube-proxy.ini
+[program:kube-proxy-7-21]
+command=/opt/kubernetes/server/bin/kube-proxy.sh                     ; the program (relative uses PATH, can take args)
+numprocs=1                                                           ; number of processes copies to start (def 1)
+directory=/opt/kubernetes/server/bin                                 ; directory to cwd to before exec (def no cwd)
+autostart=true                                                       ; start at supervisord start (default: true)
+autorestart=true                                                     ; retstart at unexpected quit (default: true)
+startsecs=22                                                         ; number of secs prog must stay running (def. 1)
+startretries=3                                                       ; max # of serial start failures (default 3)
+exitcodes=0,2                                                        ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                                      ; signal used to kill process (default TERM)
+stopwaitsecs=10                                                      ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                            ; setuid to this UNIX account to run the program
+redirect_stderr=false                                                ; redirect proc stderr to stdout (default false)
+stdout_logfile=/data/logs/kubernetes/kube-proxy/proxy.stdout.log     ; stdout log path, NONE for none; default AUTO
+stdout_logfile_maxbytes=64MB                                         ; max # logfile bytes b4 rotation (default 50MB)
+stdout_logfile_backups=4                                             ; # of stdout logfile backups (default 10)
+stdout_capture_maxbytes=1MB                                          ; number of bytes in 'capturemode' (default 0)
+stdout_events_enabled=false                                          ; emit events on stdout writes (default false)
+stderr_logfile=/data/logs/kubernetes/kube-proxy/proxy.stderr.log     ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                         ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                             ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                          ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                          ; emit events on stderr writes (default false)
+```
+```buildoutcfg
+[root@hdss7-22 ~]# cat /etc/supervisord.d/kube-proxy.ini
+[program:kube-proxy-7-22]
+command=/opt/kubernetes/server/bin/kube-proxy.sh                     ; the program (relative uses PATH, can take args)
+numprocs=1                                                           ; number of processes copies to start (def 1)
+directory=/opt/kubernetes/server/bin                                 ; directory to cwd to before exec (def no cwd)
+autostart=true                                                       ; start at supervisord start (default: true)
+autorestart=true                                                     ; retstart at unexpected quit (default: true)
+startsecs=22                                                         ; number of secs prog must stay running (def. 1)
+startretries=3                                                       ; max # of serial start failures (default 3)
+exitcodes=0,2                                                        ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                                      ; signal used to kill process (default TERM)
+stopwaitsecs=10                                                      ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                            ; setuid to this UNIX account to run the program
+redirect_stderr=false                                                ; redirect proc stderr to stdout (default false)
+stdout_logfile=/data/logs/kubernetes/kube-proxy/proxy.stdout.log     ; stdout log path, NONE for none; default AUTO
+stdout_logfile_maxbytes=64MB                                         ; max # logfile bytes b4 rotation (default 50MB)
+stdout_logfile_backups=4                                             ; # of stdout logfile backups (default 10)
+stdout_capture_maxbytes=1MB                                          ; number of bytes in 'capturemode' (default 0)
+stdout_events_enabled=false                                          ; emit events on stdout writes (default false)
+stderr_logfile=/data/logs/kubernetes/kube-proxy/proxy.stderr.log     ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                         ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                             ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                          ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                          ; emit events on stderr writes (default false)
+```
+```buildoutcfg
+[root@hdss7-21 ~]# supervisorctl update
+kube-proxy-7-21: added process group
+[root@hdss7-21 ~]# supervisorctl status
+etcd-server-7-21                 RUNNING   pid 12063, uptime 1 day, 4:18:02
+kube-apiserver-7-21              RUNNING   pid 38810, uptime 1 day, 2:22:08
+kube-controller-manager-7-21     RUNNING   pid 68632, uptime 15:10:03
+kube-kubelet-7-21                RUNNING   pid 73965, uptime 14:34:18
+kube-proxy-7-21                  STARTING
+kube-scheduler-7-21              RUNNING   pid 68645, uptime 15:10:02
+```
+```buildoutcfg
+[root@hdss7-22 ~]# supervisorctl update
+kube-proxy-7-22: added process group
+
+[root@hdss7-22 ~]# supervisorctl status
+etcd-server-7-22                 RUNNING   pid 8461, uptime 1 day, 4:11:58
+kube-apiserver-7-22              RUNNING   pid 14815, uptime 1 day, 2:10:49
+kube-controller-manager-7-22     RUNNING   pid 59904, uptime 13:57:21
+kube-kubelet-7-22                RUNNING   pid 50018, uptime 14:36:41
+kube-proxy-7-22                  RUNNING   pid 23280, uptime 0:00:32
+kube-scheduler-7-22              RUNNING   pid 37889, uptime 16:40:07
+```
+```buildoutcfg
+[root@hdss7-21 ~]# cd /data/logs/kubernetes/kube-proxy/
+[root@hdss7-21 kube-proxy]# cat proxy.stderr.log
+W0213 15:31:28.251929   27588 server.go:216] WARNING: all flags other than --config, --write-config-to, and --cleanup are deprecated. Please begin using a config file ASAP.
+I0213 15:31:28.304760   27588 server_others.go:170] Using ipvs Proxier.
+I0213 15:31:28.307763   27588 server.go:534] Version: v1.15.2
+I0213 15:31:28.326183   27588 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_max' to 262144
+I0213 15:31:28.326317   27588 conntrack.go:52] Setting nf_conntrack_max to 262144
+I0213 15:31:28.350500   27588 conntrack.go:83] Setting conntrack hashsize to 65536
+I0213 15:31:28.368057   27588 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_tcp_timeout_established' to 86400
+I0213 15:31:28.368149   27588 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_tcp_timeout_close_wait' to 3600
+I0213 15:31:28.369362   27588 config.go:96] Starting endpoints config controller
+I0213 15:31:28.369439   27588 controller_utils.go:1029] Waiting for caches to sync for endpoints config controller
+I0213 15:31:28.369470   27588 config.go:187] Starting service config controller
+I0213 15:31:28.369495   27588 controller_utils.go:1029] Waiting for caches to sync for service config controller
+I0213 15:31:28.470317   27588 controller_utils.go:1036] Caches are synced for endpoints config controller
+I0213 15:31:28.470348   27588 controller_utils.go:1036] Caches are synced for service config controller
+```
+
+```buildoutcfg
+[root@hdss7-21 ~]# yum -y install ipvsadm
+[root@hdss7-21 ~]# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  192.168.0.1:443 nq
+  -> 10.4.7.21:6443               Masq    1      0          0
+  -> 10.4.7.22:6443               Masq    1      0          0
+[root@hdss7-21 ~]# kubectl get svc
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   192.168.0.1   <none>        443/TCP   26h
+```
+```buildoutcfg
+[root@hdss7-22 ~]# yum -y install ipvsadm
+[root@hdss7-22 ~]# ipvsadm -Ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  192.168.0.1:443 nq
+  -> 10.4.7.21:6443               Masq    1      0          0
+  -> 10.4.7.22:6443               Masq    1      0          0
+[root@hdss7-22 ~]# kubectl get svc
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   192.168.0.1   <none>        443/TCP   22h
+```
+***
+### *[Verify Cluster]*
+#### *[hdss7-21]*
+```buildoutcfg
+[root@hdss7-21 ~]# cat nginx-ds.yaml
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: nginx-ds
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  template:
+    metadata:
+      labels:
+        app: nginx-ds
+    spec:
+      containers:
+      - name: my-nginx
+        image: harbor.od.com/public/nginx:1.7.9
+        ports:
+        - containerPort: 80
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl create -f nginx-ds.yaml
+daemonset.extensions/nginx-ds created
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get pods
+NAME             READY   STATUS              RESTARTS   AGE
+nginx-ds-4s9z8   0/1     ContainerCreating   0          3h43m
+nginx-ds-pgmrh   0/1     ContainerCreating   0          3h43m
+[root@hdss7-21 ~]# kubectl get pods
+NAME             READY   STATUS    RESTARTS   AGE
+nginx-ds-4s9z8   1/1     Running   0          3h43m
+nginx-ds-pgmrh   1/1     Running   0          3h43m
+
+[root@hdss7-21 ~]# kubectl get pods -o wide
+NAME             READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-ds-4s9z8   1/1     Running   0          3h44m   172.7.22.2   hdss7-22.host.com   <none>           <none>
+nginx-ds-pgmrh   1/1     Running   0          3h44m   172.7.21.2   hdss7-21.host.com   <none>           <none>
+```
+```buildoutcfg
+[root@hdss7-21 ~]# curl 172.7.21.2
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+[root@hdss7-21 ~]#
+[root@hdss7-21 ~]#
+[root@hdss7-21 ~]#
+[root@hdss7-21 ~]# curl 172.7.22.2
+curl: (7) Failed connect to 172.7.22.2:80; Connection refused
+```
+```buildoutcfg
+[root@hdss7-22 ~]# kubectl get node
+NAME                STATUS   ROLES         AGE   VERSION
+hdss7-21.host.com   Ready    master,node   14h   v1.15.2
+hdss7-22.host.com   Ready    master,node   11h   v1.15.2
+[root@hdss7-22 ~]# kubectl get cs
+NAME                 STATUS    MESSAGE              ERROR
+controller-manager   Healthy   ok
+scheduler            Healthy   ok
+etcd-0               Healthy   {"health": "true"}
+etcd-1               Healthy   {"health": "true"}
+etcd-2               Healthy   {"health": "true"}
+[root@hdss7-22 ~]# kubectl get pods
+NAME             READY   STATUS    RESTARTS   AGE
+nginx-ds-4s9z8   1/1     Running   0          5m44s
+nginx-ds-pgmrh   1/1     Running   0          5m44s
+[root@hdss7-22 ~]# kubectl get pods -o wide
+NAME             READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-ds-4s9z8   1/1     Running   0          5m48s   172.7.22.2   hdss7-22.host.com   <none>           <none>
+nginx-ds-pgmrh   1/1     Running   0          5m48s   172.7.21.2   hdss7-21.host.com   <none>           <none>
+```
