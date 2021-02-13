@@ -15,5 +15,5 @@ Kubernetes is a portable, extensible, open-source platform for managing containe
 
 ***
 ```buildoutcfg
-Xilong Jin: xilongus@gmail.com
+                              Xilong Jin: xilongus@gmail.com
 ```

@@ -468,7 +468,6 @@ dea2e4984e29: Pushed
 ```
 ***
 ### Deploy etcd cluster
-
 |Hostname|Role|IP|
 |:-:|:-:|:-:|
 |hdss7-12.host.com|etcd lead|10.4.7.12|
@@ -1601,7 +1600,7 @@ vrrp_instance VI_1 {
 ### *[Controller-Manager Deployment]*
 
 |Hostname|Role|IP|
-|:-:|:-:|:-:|:-:|
+|:-:|:-:|:-:|
 |hdss7-21.host.com|controller-manager|10.4.7.21|
 |hdss7-22.host.com|controller-manager|10.4.7.22|
 
@@ -1857,7 +1856,7 @@ etcd-1               Healthy   {"health": "true"}
 ***
 ### *[kubelet deployment]*
 |Hostname|Role|IP|
-|:-:|:-:|:-:|:-:|
+|:-:|:-:|:-:|
 |hdss7-21.host.com|kubelet|10.4.7.21|
 |hdss7-22.host.com|kubelet|10.4.7.22|
 #### *[hdss7-200]*
@@ -2462,7 +2461,6 @@ I0213 15:31:28.369495   27588 controller_utils.go:1029] Waiting for caches to sy
 I0213 15:31:28.470317   27588 controller_utils.go:1036] Caches are synced for endpoints config controller
 I0213 15:31:28.470348   27588 controller_utils.go:1036] Caches are synced for service config controller
 ```
-
 ```buildoutcfg
 [root@hdss7-21 ~]# yum -y install ipvsadm
 [root@hdss7-21 ~]# ipvsadm -Ln
