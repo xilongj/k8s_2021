@@ -1,4 +1,4 @@
-## Build Environment
+### Build Environment
 ```angular2html
 [root@xlnx-lx01 ~]# cat /etc/redhat-release
 CentOS Linux release 7.9.2009 (Core)
@@ -12,7 +12,7 @@ Disabled
    Active: inactive (dead)
      Docs: man:firewalld(1)
 ```
-## Tools Installation
+### Tools Installation
 ```angular2html
 yum -y install epel-release
 yum -y install vim wget net-tools sysstat bind-utils htop bash-completion
@@ -39,8 +39,9 @@ GATEWAY=10.4.7.254
 DNS1=10.4.7.254
 ```
 ***
-## [hdss7-11]
+
 ### Install DNS Service
+#### [hdss7-11]
 ```angular2html
 [root@hdss7-11 ~]# yum -y install bind
 
@@ -190,7 +191,8 @@ Approximate round trip times in milli-seconds:
 C:\Users\Xilong Jin>
 ```
 ***
-## [HDSS7-200]
+
+#### [HDSS7-200]
 ```angular2html
 [root@hdss7-200 ~]# wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 -O /usr/bin/cfssl
 [root@hdss7-200 ~]# wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64 -O /usr/bin/cfssl-json
@@ -251,8 +253,9 @@ total 16
 -rw-r--r-- 1 root root 1346 Feb 11 11:24 ca.pem
 ```
 ***
-## [HDSS7-200], [HDSS7-21], [HDSS7-22]
+
 ### Docker Installation
+#### [HDSS7-200], [HDSS7-21], [HDSS7-22]
 ```angular2html
 [root@hdss7-200 ~]# curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 [root@hdss7-21 ~]# curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
