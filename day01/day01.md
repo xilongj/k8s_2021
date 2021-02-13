@@ -298,10 +298,8 @@ total 16
 }
 ```
 ***
-## *What is Harbor?*
-<p>
+### What is Harbor?
 Harbor is an open source registry that secures artifacts with policies and role-based access control, ensures images are scanned and free from vulnerabilities, and signs images as trusted. Harbor, a CNCF Graduated project, delivers compliance, performance, and interoperability to help you consistently and securely manage artifacts across cloud native compute platforms like Kubernetes and Docker.
-</p>
 
 #### Github: https://github.com/goharbor/harbor
 ```angular2html
@@ -386,7 +384,7 @@ Created symlink from /etc/systemd/system/multi-user.target.wants/nginx.service t
 [root@hdss7-200 ~]# curl harbor.od.com
 curl: (6) Could not resolve host: harbor.od.com; Unknown error
 ```
-#### *[hdss7-11]*
+#### [hdss7-11]
 ```angular2html
 [root@hdss7-11 ~]# cat /var/named/od.com.zone
 $ORIGIN od.com.
@@ -474,7 +472,7 @@ dea2e4984e29: Pushed
 |hdss7-21.host.com|etcd follow|10.4.7.21|
 |hdss7-22.host.com|etcd follow|10.4.7.22|
 
-#### *[hdss7-200]*
+#### [hdss7-200]
 ```angular2html
 [root@hdss7-200 ~]# cat /opt/certs/ca-config.json
 {
@@ -561,7 +559,7 @@ total 36
 -rw------- 1 root root 1675 Feb 11 21:18 etcd-peer-key.pem
 -rw-r--r-- 1 root root 1432 Feb 11 21:18 etcd-peer.pem
 ```
-#### *[hdss7-12]*
+#### [hdss7-12]
 ```angular2html
 [root@hdss7-12 ~]# mkdir -p /opt/src
 [root@hdss7-12 ~]# useradd -s /sbin/nologin -M etcd
@@ -689,7 +687,7 @@ tcp        0      0 10.4.7.12:2379          0.0.0.0:*               LISTEN      
 tcp        0      0 127.0.0.1:2379          0.0.0.0:*               LISTEN      16350/./etcd
 [root@hdss7-12 ~]#
 ```
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```angular2html
 [root@hdss7-21 ~]# mkdir /opt/src
 [root@hdss7-21 ~]# cd /opt/src
@@ -784,7 +782,7 @@ stderr_events_enabled=false                                     ; emit events on
 [root@hdss7-21 ~]# ls -l /opt/etcd/etcd-server-startup.sh
 -rwxr-xr-x 1 etcd etcd 971 Feb 12 06:30 /opt/etcd/etcd-server-startup.sh
 ```
-#### *[hdss7-22]*
+#### [hdss7-22]
 ```angular2html
 [root@hdss7-22 ~]# mkdir /opt/src
 [root@hdss7-22 ~]# scp hdss7-12:/opt/src/etcd-v3.1.20-linux-amd64.tar.gz /opt/src/
@@ -883,7 +881,7 @@ tcp        0      0 10.4.7.22:2379          0.0.0.0:*               LISTEN      
 tcp        0      0 127.0.0.1:2379          0.0.0.0:*               LISTEN      8462/./etcd
 tcp        0      0 10.4.7.22:2380          0.0.0.0:*               LISTEN      8462/./etcd
 ```
-#### *[Cluster Health Check]*
+### Cluster Health Check
 ```angular2html
 [root@hdss7-22 ~]# /opt/etcd/etcdctl cluster-health
 member 988139385f78284 is healthy: got healthy result from http://127.0.0.1:2379
@@ -909,13 +907,13 @@ f4a0cb0a765574a8: name=etcd-server-7-12 peerURLs=https://10.4.7.12:2380 clientUR
 988139385f78284: name=etcd-server-7-22 peerURLs=https://10.4.7.22:2380 clientURLs=http://127.0.0.1:2379,https://10.4.7.22:2379 isLeader=false
 5a0ef2a004fc4349: name=etcd-server-7-21 peerURLs=https://10.4.7.21:2380 clientURLs=http://127.0.0.1:2379,https://10.4.7.21:2379 isLeader=false
 ```
-### *[Kubernetes Deployment]*
+### Kubernetes Deployment
 ```angular2html
 # download k8s
 https://dl.k8s.io/v1.15.2/kubernetes-server-linux-amd64.tar.gz
 https://dl.k8s.io/v1.15.12/kubernetes-server-linux-amd64.tar.gz
 ```
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```angular2html
 [root@hdss7-21 ~]# cd /opt/src/ && wget https://dl.k8s.io/v1.15.2/kubernetes-server-linux-amd64.tar.gz
 [root@hdss7-21 src]# tar xvf kubernetes-server-linux-amd64.tar.gz -C /opt/
@@ -948,7 +946,7 @@ total 884636
 -rwxr-xr-x 1 root root  38786144 Aug  5  2019 kube-scheduler
 -rwxr-xr-x 1 root root   1648224 Aug  5  2019 mounter
 ```
-#### *[hdss7-200]*
+#### [hdss7-200]
 ```angular2html
 [root@hdss7-200 ~]# cat /opt/certs/client-csr.json
 {
@@ -1021,7 +1019,7 @@ total 884636
 -rw------- 1 root root 1679 Feb 12 08:30 apiserver-key.pem
 -rw-r--r-- 1 root root 1598 Feb 12 08:30 apiserver.pem
 ```
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```angular2html
 [root@hdss7-21 bin]# mkdir certs
 [root@hdss7-21 bin]# cd certs/
@@ -1190,7 +1188,7 @@ kube-apiserver-7-21              RUNNING   pid 38810, uptime 0:01:07
 tcp        0      0 127.0.0.1:8080          0.0.0.0:*               LISTEN      38811/./kube-apiser
 tcp6       0      0 :::6443                 :::*                    LISTEN      38811/./kube-apiser
 ```
-#### *[hdss7-22]*
+#### [hdss7-22]
 ```angular2html
 [root@hdss7-22 ~]# md5sum /opt/src/kubernetes-server-linux-amd64.tar.gz
 0e45e9e029566e1d63926797a45e6c94  /opt/src/kubernetes-server-linux-amd64.tar.gz
@@ -1393,7 +1391,7 @@ tcp        0      0 127.0.0.1:8080          0.0.0.0:*               LISTEN      
 tcp6       0      0 :::6443                 :::*                    LISTEN      14816/./kube-apiser
 ```
 ***
-#### *[hdss7-11]* *[hdss7-12]*
+#### [hdss7-11], [hdss7-12]
 ```angular2html
 [root@hdss7-11 ~]# yum -y install nginx
 [root@hdss7-11 ~]# rpm -qa nginx
@@ -1448,8 +1446,8 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@hdss7-12 ~]# systemctl start nginx
 [root@hdss7-12 ~]# systemctl enable nginx
 ```
-### *[Keepalived Installation]*
-#### *[hdss7-11]*
+### Keepalived Installation
+#### [hdss7-11]
 ```angular2html
 [root@hdss7-11 ~]# yum -y install keepalived
 [root@hdss7-11 ~]# rpm -qa keepalived
@@ -1472,7 +1470,7 @@ fi
 ```angular2html
 [root@hdss7-11 ~]# chmod +x /etc/keepalived/check_port.sh
 ```
-#### *[hdss7-12]*
+#### [hdss7-12]
 ```angular2html
 [root@hdss7-12 ~]# yum -y install keepalived
 [root@hdss7-12 ~]# rpm -qa keepalived
@@ -1495,7 +1493,7 @@ fi
 ```angular2html
 [root@hdss7-12 ~]# chmod +x /etc/keepalived/check_port.sh
 ```
-#### *[hdss7-11]*
+#### [hdss7-11]
 ```angular2html
 [root@hdss7-11 ~]# cat /etc/keepalived/keepalived.conf
 ! Configuration File for keepalived
@@ -1532,7 +1530,7 @@ vrrp_instance VI_1 {
     }
 }
 ```
-#### *[hdss7-12]*
+#### [hdss7-12]
 ```angular2html
 [root@hdss7-12 ~]# cat /etc/keepalived/keepalived.conf
 ! Configuration File for keepalived
@@ -1597,14 +1595,14 @@ vrrp_instance VI_1 {
        valid_lft forever preferred_lft forever
 ```
 ***
-### *[Controller-Manager Deployment]*
+### Controller-Manager Deployment
 
 |Hostname|Role|IP|
 |:-:|:-:|:-:|
 |hdss7-21.host.com|controller-manager|10.4.7.21|
 |hdss7-22.host.com|controller-manager|10.4.7.22|
 
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```angular2html
 [root@hdss7-21 bin]# cat /opt/kubernetes/server/bin/kube-controller-manager.sh
 #!/bin/sh
@@ -1656,7 +1654,7 @@ etcd-server-7-21                 RUNNING   pid 12063, uptime 8:52:30
 kube-apiserver-7-21              RUNNING   pid 38810, uptime 6:56:36
 kube-controller-manager-7-21     RUNNING   pid 47318, uptime 0:01:01
 ```
-#### *[hdss7-22]*
+#### [hdss7-22]
 ```angular2html
 [root@hdss7-22 ~]# cat /opt/kubernetes/server/bin/kube-controller-manager.sh
 #!/bin/sh
@@ -1723,12 +1721,12 @@ tcp6       0      0 :::10252                :::*                    LISTEN      
 [root@hdss7-22 kube-controller-manager]# supervisorctl start kube-controller-manager-7-22
 ```
 ***
-### *[kube-scheduler Deployment]*
+### kube-scheduler Deployment
 |Hostname|Role|IP|
 |:-:|:-:|:-:|:-:|
 |hdss7-21.host.com|kube-scheduler|10.4.7.21|
 |hdss7-22.host.com|kube-scheduler|10.4.7.22|
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```angular2html
 [root@hdss7-21 ~]# cat /opt/kubernetes/server/bin/kube-scheduler.sh
 #!/bin/sh
@@ -1778,7 +1776,7 @@ kube-apiserver-7-21              RUNNING   pid 38810, uptime 9:42:26
 kube-controller-manager-7-21     RUNNING   pid 47318, uptime 2:46:51
 kube-scheduler-7-21              RUNNING   pid 51411, uptime 0:00:23
 ```
-#### *[hdss7-22]*
+#### [hdss7-22]
 ```angular2html
 [root@hdss7-22 ~]# cat /opt/kubernetes/server/bin/kube-scheduler.sh
 #!/bin/sh
@@ -1854,12 +1852,12 @@ etcd-0               Healthy   {"health": "true"}
 etcd-1               Healthy   {"health": "true"}
 ```
 ***
-### *[kubelet deployment]*
+### kubelet deployment
 |Hostname|Role|IP|
 |:-:|:-:|:-:|
 |hdss7-21.host.com|kubelet|10.4.7.21|
 |hdss7-22.host.com|kubelet|10.4.7.22|
-#### *[hdss7-200]*
+#### [hdss7-200]
 ```angular2html
 [root@hdss7-200 ~]# cd /opt/certs/
 [root@hdss7-200 certs]# cat kubelet-csr.json
@@ -1911,7 +1909,7 @@ specifically, section 10.2.3 ("Information Requirements").
 -rw------- 1 root root 1675 Feb 12 19:41 kubelet-key.pem
 -rw-r--r-- 1 root root 1472 Feb 12 19:41 kubelet.pem
 ```
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```angular2html
 [root@hdss7-21 ~]# cd /opt/kubernetes/server/bin/certs/
 [root@hdss7-21 certs]# scp hdss7-200:/opt/certs/kubelet.pem .
@@ -1974,7 +1972,7 @@ clusterrolebinding.rbac.authorization.k8s.io/k8s-node created
 NAME       AGE
 k8s-node   85s
 ```
-#### *[hdss7-22]*
+#### [hdss7-22]
 ```angular2html
 [root@hdss7-22 ~]# cd /opt/kubernetes/server/bin/certs/
 [root@hdss7-22 certs]# scp hdss7-200:/opt/certs/kubelet.pem .
@@ -1988,7 +1986,7 @@ total 12
 -rw-r--r-- 1 root root 2223 Feb 12 09:39 audit.yaml
 -rw------- 1 root root 6207 Feb 12 20:28 kubelet.kubeconfig
 ```
-#### *[hdss7-200]*
+#### [hdss7-200]
 ```angular2html
 [root@hdss7-200 ~]# docker pull kubernetes/pause
 [root@hdss7-200 ~]# docker tag f9d5de079539 harbor.od.com/public/pause:latest
@@ -2005,7 +2003,7 @@ The push refers to repository [harbor.od.com/public/pause]
 e16a89738269: Pushed
 latest: digest: sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935ad5b105 size: 938
 ```
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```angular2html
 [root@hdss7-21 ~]# cat /opt/kubernetes/server/bin/kubelet.sh
 #!/bin/sh
@@ -2032,7 +2030,7 @@ latest: digest: sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935
 [root@hdss7-21 ~]# chmod +x /opt/kubernetes/server/bin/kubelet.sh
 [root@hdss7-21 ~]# mkdir -p /data/logs/kubernetes/kube-kubelet /data/kubelet
 ```
-#### *[hdss7-22]*
+#### [hdss7-22]
 ```angular2html
 [root@hdss7-22 ~]# cat /opt/kubernetes/server/bin/kubelet.sh
 #!/bin/sh
@@ -2059,7 +2057,7 @@ latest: digest: sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935
 [root@hdss7-22 ~]# chmod +x /opt/kubernetes/server/bin/kubelet.sh
 [root@hdss7-22 ~]# mkdir -p /data/logs/kubernetes/kube-kubelet /data/kubelet
 ```
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```angular2html
 [root@hdss7-21 ~]# cat /etc/supervisord.d/kube-kubelet.ini
 [program:kube-kubelet-7-21]
@@ -2173,13 +2171,13 @@ hdss7-21.host.com   Ready    master,node   3h50m   v1.15.2
 hdss7-22.host.com   Ready    master,node   3m41s   v1.15.2
 ```
 ***
-### *[kube-proxy deployment]*
+### kube-proxy deployment
 |Hostname|Role|IP|
 |:-:|:-:|:-:|:-:|
 |hdss7-21.host.com|kube-proxy|10.4.7.21|
 |hdss7-22.host.com|kube-proxy|10.4.7.22|
 
-#### *[hdss7-200]*
+#### [hdss7-200]
 ```buildoutcfg
 [root@hdss7-200 ~]# cd /opt/certs/
 [root@hdss7-200 certs]# cat kube-proxy-csr.json
@@ -2210,19 +2208,19 @@ hdss7-22.host.com   Ready    master,node   3m41s   v1.15.2
 -rw-r--r-- 1 root root 1383 Feb 13 08:52 kube-proxy-client.pem
 -rw-r--r-- 1 root root  270 Feb 13 08:47 kube-proxy-csr.json
 ```
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```buildoutcfg
 [root@hdss7-21 ~]# cd /opt/kubernetes/server/bin/certs/
 [root@hdss7-21 certs]# scp hdss7-200:/opt/certs/kube-proxy-client.pem .
 [root@hdss7-21 certs]# scp hdss7-200:/opt/certs/kube-proxy-client-key.pem .
 ```
-#### *[hdss7-22]*
+#### [hdss7-22]
 ```buildoutcfg
 [root@hdss7-22 ~]# cd /opt/kubernetes/server/bin/certs/
 [root@hdss7-22 certs]# scp hdss7-200:/opt/certs/kube-proxy-client.pem .
 [root@hdss7-22 certs]# scp hdss7-200:/opt/certs/kube-proxy-client-key.pem .
 ```
-#### *[hdss7-21]*
+#### [hdss7-21]
 ```buildoutcfg
 # set-cluster
 [root@hdss7-21 ~]# cd /opt/kubernetes/server/bin/conf/
@@ -2265,7 +2263,7 @@ total 20
 -rw------- 1 root root 6207 Feb 12 20:28 kubelet.kubeconfig
 -rw------- 1 root root 6227 Feb 13 09:46 kube-proxy.kubeconfig
 ```
-#### Enable ipvs module
+### Enable ipvs module
 ```buildoutcfg
 [root@hdss7-21 ~]# cat ipvs.sh
 #!/bin/bash
@@ -2488,8 +2486,8 @@ NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
 kubernetes   ClusterIP   192.168.0.1   <none>        443/TCP   22h
 ```
 ***
-### *[Verify Cluster]*
-#### *[hdss7-21]*
+### Verify Cluster
+#### [hdss7-21]
 ```buildoutcfg
 [root@hdss7-21 ~]# cat nginx-ds.yaml
 apiVersion: extensions/v1beta1
