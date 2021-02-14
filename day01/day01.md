@@ -23,7 +23,7 @@ yum -y install vim wget net-tools sysstat bind-utils htop bash-completion
 |10.4.7.12|hdss7-12.host.com|etcd lead|xxx|
 |10.4.7.21|hdss7-21.host.com|etcd follow|xxx|
 |10.4.7.22|hdss7-22.host.com|etcd follow|xxx|
-|10.4.7.200|hdss7-200.host.com|xxx|xxx|
+|10.4.7.200|hdss7-200.host.com|Root|xxx|
 
 ```angular2html
 [root@localhost ~]# hostnamectl set-hostname hdss7-200.host.com
