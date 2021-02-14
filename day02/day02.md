@@ -588,6 +588,7 @@ Events:            <none>
        valid_lft forever preferred_lft forever
 ```
 ```buildoutcfg
+# cannot expose DaemonSet
 [root@hdss7-21 ~]# kubectl get daemonset -n default
 NAME       DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
 nginx-ds   2         2         2       2            2           <none>          25h
