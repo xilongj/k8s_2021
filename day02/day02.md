@@ -587,7 +587,15 @@ Events:            <none>
     inet6 fe80::c405:23ff:fe7a:8d87/64 scope link
        valid_lft forever preferred_lft forever
 ```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get daemonset -n default
+NAME       DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+nginx-ds   2         2         2       2            2           <none>          25h
+[root@hdss7-21 ~]# kubectl expose daemonset nginx-ds --port=443
+error: cannot expose a DaemonSet.extensions
+```
 ***
+
 
 
 
