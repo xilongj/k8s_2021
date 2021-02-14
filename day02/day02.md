@@ -596,6 +596,105 @@ nginx-ds   2         2         2       2            2           <none>          
 error: cannot expose a DaemonSet.extensions
 ```
 ***
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-dp-656b87bf6d-65rzf   1/1     Running   0          4h22m   172.7.22.3   hdss7-22.host.com   <none>           <none>
+
+[root@hdss7-21 ~]# kubectl get pods nginx-dp-656b87bf6d-65rzf -o yaml -n kube-public
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2021-02-14T08:15:36Z"
+  generateName: nginx-dp-656b87bf6d-
+  labels:
+    app: nginx-dp
+    pod-template-hash: 656b87bf6d
+  name: nginx-dp-656b87bf6d-65rzf
+  namespace: kube-public
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: nginx-dp-656b87bf6d
+    uid: 42c27651-014f-44ae-b05a-c6057fe020d1
+  resourceVersion: "166073"
+  selfLink: /api/v1/namespaces/kube-public/pods/nginx-dp-656b87bf6d-65rzf
+  uid: 161ef1ae-fb45-4685-bf82-890e002dc071
+spec:
+  containers:
+  - image: harbor.od.com/public/nginx:1.7.9
+    imagePullPolicy: IfNotPresent
+    name: nginx
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-h8qnx
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: hdss7-22.host.com
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: default-token-h8qnx
+    secret:
+      defaultMode: 420
+      secretName: default-token-h8qnx
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2021-02-14T08:15:36Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2021-02-14T08:15:37Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2021-02-14T08:15:37Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2021-02-14T08:15:36Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://e072ae42c2635fbf7de6dd2062091f1215040ba244413b48d6f6dd169b871075
+    image: harbor.od.com/public/nginx:1.7.9
+    imageID: docker-pullable://harbor.od.com/public/nginx@sha256:b1f5935eb2e9e2ae89c0b3e2e148c19068d91ca502e857052f14db230443e4c2
+    lastState: {}
+    name: nginx
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: "2021-02-14T08:15:37Z"
+  hostIP: 10.4.7.22
+  phase: Running
+  podIP: 172.7.22.3
+  qosClass: BestEffort
+  startTime: "2021-02-14T08:15:36Z"
+```
+
+
 
 
 
