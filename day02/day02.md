@@ -69,6 +69,8 @@ Usage:
 Use "kubectl <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).
 ```
+***
+### Common Commands
 ```buildoutcfg
     1  kubectl get namespace
     2  kubectl get ns
@@ -140,7 +142,7 @@ etcd-1               Healthy   {"health": "true"}
 etcd-0               Healthy   {"health": "true"}
 etcd-2               Healthy   {"health": "true"}
 ```
-#### create namespace
+#### Create Namespace
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl create namespace app
 namespace/app created
@@ -152,7 +154,7 @@ kube-node-lease   Active   2d
 kube-public       Active   2d
 kube-system       Active   2d
 ```
-#### delete namespace
+#### Delete Namespace
 ```buildoutcfg
 [root@hdss7-22 ~]# kubectl delete ns app
 namespace "app" deleted
@@ -163,7 +165,7 @@ kube-node-lease   Active   2d
 kube-public       Active   2d
 kube-system       Active   2d
 ```
-#### create deploy(ment)
+#### Create Deploy(ment)
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl create deployment nginx-dp --image=harbor.od.com/public/nginx:1.7.9 -n kube-public
 deployment.apps/nginx-dp created
@@ -220,7 +222,7 @@ Events:
   ----    ------             ----   ----                   -------
   Normal  ScalingReplicaSet  8m28s  deployment-controller  Scaled up replica set nginx-dp-656b87bf6d to 1
 ```
-#### enter pod resource
+#### Enter pod Resource
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl get pods -n kube-public
 NAME                        READY   STATUS    RESTARTS   AGE
@@ -242,7 +244,7 @@ root@nginx-dp-656b87bf6d-sgjjd:/# ip a s
 8e5868a2e927   84581e99d807                        "nginx -g 'daemon of…"   26 minutes ago   Up 26 minutes             k8s_nginx_nginx-dp-656b87bf6d-sgjjd_kube-public_2cc9d556-045a-4dcf-8eb5-e1f51ce88a19_0
 310d4218461a   harbor.od.com/public/pause:latest   "/pause"                 26 minutes ago   Up 26 minutes             k8s_POD_nginx-dp-656b87bf6d-sgjjd_kube-public_2cc9d556-045a-4dcf-8eb5-e1f51ce88a19_0
 ```
-#### delete pod resource
+#### Delete pod Resource
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl get pods -n kube-public
 NAME                        READY   STATUS    RESTARTS   AGE
@@ -319,7 +321,7 @@ pod "nginx-dp-656b87bf6d-qw5f5" force deleted
 NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-dp-656b87bf6d-8cdzw   1/1     Running   0          4s    172.7.21.3   hdss7-21.host.com   <none>           <none>
 ```
-#### delete deployment
+#### Delete Deployment
 ```buildoutcfg
 [root@hdss7-22 ~]# kubectl delete deployment nginx-dp -n kube-public
 deployment.extensions "nginx-dp" deleted
@@ -503,7 +505,7 @@ TCP  192.168.98.18:80 nq
   -> 172.7.22.3:80                Masq    1      0          0
   -> 172.7.22.4:80                Masq    1      0          0
 ```
-#### check service
+#### Check Service
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl describe svc nginx-dp -n kube-public
 Name:              nginx-dp
@@ -585,6 +587,7 @@ Events:            <none>
     inet6 fe80::c405:23ff:fe7a:8d87/64 scope link
        valid_lft forever preferred_lft forever
 ```
+***
 
 
 
