@@ -693,13 +693,199 @@ status:
   qosClass: BestEffort
   startTime: "2021-02-14T08:15:36Z"
 ```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get service -n kube-public
+NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+nginx-dp   ClusterIP   192.168.98.18   <none>        80/TCP    4h24m
+web-dp     ClusterIP   192.168.62.62   <none>        80/TCP    3h59m
+[root@hdss7-21 ~]# kubectl get svc -n kube-public
+NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+nginx-dp   ClusterIP   192.168.98.18   <none>        80/TCP    4h24m
+web-dp     ClusterIP   192.168.62.62   <none>        80/TCP    3h59m
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get svc nginx-dp -o yaml -n kube-public
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2021-02-14T08:18:42Z"
+  labels:
+    app: nginx-dp
+  name: nginx-dp
+  namespace: kube-public
+  resourceVersion: "166341"
+  selfLink: /api/v1/namespaces/kube-public/services/nginx-dp
+  uid: c96223b5-928f-45f8-b0de-b8a41895ff8e
+spec:
+  clusterIP: 192.168.98.18
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx-dp
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
 
+[root@hdss7-21 ~]# kubectl get svc web-dp -o yaml -n kube-public
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2021-02-14T08:43:35Z"
+  labels:
+    app: web-dp
+  name: web-dp
+  namespace: kube-public
+  resourceVersion: "168636"
+  selfLink: /api/v1/namespaces/kube-public/services/web-dp
+  uid: c85ddc5e-b291-410c-bfaa-007f119c8f9b
+spec:
+  clusterIP: 192.168.62.62
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: web-dp
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl explain service.metadata
+```
+```buildoutcfg
+[root@hdss7-21 ~]# cat nginx-ds-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ds
+  labels:
+    app: nginx-ds
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx-ds
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    
+[root@hdss7-21 ~]# kubectl create -f nginx-ds-svc.yaml
+service/nginx-ds created
 
+[root@hdss7-21 ~]# kubectl get svc -n default
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   192.168.0.1     <none>        443/TCP   2d10h
+nginx-ds     ClusterIP   192.168.38.70   <none>        80/TCP    25s
 
+[root@hdss7-21 ~]# kubectl get svc nginx-ds -o yaml
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2021-02-14T15:48:27Z"
+  labels:
+    app: nginx-ds
+  name: nginx-ds
+  namespace: default
+  resourceVersion: "205156"
+  selfLink: /api/v1/namespaces/default/services/nginx-ds
+  uid: 3ff232b6-2eb0-4f35-8424-51b54a6a45f9
+spec:
+  clusterIP: 192.168.38.70
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx-ds
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+```
+```buildoutcfg
+# offline edit (recommend)
+[root@hdss7-21 ~]# kubectl get svc -n default
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   192.168.0.1     <none>        443/TCP   2d10h
+nginx-ds     ClusterIP   192.168.38.70   <none>        80/TCP    5m19s
 
+[root@hdss7-21 ~]# kubectl apply -f nginx-ds-svc.yaml
+Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
+service/nginx-ds configured
 
+[root@hdss7-21 ~]# kubectl delete svc nginx-ds
+service "nginx-ds" deleted
+
+[root@hdss7-21 ~]# kubectl apply -f nginx-ds-svc.yaml
+service/nginx-ds created
+
+[root@hdss7-21 ~]# kubectl get svc -n default
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   192.168.0.1      <none>        443/TCP   2d10h
+nginx-ds     ClusterIP   192.168.124.67   <none>        80/TCP    4s
+```
+```buildoutcfg
+# online edit
+[root@hdss7-21 ~]# kubectl get svc -n default
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   192.168.0.1      <none>        443/TCP   2d10h
+nginx-ds     ClusterIP   192.168.124.67   <none>        80/TCP    2m32s
+[root@hdss7-21 ~]# kubectl edit svc nginx-ds
+service/nginx-ds edited
+[root@hdss7-21 ~]# kubectl get svc -n default
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   192.168.0.1      <none>        443/TCP   2d10h
+nginx-ds     ClusterIP   192.168.124.67   <none>        180/TCP   2m49s
+```
+#### Delete Service
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl delete svc nginx-ds
+service "nginx-ds" deleted
+
+[root@hdss7-21 ~]# kubectl get svc
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   192.168.0.1   <none>        443/TCP   2d11h
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get svc -n kube-public
+NAME     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+web-dp   ClusterIP   192.168.62.62   <none>        80/TCP    7h28m
+
+[root@hdss7-21 ~]# kubectl delete svc web-dp -n kube-public
+service "web-dp" deleted
+
+[root@hdss7-21 ~]# kubectl get svc -n kube-public
+No resources found.
+```
+```buildoutcfg
+# delete running pods
+[root@hdss7-21 ~]# kubectl get pods -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE
+nginx-dp-656b87bf6d-65rzf   1/1     Running   0          8h
+[root@hdss7-21 ~]# kubectl delete pod nginx-dp-656b87bf6d-65rzf -n kube-public
+pod "nginx-dp-656b87bf6d-65rzf" deleted
+[root@hdss7-21 ~]# kubectl get pods -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE
+nginx-dp-656b87bf6d-s84bf   1/1     Running   0          13s
+
+[root@hdss7-21 ~]# kubectl get deployment -n kube-public
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+nginx-dp   1/1     1            1           8h
+[root@hdss7-21 ~]# kubectl delete deployment nginx-dp -n kube-public
+deployment.extensions "nginx-dp" deleted
+[root@hdss7-21 ~]# kubectl get pods -n kube-public
+No resources found.
+```
+***
 
 ## flannel
+
 
 ## coredns
 
