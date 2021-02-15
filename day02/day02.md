@@ -1332,7 +1332,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 172.7.21.0      10.4.7.21       255.255.255.0   UG    0      0        0 eth0
 172.7.22.0      0.0.0.0         255.255.255.0   U     0      0        0 docker0
 ```
-[Flannel Model](https://github.com/xilongj/k8s_2021/blob/main/images/img.PNG)
+[Flannel Model](https://github.com/xilongj/k8s_2021/raw/main/images/img.PNG)
 
 
 
