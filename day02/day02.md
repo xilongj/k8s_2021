@@ -1411,14 +1411,10 @@ CoreDNS integrates with Kubernetes via the Kubernetes plugin, or with etcd with 
 
 
 
-
-
-
-
 ## traefik
 
 ## dashboard
 
 ## heapster
 
-## k8s maintenance  
+## k8s maintenance
