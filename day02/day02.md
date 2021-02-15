@@ -888,8 +888,9 @@ No resources found.
 ### CNI - the Container Network Interface
 #### What is CNI?
 CNI (Container Network Interface), a Cloud Native Computing Foundation project, consists of a specification and libraries for writing plugins to configure network interfaces in Linux containers, along with a number of supported plugins. CNI concerns itself only with network connectivity of containers and removing allocated resources when the container is deleted. Because of this focus, CNI has a wide range of support and the specification is simple to implement.
-#### Github: https://github.com/containernetworking/cni
-#### [Understanding CNI (Container Networking Interface)](https://www.dasblinkenlichten.com/understanding-cni-container-networking-interface/)
+  * [Container Networking on Github](https://github.com/containernetworking/cni)
+  * [Understanding CNI (Container Networking Interface)](https://www.dasblinkenlichten.com/understanding-cni-container-networking-interface/)
+***
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl create deployment nginx-ds --image=harbor.od.com/public/nginx:1.7.9 -n kube-public
 deployment.apps/nginx-ds created
