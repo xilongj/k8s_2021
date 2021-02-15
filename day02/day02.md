@@ -1090,7 +1090,7 @@ drwxr-xr-x 2 root root       60 Feb 15 11:17 certs
 ```buildoutcfg
 [root@hdss7-21 flannel]# mkdir -p /data/logs/flanneld
 ```
-#### Operating etcd -add host-gw
+#### ADD host-gw 
 ```buildoutcfg
 [root@hdss7-21 ~]# cd /opt/etcd
 [root@hdss7-21 etcd]# ./etcdctl member list
@@ -1304,7 +1304,7 @@ PING 172.7.22.2 (172.7.22.2) 56(84) bytes of data.
 --- 172.7.22.2 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 0.039/0.039/0.039/0.000 ms
-[root@hdss7-22 ~]#
+
 [root@hdss7-22 ~]# ping -c 1 172.7.21.2
 PING 172.7.21.2 (172.7.21.2) 56(84) bytes of data.
 64 bytes from 172.7.21.2: icmp_seq=1 ttl=63 time=0.253 ms
