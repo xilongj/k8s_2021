@@ -1353,8 +1353,16 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 # flannel Directrouting
 [root@hdss7-21 etcd]# ./etcdctl set /coreos.com/network/config '{"Network": "172.7.0.0/16", "Backend": {"Type": "VxLAN", "Directrouting": "true"}}'
 ```
+***
 
 ## coredns
+### CoreDNS: DNS and Service Discovery
+#### What is CoreDNS?
+CoreDNS is a DNS server. It is written in Go. It can be used in a multitude of environments because of its flexibility. CoreDNS is licensed under the Apache License Version 2, and completely open source.
+#### CoreDNS Plugins
+CoreDNS chains plugins. Each plugin performs a DNS function, such as Kubernetes service discovery, prometheus metrics, rewriting queries, or just serving from zone files. And many more.
+#### Service Discovery
+CoreDNS integrates with Kubernetes via the Kubernetes plugin, or with etcd with the etcd plugin. All major cloud providers have plugins too: Microsoft Azure DNS, CGP Cloud DNS and AWS Route53.
 
 ## traefik
 
