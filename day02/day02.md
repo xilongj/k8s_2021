@@ -1090,7 +1090,7 @@ drwxr-xr-x 2 root root       60 Feb 15 11:17 certs
 ```buildoutcfg
 [root@hdss7-21 flannel]# mkdir -p /data/logs/flanneld
 ```
-#### Add host-gw
+#### Operating etcd -add host-gw
 ```buildoutcfg
 [root@hdss7-21 ~]# cd /opt/etcd
 [root@hdss7-21 etcd]# ./etcdctl member list
@@ -1112,11 +1112,11 @@ numprocs=1                                                   ; number of process
 directory=/opt/flannel                                       ; directory to cwd to before exec (def no cwd)
 autostart=true                                               ; start at supervisord start (default: true)
 autorestart=true                                             ; retstart at unexpected quit (default: true)
-startsecs=30                           ; number of secs prog must stay running (def. 1)
-startretries=3                       ; max # of serial start failures (default 3)
-exitcodes=0,2                        ; 'expected' exit codes for process (default 0,2)
-stopsignal=QUIT                      ; signal used to kill process (default TERM)
-stopwaitsecs=10                      ; max num secs to wait b4 SIGKILL (default 10)
+startsecs=30                                                 ; number of secs prog must stay running (def. 1)
+startretries=3                                               ; max # of serial start failures (default 3)
+exitcodes=0,2                                                ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                              ; signal used to kill process (default TERM)
+stopwaitsecs=10                                              ; max num secs to wait b4 SIGKILL (default 10)
 user=root                                                    ; setuid to this UNIX account to run the program
 redirect_stderr=true                                         ; redirect proc stderr to stdout (default false)
 stderr_logfile=/data/logs/flanneld/flanneld.stdout.log       ; stderr log path, NONE for none; default AUTO
@@ -1162,10 +1162,157 @@ kube-proxy-7-21                  RUNNING   pid 27587, uptime 1 day, 20:20:14
 kube-scheduler-7-21              RUNNING   pid 37007, uptime 1 day, 20:02:32
 ```
 #### [hdss7-22]
+```buildoutcfg
+# download flannel
+[root@hdss7-22 ~]# cd /opt/src/
+[root@hdss7-22 src]# wget wget https://github.com/coreos/flannel/releases/download/v0.12.0/flannel-v0.12.0-linux-amd64.tar.gz
 
+# decompressing files
+[root@hdss7-22 src]# mkdir -p /opt/flannel-v0.12.0
+[root@hdss7-22 src]# tar xvf flannel-v0.12.0-linux-amd64.tar.gz -C /opt/flannel-v0.12.0/
+flanneld
+mk-docker-opts.sh
+README.md
 
+# create soft link
+[root@hdss7-22 src]# ln -s /opt/flannel-v0.12.0/ /opt/flannel
+```
+```buildoutcfg
+[root@hdss7-22 ~]# cd /opt/flannel
+[root@hdss7-22 flannel]# mkdir certs
+[root@hdss7-22 flannel]# cd certs/
+[root@hdss7-22 certs]# scp hdss7-200:/opt/certs/ca.pem .
+[root@hdss7-22 certs]# scp hdss7-200:/opt/certs/client.pem .
+[root@hdss7-22 certs]# scp hdss7-200:/opt/certs/client-key.pem .
+```
+```buildoutcfg
+[root@hdss7-22 ~]# tree -L 2 /opt/
+/opt/
+├── containerd
+│   ├── bin
+│   └── lib
+├── etcd -> /opt/etcd-v3.1.20/
+├── etcd-v3.1.20
+│   ├── certs
+│   ├── Documentation
+│   ├── etcd
+│   ├── etcdctl
+│   ├── etcd-server-startup.sh
+│   ├── README-etcdctl.md
+│   ├── README.md
+│   └── READMEv2-etcdctl.md
+├── flannel -> /opt/flannel-v0.12.0/
+├── flannel-v0.12.0
+│   ├── certs
+│   ├── flanneld
+│   ├── mk-docker-opts.sh
+│   └── README.md
+├── kubernetes -> /opt/kubernetes-v1.15.2/
+├── kubernetes-v1.15.2
+│   ├── addons
+│   ├── LICENSES
+│   └── server
+└── src
+    ├── etcd-v3.1.20-linux-amd64.tar.gz
+    ├── flannel-v0.12.0-linux-amd64.tar.gz
+    └── kubernetes-server-linux-amd64.tar.gz
 
+15 directories, 13 files
+```
+```buildoutcfg
+[root@hdss7-22 ~]# cd /opt/flannel
+[root@hdss7-22 flannel]# vim subnet.env
 
+[root@hdss7-22 flannel]# cat subnet.env
+FLANNEL_NETWORK=172.7.0.0/16
+FLANNEL_SUBNET=172.7.22.1/24
+FLANNEL_MTU=1500
+FLANNEL_IPMASQ=false
+```
+```buildoutcfg
+[root@hdss7-22 flannel]# cat flanneld.sh
+#!/bin/sh
+./flanneld \
+  --public-ip=10.4.7.22 \
+  --etcd-endpoints=https://10.4.7.12:2379,https://10.4.7.21:2379,https://10.4.7.22:2379 \
+  --etcd-keyfile=./certs/client-key.pem \
+  --etcd-certfile=./certs/client.pem \
+  --etcd-cafile=./certs/ca.pem \
+  --iface=eth0 \
+  --subnet-file=./subnet.env \
+  --healthz-port=2401
+```
+```buildoutcfg
+[root@hdss7-22 flannel]# chmod +x flanneld.sh
+[root@hdss7-22 flannel]# ls -l
+total 34448
+drwxr-xr-x 2 root root       60 Feb 15 11:17 certs
+-rwxr-xr-x 1 root root 35253112 Mar 13  2020 flanneld
+-rwxr-xr-x 1 root root      323 Feb 15 11:26 flanneld.sh
+-rwxr-xr-x 1 root root     2139 May 29  2019 mk-docker-opts.sh
+-rw-r--r-- 1 root root     4300 May 29  2019 README.md
+-rw-r--r-- 1 root root       96 Feb 15 11:23 subnet.env
+```
+```buildoutcfg
+[root@hdss7-22 flannel]# mkdir -p /data/logs/flanneld
+```
+```buildoutcfg
+[root@hdss7-22 ~]# cat /etc/supervisord.d/flanneld.ini
+[program:flanneld-7-22]
+command=/opt/flannel/flanneld.sh                             ; the program (relative uses PATH, can take args)
+numprocs=1                                                   ; number of processes copies to start (def 1)
+directory=/opt/flannel                                       ; directory to cwd to before exec (def no cwd)
+autostart=true                                               ; start at supervisord start (default: true)
+autorestart=true                                             ; retstart at unexpected quit (default: true)
+startsecs=30                                                 ; number of secs prog must stay running (def. 1)
+startretries=3                                               ; max # of serial start failures (default 3)
+exitcodes=0,2                                                ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                                              ; signal used to kill process (default TERM)
+stopwaitsecs=10                                              ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                    ; setuid to this UNIX account to run the program
+redirect_stderr=true                                         ; redirect proc stderr to stdout (default false)
+stderr_logfile=/data/logs/flanneld/flanneld.stdout.log       ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                 ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                     ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                  ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                  ; emit events on stderr writes (default false)
+```
+```buildoutcfg
+[root@hdss7-22 ~]# supervisorctl update
+flanneld-7-22: added process group
+
+[root@hdss7-22 ~]# supervisorctl status
+etcd-server-7-22                 RUNNING   pid 8461, uptime 3 days, 5:32:52
+flanneld-7-22                    STARTING
+kube-apiserver-7-22              RUNNING   pid 14815, uptime 3 days, 3:31:43
+kube-controller-manager-7-22     RUNNING   pid 35002, uptime 2 days, 0:59:34
+kube-kubelet-7-22                RUNNING   pid 50018, uptime 2 days, 15:57:35
+kube-proxy-7-22                  RUNNING   pid 23280, uptime 2 days, 1:21:26
+kube-scheduler-7-22              RUNNING   pid 34991, uptime 2 days, 0:59:34
+```
+#### Verify Flannel Network
+```buildoutcfg
+[root@hdss7-22 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE    IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-ds-7bc4d86467-cd8wz   1/1     Running   0          3h3m   172.7.21.2   hdss7-21.host.com   <none>           <none>
+nginx-ds-7bc4d86467-jv4pb   1/1     Running   0          3h4m   172.7.22.2   hdss7-22.host.com   <none>           <none>
+[root@hdss7-22 ~]#
+[root@hdss7-22 ~]# ping -c 1 172.7.22.2
+PING 172.7.22.2 (172.7.22.2) 56(84) bytes of data.
+64 bytes from 172.7.22.2: icmp_seq=1 ttl=64 time=0.039 ms
+
+--- 172.7.22.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.039/0.039/0.039/0.000 ms
+[root@hdss7-22 ~]#
+[root@hdss7-22 ~]# ping -c 1 172.7.21.2
+PING 172.7.21.2 (172.7.21.2) 56(84) bytes of data.
+64 bytes from 172.7.21.2: icmp_seq=1 ttl=63 time=0.253 ms
+
+--- 172.7.21.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.253/0.253/0.253/0.000 ms
+```
 
 
 
