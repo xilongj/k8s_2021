@@ -990,7 +990,7 @@ PING 172.7.22.2 (172.7.22.2): 48 data bytes
 #### [Common CNI network plugins](https://www.cni.dev/plugins)
 * [Flannel](https://github.com/coreos/flannel/releases)
 * [Calico](https://github.com/projectcalico/calico)
-* [Canal](https://github.com/projectcalico/canal)
+* [Canal](https://github.com/projectcalico/canal) <br>
 ...
 ***
 
