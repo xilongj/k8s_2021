@@ -1355,14 +1355,64 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 ```
 ***
 
-## coredns
+## [CoreDNS](https://github.com/coredns/coredns)
 ### CoreDNS: DNS and Service Discovery
-#### What is CoreDNS?
+#### [What is CoreDNS?](https://coredns.io/)
 CoreDNS is a DNS server. It is written in Go. It can be used in a multitude of environments because of its flexibility. CoreDNS is licensed under the Apache License Version 2, and completely open source.
 #### CoreDNS Plugins
 CoreDNS chains plugins. Each plugin performs a DNS function, such as Kubernetes service discovery, prometheus metrics, rewriting queries, or just serving from zone files. And many more.
 #### Service Discovery
 CoreDNS integrates with Kubernetes via the Kubernetes plugin, or with etcd with the etcd plugin. All major cloud providers have plugins too: Microsoft Azure DNS, CGP Cloud DNS and AWS Route53.
+***
+
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get deployment -o wide -n kube-public
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES                             SELECTOR
+nginx-ds   2/2     2            2           6h57m   nginx        harbor.od.com/public/nginx:1.7.9   app=nginx-ds
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-ds-7bc4d86467-cb8c9   1/1     Running   0          23m   172.7.22.2   hdss7-22.host.com   <none>           <none>
+nginx-ds-7bc4d86467-h6rfk   1/1     Running   0          23m   172.7.21.2   hdss7-21.host.com   <none>           <none>
+
+# Run CentOS (curl)
+[root@hdss7-21 ~]# docker run -it --rm --name lnx01 harbor.od.com/public/centos:8.3.2011 bash
+[root@02f08bcfdbda /]# ip a s
+40: eth0@if41: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 02:42:ac:07:15:03 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.7.21.3/24 brd 172.7.21.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+[root@02f08bcfdbda /]# curl -sIL -w "%{http_code}\n" -o /dev/null 172.7.21.2
+200
+[root@02f08bcfdbda /]# curl -sIL -w "%{http_code}\n" -o /dev/null 172.7.22.2
+200
+
+# Output (physical machine IP)
+[root@hdss7-22 ~]# kubectl logs -f nginx-ds-7bc4d86467-cb8c9 -n kube-public
+10.4.7.21 - - [15/Feb/2021:09:17:13 +0000] "GET / HTTP/1.1" 200 612 "-" "curl/7.61.1" "-"
+10.4.7.21 - - [15/Feb/2021:09:18:52 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.61.1" "-"
+
+# masquerade
+-A POSTROUTING -s 172.7.22.0/24 ! -o docker0 -j MASQUERADE
+```
+```buildoutcfg
+# iptables
+[root@hdss7-22 ~]# iptables-save | grep -i postrouting
+:POSTROUTING ACCEPT [2:120]
+:KUBE-POSTROUTING - [0:0]
+-A POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING
+-A POSTROUTING -s 172.7.22.0/24 ! -o docker0 -j MASQUERADE
+-A KUBE-POSTROUTING -m comment --comment "kubernetes service traffic requiring SNAT" -m mark --mark 0x4000/0x4000 -j MASQUERADE
+```
+
+
+
+
+
+
+
+
+
 
 ## traefik
 
