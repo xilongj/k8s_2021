@@ -1467,7 +1467,18 @@ iptables-1.4.21-35.el7.x86_64
        valid_lft forever preferred_lft forever
 [root@6504cdb4a9c3 /]# curl -sIL -w "%{http_code}\n" -o /dev/null 172.7.22.2
 200
-# IP Change
+
+[root@hdss7-22 ~]# docker run -it --rm --name lnx01 harbor.od.com/public/centos:8.3.2011 bash
+[root@70c07e187cbd /]# ip a s
+28: eth0@if29: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 02:42:ac:07:16:03 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.7.22.3/24 brd 172.7.22.255 scope global eth0
+       valid_lft forever preferred_lft forever
+[root@70c07e187cbd /]# curl -sIL -w "%{http_code}\n" -o /dev/null 172.7.21.2
+200
+```
+#### Verify IP Change
+```buildoutcfg
 [root@hdss7-22 ~]# kubectl logs -f nginx-ds-7bc4d86467-cb8c9 -n kube-public
 10.4.7.21 - - [15/Feb/2021:09:18:52 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.61.1" "-"
 172.7.21.3 - - [15/Feb/2021:16:19:29 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.61.1" "-"
