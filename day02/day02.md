@@ -1332,15 +1332,27 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 172.7.21.0      10.4.7.21       255.255.255.0   UG    0      0        0 eth0
 172.7.22.0      0.0.0.0         255.255.255.0   U     0      0        0 docker0
 ```
-#### flannel networking
+#### Flannel Networking models
+* https://github.com/coreos/flannel/blob/master/Documentation/backends.md
 * https://mvallim.github.io/kubernetes-under-the-hood/documentation/kube-flannel.html
 * https://github.com/mvallim/kubernetes-under-the-hood/blob/master/documentation/networking.md
+
 ```buildoutcfg
+# flannel Host GW
+[root@hdss7-21 etcd]# ./etcdctl set /coreos.com/network/config '{"Network": "172.7.0.0/16", "Backend": {"Type": "host-gw"}}'
+# add route
 [root@hdss7-21 ~]# route add -net 172.7.22.0/24 gw 10.4.7.22 dev eth0
 [root@hdss7-22 ~]# route add -net 172.7.21.0/24 gw 10.4.7.21 dev eth0
+# del route
+[root@hdss7-22 ~]# route del -net 172.7.21.0/24 gw 10.4.7.21
+[root@hdss7-21 ~]# route del -net 172.7.22.0/24 gw 10.4.7.22
+
+# flannel VxLAN
+[root@hdss7-21 etcd]# ./etcdctl set /coreos.com/network/config '{"Network": "172.7.0.0/16", "Backend": {"Type": "VxLAN"}}'
+
+# flannel Directrouting
+[root@hdss7-21 etcd]# ./etcdctl set /coreos.com/network/config '{"Network": "172.7.0.0/16", "Backend": {"Type": "VxLAN", "Directrouting": "true"}}'
 ```
-
-
 
 ## coredns
 
