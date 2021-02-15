@@ -885,7 +885,107 @@ No resources found.
 ***
 
 ## flannel
+### CNI - the Container Network Interface
+#### What is CNI?
+CNI (Container Network Interface), a Cloud Native Computing Foundation project, consists of a specification and libraries for writing plugins to configure network interfaces in Linux containers, along with a number of supported plugins. CNI concerns itself only with network connectivity of containers and removing allocated resources when the container is deleted. Because of this focus, CNI has a wide range of support and the specification is simple to implement.
+#### Github: https://github.com/containernetworking/cni
+#### [Understanding CNI (Container Networking Interface)](https://www.dasblinkenlichten.com/understanding-cni-container-networking-interface/)
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl create deployment nginx-ds --image=harbor.od.com/public/nginx:1.7.9 -n kube-public
+deployment.apps/nginx-ds created
+[root@hdss7-21 ~]# kubectl get pods -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE
+nginx-ds-7bc4d86467-jv4pb   1/1     Running   0          10s
 
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-ds-7bc4d86467-jv4pb   1/1     Running   0          39s   172.7.22.2   hdss7-22.host.com   <none>           <none>
+
+[root@hdss7-21 ~]# kubectl scale deployment nginx-ds --replicas=2 -n kube-public
+deployment.extensions/nginx-ds scaled
+
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-ds-7bc4d86467-cd8wz   1/1     Running   0          3s    172.7.21.2   hdss7-21.host.com   <none>           <none>
+nginx-ds-7bc4d86467-jv4pb   1/1     Running   0          82s   172.7.22.2   hdss7-22.host.com   <none>           <none>
+```
+```buildoutcfg
+# hdss7-21
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE    IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-ds-7bc4d86467-cd8wz   1/1     Running   0          110s   172.7.21.2   hdss7-21.host.com   <none>           <none>
+nginx-ds-7bc4d86467-jv4pb   1/1     Running   0          3m9s   172.7.22.2   hdss7-22.host.com   <none>           <none>
+[root@hdss7-21 ~]# ping -c 1 172.7.21.2
+PING 172.7.21.2 (172.7.21.2) 56(84) bytes of data.
+64 bytes from 172.7.21.2: icmp_seq=1 ttl=64 time=0.145 ms
+
+--- 172.7.21.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.145/0.145/0.145/0.000 ms
+[root@hdss7-21 ~]# ping -c 1 172.7.22.2
+PING 172.7.22.2 (172.7.22.2) 56(84) bytes of data.
+
+--- 172.7.22.2 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+
+[root@hdss7-21 ~]# ip a s docker0
+3: docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 02:42:85:71:1f:22 brd ff:ff:ff:ff:ff:ff
+    inet 172.7.21.1/24 brd 172.7.21.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:85ff:fe71:1f22/64 scope link
+       valid_lft forever preferred_lft forever
+```
+````buildoutcfg
+# hdss7-22
+[root@hdss7-22 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-ds-7bc4d86467-cd8wz   1/1     Running   0          2m59s   172.7.21.2   hdss7-21.host.com   <none>           <none>
+nginx-ds-7bc4d86467-jv4pb   1/1     Running   0          4m18s   172.7.22.2   hdss7-22.host.com   <none>           <none>
+[root@hdss7-22 ~]# ping -c 1 172.7.21.2
+PING 172.7.21.2 (172.7.21.2) 56(84) bytes of data.
+
+--- 172.7.21.2 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+
+[root@hdss7-22 ~]# ping -c 1 172.7.22.2
+PING 172.7.22.2 (172.7.22.2) 56(84) bytes of data.
+64 bytes from 172.7.22.2: icmp_seq=1 ttl=64 time=0.074 ms
+
+--- 172.7.22.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.074/0.074/0.074/0.000 ms
+
+[root@hdss7-22 ~]# ip a s docker0
+3: docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 02:42:c0:0b:32:f5 brd ff:ff:ff:ff:ff:ff
+    inet 172.7.22.1/24 brd 172.7.22.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:c0ff:fe0b:32f5/64 scope link
+       valid_lft forever preferred_lft forever
+````
+```buildoutcfg
+[root@hdss7-21 ~]# docker ps -a
+CONTAINER ID   IMAGE                               COMMAND                  CREATED         STATUS         PORTS     NAMES
+74353f9950d1   84581e99d807                        "nginx -g 'daemon of…"   6 minutes ago   Up 6 minutes             k8s_nginx_nginx-ds-7bc4d86467-cd8wz_kube-public_8e2c7c14-922a-4cc4-af65-f1f360d64d33_0
+dcab32c048b0   harbor.od.com/public/pause:latest   "/pause"                 6 minutes ago   Up 6 minutes             k8s_POD_nginx-ds-7bc4d86467-cd8wz_kube-public_8e2c7c14-922a-4cc4-af65-f1f360d64d33_0
+[root@hdss7-21 ~]# docker exec -it 74353f9950d1 bash
+root@nginx-ds-7bc4d86467-cd8wz:/# ip a s
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+26: eth0@if27: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP
+    link/ether 02:42:ac:07:15:02 brd ff:ff:ff:ff:ff:ff
+    inet 172.7.21.2/24 brd 172.7.21.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+root@nginx-ds-7bc4d86467-cd8wz:/# ping -c 1 172.7.22.2
+PING 172.7.22.2 (172.7.22.2): 48 data bytes
+--- 172.7.22.2 ping statistics ---
+1 packets transmitted, 0 packets received, 100% packet loss
+```
+***
 
 ## coredns
 
