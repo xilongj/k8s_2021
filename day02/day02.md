@@ -1354,17 +1354,6 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 [root@hdss7-21 etcd]# ./etcdctl set /coreos.com/network/config '{"Network": "172.7.0.0/16", "Backend": {"Type": "VxLAN", "Directrouting": "true"}}'
 ```
 ***
-
-## [CoreDNS](https://github.com/coredns/coredns)
-### CoreDNS: DNS and Service Discovery
-#### [What is CoreDNS?](https://coredns.io/)
-CoreDNS is a DNS server. It is written in Go. It can be used in a multitude of environments because of its flexibility. CoreDNS is licensed under the Apache License Version 2, and completely open source.
-#### CoreDNS Plugins
-CoreDNS chains plugins. Each plugin performs a DNS function, such as Kubernetes service discovery, prometheus metrics, rewriting queries, or just serving from zone files. And many more.
-#### Service Discovery
-CoreDNS integrates with Kubernetes via the Kubernetes plugin, or with etcd with the etcd plugin. All major cloud providers have plugins too: Microsoft Azure DNS, CGP Cloud DNS and AWS Route53.
-***
-
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl get deployment -o wide -n kube-public
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES                             SELECTOR
@@ -1396,14 +1385,109 @@ nginx-ds-7bc4d86467-h6rfk   1/1     Running   0          23m   172.7.21.2   hdss
 -A POSTROUTING -s 172.7.22.0/24 ! -o docker0 -j MASQUERADE
 ```
 ```buildoutcfg
-# iptables
+# enable iptables [hdss7-21]
+[root@hdss7-21 ~]# yum -y install iptables-services
+[root@hdss7-21 ~]# rpm -qa iptables
+iptables-1.4.21-35.el7.x86_64
+[root@hdss7-21 ~]# systemctl start iptables
+[root@hdss7-21 ~]# systemctl enable iptables
+
+# enable iptables [hdss7-22]
+[root@hdss7-22 ~]# yum -y install iptables-services
+[root@hdss7-22 ~]# rpm -qa iptables
+iptables-1.4.21-35.el7.x86_64
+[root@hdss7-22 ~]# systemctl start iptables
+[root@hdss7-22 ~]# systemctl enable iptables
+```
+#### [hdss7-21]
+```buildoutcfg
+[root@hdss7-21 ~]# iptables-save | grep -i postrouting
+:POSTROUTING ACCEPT [72:4338]
+:KUBE-POSTROUTING - [0:0]
+-A POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING
+-A POSTROUTING -s 172.7.21.0/24 ! -o docker0 -j MASQUERADE
+-A KUBE-POSTROUTING -m comment --comment "kubernetes service traffic requiring SNAT" -m mark --mark 0x4000/0x4000 -j MASQUERADE
+
+# delete rule (-A POSTROUTING -s 172.7.21.0/24 ! -o docker0 -j MASQUERADE)
+[root@hdss7-21 ~]# iptables -t nat -D POSTROUTING -s 172.7.21.0/24 ! -o docker0 -j MASQUERADE
+[root@hdss7-21 ~]# iptables-save | grep -i postrouting
+:POSTROUTING ACCEPT [2:126]
+:KUBE-POSTROUTING - [0:0]
+-A POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING
+-A KUBE-POSTROUTING -m comment --comment "kubernetes service traffic requiring SNAT" -m mark --mark 0x4000/0x4000 -j MASQUERADE
+
+# add new rule (-A POSTROUTING -s 172.7.21.0/24 ! -d 172.7.0.0/16 ! -o docker0 -j MASQUERADE)
+[root@hdss7-21 ~]# iptables -t nat -I POSTROUTING -s 172.7.21.0/24 ! -d 172.7.0.0/16 ! -o docker0 -j MASQUERADE
+[root@hdss7-21 ~]# iptables-save | grep -i postrouting
+:POSTROUTING ACCEPT [61:3666]
+:KUBE-POSTROUTING - [0:0]
+-A POSTROUTING -s 172.7.21.0/24 ! -d 172.7.0.0/16 ! -o docker0 -j MASQUERADE
+-A POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING
+-A KUBE-POSTROUTING -m comment --comment "kubernetes service traffic requiring SNAT" -m mark --mark 0x4000/0x4000 -j MASQUERADE
+# save rules
+[root@hdss7-21 ~]# iptables-save > /etc/sysconfig/iptables
+```
+```buildoutcfg
+[root@hdss7-21 ~]# iptables-save | grep -i reject
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+[root@hdss7-21 ~]# iptables -t filter -D INPUT -j REJECT --reject-with icmp-host-prohibited
+[root@hdss7-21 ~]# iptables -t filter -D FORWARD -j REJECT --reject-with icmp-host-prohibited
+[root@hdss7-21 ~]# iptables-save > /etc/sysconfig/iptables
+```
+#### [hdss7-22]
+```buildoutcfg
 [root@hdss7-22 ~]# iptables-save | grep -i postrouting
-:POSTROUTING ACCEPT [2:120]
+:POSTROUTING ACCEPT [14:852]
 :KUBE-POSTROUTING - [0:0]
 -A POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING
 -A POSTROUTING -s 172.7.22.0/24 ! -o docker0 -j MASQUERADE
 -A KUBE-POSTROUTING -m comment --comment "kubernetes service traffic requiring SNAT" -m mark --mark 0x4000/0x4000 -j MASQUERADE
 ```
+```buildoutcfg
+[root@hdss7-22 ~]# iptables -t nat -D POSTROUTING -s 172.7.22.0/24 ! -o docker0 -j MASQUERADE
+
+[root@hdss7-22 ~]# iptables -t nat -I POSTROUTING -s 172.7.22.0/24 ! -d 172.7.0.0/16 ! -o docker0 -j MASQUERADE
+
+[root@hdss7-22 ~]# iptables-save > /etc/sysconfig/iptables
+[root@hdss7-22 ~]# iptables-save | grep -i reject
+```
+#### Note
+```buildoutcfg
+1: iptables规则各主机略有不同, 其它运算节点上执行时注意修改;
+2: 优化SNAT规则, 各运算节点间各Pod间的网络通信不再出网;
+3: 10.4.7.21主机上, 来源是172.7.21.0/24段的docker的IP, 目标IP不是172.7.0.0/16段,网络发包不从docker0桥设备出站,才进行SNAT转换;
+```
+```buildoutcfg
+[root@hdss7-21 ~]# docker run -it --rm --name lnx01 harbor.od.com/public/centos:8.3.2011 bash
+[root@6504cdb4a9c3 /]# ip a s
+42: eth0@if43: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 02:42:ac:07:15:03 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.7.21.3/24 brd 172.7.21.255 scope global eth0
+       valid_lft forever preferred_lft forever
+[root@6504cdb4a9c3 /]# curl -sIL -w "%{http_code}\n" -o /dev/null 172.7.22.2
+200
+# IP Change
+[root@hdss7-22 ~]# kubectl logs -f nginx-ds-7bc4d86467-cb8c9 -n kube-public
+10.4.7.21 - - [15/Feb/2021:09:18:52 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.61.1" "-"
+172.7.21.3 - - [15/Feb/2021:16:19:29 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.61.1" "-"
+
+[root@hdss7-21 ~]# kubectl logs -f nginx-ds-7bc4d86467-h6rfk -n kube-public
+10.4.7.22 - - [15/Feb/2021:16:22:53 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.61.1" "-"
+172.7.22.3 - - [15/Feb/2021:16:29:46 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.61.1" "-"
+```
+***
+
+## [CoreDNS](https://github.com/coredns/coredns)
+### CoreDNS: DNS and Service Discovery
+#### [What is CoreDNS?](https://coredns.io/)
+CoreDNS is a DNS server. It is written in Go. It can be used in a multitude of environments because of its flexibility. CoreDNS is licensed under the Apache License Version 2, and completely open source.
+#### CoreDNS Plugins
+CoreDNS chains plugins. Each plugin performs a DNS function, such as Kubernetes service discovery, prometheus metrics, rewriting queries, or just serving from zone files. And many more.
+#### Service Discovery
+CoreDNS integrates with Kubernetes via the Kubernetes plugin, or with etcd with the etcd plugin. All major cloud providers have plugins too: Microsoft Azure DNS, CGP Cloud DNS and AWS Route53.
+***
+
 
 
 
