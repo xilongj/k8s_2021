@@ -1,4 +1,4 @@
-# kubectl
+## kubectl
 ### Basic Commands
 ```buildoutcfg
 [root@hdss7-22 ~]# kubectl --help
@@ -331,7 +331,7 @@ deployment.extensions "nginx-dp" deleted
 
 No resources found.
 ```
-### Manage Service Resource
+#### Manage Service Resource
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl create deployment nginx-dp --image=harbor.od.com/public/nginx:1.7.9 -n kube-public
 deployment.apps/nginx-dp created
@@ -884,7 +884,7 @@ No resources found.
 ```
 ***
 
-# flannel
+## flannel
 ### CNI - the Container Network Interface
 #### What is CNI?
 CNI (Container Network Interface), a Cloud Native Computing Foundation project, consists of a specification and libraries for writing plugins to configure network interfaces in Linux containers, along with a number of supported plugins. CNI concerns itself only with network connectivity of containers and removing allocated resources when the container is deleted. Because of this focus, CNI has a wide range of support and the specification is simple to implement.
@@ -989,8 +989,8 @@ PING 172.7.22.2 (172.7.22.2): 48 data bytes
 ***
 #### [Common CNI network plugins](https://www.cni.dev/plugins)
 * [Flannel](https://github.com/coreos/flannel/releases)
-* Calico
-* Canal
+* [Calico](https://github.com/projectcalico/calico)
+* [Canal](https://github.com/projectcalico/canal)
 ...
 ***
 
@@ -999,6 +999,7 @@ Hostname | Role | IP
 hdss7-21.host.com  | fannel | 10.4.7.21
 hdss7-22.host.com  | fannel | 10.4.7.22
 
+#### [hdss7-21]
 ```buildoutcfg
 # download flannel
 [root@hdss7-21 src]# wget https://github.com/coreos/flannel/releases/download/v0.12.0/flannel-v0.12.0-linux-amd64.tar.gz
@@ -1160,6 +1161,8 @@ kube-kubelet-7-21                RUNNING   pid 73965, uptime 2 days, 10:54:26
 kube-proxy-7-21                  RUNNING   pid 27587, uptime 1 day, 20:20:14
 kube-scheduler-7-21              RUNNING   pid 37007, uptime 1 day, 20:02:32
 ```
+#### [hdss7-22]
+
 
 
 
