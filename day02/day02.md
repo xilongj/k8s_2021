@@ -72,35 +72,26 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 ***
 ### Common Commands
 ```buildoutcfg
-    1  kubectl get namespace
-    2  kubectl get ns
-    3  kubectl get all -n default
-    4  kubectl create ns app01
-    5  kubectl delete namespace app01
-    6  kubectl create deployment web-dp --image=nginx -n kube-public
-    7  kubectl get deploy -n kube-public
-    8  kubectl get deploy -n kube-public -o wide
-    9  kubectl describe deployment web-dp -n kube-public
-   10  kubectl get pods -n kube-public
-   11  kubectl exec -it web-dp-7955d7c58b-p65fc bash -n kube-public
-   12  kubectl delete pod web-dp-7955d7c58b-p65fc -n kube-public
-   13  kubectl delete deploy web-np -n kube-public
-   14  kubectl expose deployment web-dp --port=80 -n kube-public
-   15  kubectl scale deployment web-dp --replicas=2 -n kube-public
-   16  ipvsadm -Ln
-   17  kubectl describe svc web-dp -n kube-public
+    1  kubectl get ns (namespace)
+    2  kubectl get all -n default
+    3  kubectl create ns app01
+    4  kubectl delete namespace app01
+    5  kubectl create deployment web-dp --image=nginx -n kube-public
+    6  kubectl get deploy -n kube-public
+    7  kubectl get deploy -o wide -n kube-public
+    8  kubectl describe deployment web-dp -n kube-public
+    9  kubectl get pods -n kube-public
+   10  kubectl exec -it web-dp-7955d7c58b-p65fc bash -n kube-public
+   11  kubectl delete pod web-dp-7955d7c58b-p65fc -n kube-public
+   12  kubectl delete deploy(ment) web-np -n kube-public
+   13  kubectl expose deployment web-dp --port=80 -n kube-public
+   14  kubectl scale deployment web-dp --replicas=2 -n kube-public
+   15  ipvsadm -Ln
+   16  kubectl describe svc web-dp -n kube-public
 ```
 ***
 ```buildoutcfg
-[root@hdss7-21 ~]# kubectl get namespace
-NAME              STATUS   AGE
-default           Active   2d
-kube-node-lease   Active   2d
-kube-public       Active   2d
-kube-system       Active   2d
-```
-```buildoutcfg
-[root@hdss7-22 ~]# kubectl get ns
+[root@hdss7-21 ~]# kubectl get ns (namespace)
 NAME              STATUS   AGE
 default           Active   2d
 kube-node-lease   Active   2d
@@ -109,18 +100,6 @@ kube-system       Active   2d
 ```
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl get all [-n default]
-NAME                 READY   STATUS    RESTARTS   AGE
-pod/nginx-ds-4s9z8   1/1     Running   0          25h
-pod/nginx-ds-pgmrh   1/1     Running   0          25h
-
-
-NAME                 TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
-service/kubernetes   ClusterIP   192.168.0.1   <none>        443/TCP   2d
-
-NAME                      DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
-daemonset.apps/nginx-ds   2         2         2       2            2           <none>          22h
-```
-```buildoutcfg
 [root@hdss7-22 ~]# kubectl get all
 NAME                 READY   STATUS    RESTARTS   AGE
 pod/nginx-ds-4s9z8   1/1     Running   0          25h
@@ -170,7 +149,7 @@ kube-system       Active   2d
 [root@hdss7-21 ~]# kubectl create deployment nginx-dp --image=harbor.od.com/public/nginx:1.7.9 -n kube-public
 deployment.apps/nginx-dp created
 
-[root@hdss7-21 ~]# kubectl get deploy -n kube-public
+[root@hdss7-21 ~]# kubectl get deployment -n kube-public
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-dp   1/1     1            1           23s
 
@@ -184,7 +163,7 @@ No resources found.
 [root@hdss7-21 ~]# kubectl get deployment -n kube-public
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-dp   1/1     1            1           6m14s
-[root@hdss7-21 ~]# kubectl get pods -n kube-public -o wide
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
 NAME                        READY   STATUS    RESTARTS   AGE    IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-dp-656b87bf6d-sgjjd   1/1     Running   0          3m3s   172.7.21.3   hdss7-21.host.com   <none>           <none>
 ```
@@ -291,35 +270,20 @@ NAME                        READY   STATUS    RESTARTS   AGE
 nginx-dp-656b87bf6d-znzjw   1/1     Running   0          53s
 ```
 ```buildoutcfg
-[root@hdss7-22 ~]# kubectl get pods -n kube-public -o wide
+[root@hdss7-22 ~]# kubectl get pods -n -o wide kube-public
 NAME                        READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-dp-656b87bf6d-znzjw   1/1     Running   0          3m36s   172.7.22.3   hdss7-22.host.com   <none>           <none>
 ```
 ```buildoutcfg
-[root@hdss7-22 ~]# kubectl get pods -n kube-public -o wide
-NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
-nginx-dp-656b87bf6d-znzjw   1/1     Running   0          10m   172.7.22.3   hdss7-22.host.com   <none>           <none>
-
 [root@hdss7-22 ~]# kubectl delete pod nginx-dp-656b87bf6d-znzjw -n kube-public
 pod "nginx-dp-656b87bf6d-znzjw" deleted
-[root@hdss7-22 ~]# kubectl get pods -n kube-public -o wide
+[root@hdss7-22 ~]# kubectl get pods -o wide -n kube-public
 NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-dp-656b87bf6d-g9krn   1/1     Running   0          15s   172.7.21.3   hdss7-21.host.com   <none>           <none>
 
 [root@hdss7-22 ~]# kubectl delete pod nginx-dp-656b87bf6d-g9krn -n kube-public --force --grace-period=0
 warning: Immediate deletion does not wait for confirmation that the running resource has been terminated. The resource may continue to run on the cluster indefinitely.
 pod "nginx-dp-656b87bf6d-g9krn" force deleted
-
-[root@hdss7-22 ~]# kubectl get pods -n kube-public -o wide
-NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
-nginx-dp-656b87bf6d-qw5f5   1/1     Running   0          15s   172.7.22.3   hdss7-22.host.com   <none>           <none>
-
-[root@hdss7-22 ~]# kubectl delete pod nginx-dp-656b87bf6d-qw5f5 -n kube-public --force --grace-period=0
-warning: Immediate deletion does not wait for confirmation that the running resource has been terminated. The resource may continue to run on the cluster indefinitely.
-pod "nginx-dp-656b87bf6d-qw5f5" force deleted
-[root@hdss7-22 ~]# kubectl get pods -n kube-public -o wide
-NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
-nginx-dp-656b87bf6d-8cdzw   1/1     Running   0          4s    172.7.21.3   hdss7-21.host.com   <none>           <none>
 ```
 #### Delete Deployment
 ```buildoutcfg
@@ -339,9 +303,6 @@ deployment.apps/nginx-dp created
 NAME                            READY   STATUS    RESTARTS   AGE
 pod/nginx-dp-656b87bf6d-65rzf   1/1     Running   0          14s
 
-
-
-
 NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/nginx-dp   1/1     1            1           14s
 
@@ -349,13 +310,7 @@ NAME                                  DESIRED   CURRENT   READY   AGE
 replicaset.apps/nginx-dp-656b87bf6d   1         1         1       14s
 
 
-
-
-[root@hdss7-21 ~]# kubectl get pods -n kube-public
-NAME                        READY   STATUS    RESTARTS   AGE
-nginx-dp-656b87bf6d-65rzf   1/1     Running   0          44s
-
-[root@hdss7-21 ~]# kubectl get pods -n kube-public -o wide
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
 NAME                        READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-dp-656b87bf6d-65rzf   1/1     Running   0          2m24s   172.7.22.3   hdss7-22.host.com   <none>           <none>
 ```
@@ -379,9 +334,7 @@ NAME                                  DESIRED   CURRENT   READY   AGE
 replicaset.apps/nginx-dp-656b87bf6d   1         1         1       3m48s
 
 
-
-
-[root@hdss7-21 ~]# kubectl get all -n kube-public -o wide
+[root@hdss7-21 ~]# kubectl get all -o wide -n kube-public
 NAME                            READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
 pod/nginx-dp-656b87bf6d-65rzf   1/1     Running   0          4m35s   172.7.22.3   hdss7-22.host.com   <none>           <none>
 
@@ -397,14 +350,12 @@ NAME                                  DESIRED   CURRENT   READY   AGE     CONTAI
 replicaset.apps/nginx-dp-656b87bf6d   1         1         1       4m35s   nginx        harbor.od.com/public/nginx:1.7.9   app=nginx-dp,pod-template-hash=656b87bf6d
 
 
-
-
 ```
 ```buildoutcfg
-[root@hdss7-22 ~]# kubectl get pods -n kube-public -o wide
+[root@hdss7-22 ~]# kubectl get pods -o wide -n kube-public
 NAME                        READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-dp-656b87bf6d-65rzf   1/1     Running   0          8m23s   172.7.22.3   hdss7-22.host.com   <none>           <none>
-[root@hdss7-22 ~]# kubectl get all -n kube-public -o wide
+[root@hdss7-22 ~]# kubectl get all -o wide -n kube-public
 NAME                            READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
 pod/nginx-dp-656b87bf6d-65rzf   1/1     Running   0          8m35s   172.7.22.3   hdss7-22.host.com   <none>           <none>
 
@@ -418,8 +369,6 @@ deployment.apps/nginx-dp   1/1     1            1           8m35s   nginx       
 
 NAME                                  DESIRED   CURRENT   READY   AGE     CONTAINERS   IMAGES                             SELECTOR
 replicaset.apps/nginx-dp-656b87bf6d   1         1         1       8m35s   nginx        harbor.od.com/public/nginx:1.7.9   app=nginx-dp,pod-template-hash=656b87bf6d
-
-
 
 
 [root@hdss7-22 ~]# curl 192.168.98.18
@@ -461,7 +410,7 @@ TCP  192.168.98.18:80 nq
   -> 172.7.22.3:80                Masq    1      0          2
 ```
 ```buildoutcfg
-[root@hdss7-21 ~]# kubectl get pods -n kube-public -o wide
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
 NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-dp-656b87bf6d-65rzf   1/1     Running   0          11m   172.7.22.3   hdss7-22.host.com   <none>           <none>
 
@@ -695,9 +644,6 @@ status:
 ```
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl get service -n kube-public
-NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-nginx-dp   ClusterIP   192.168.98.18   <none>        80/TCP    4h24m
-web-dp     ClusterIP   192.168.62.62   <none>        80/TCP    3h59m
 [root@hdss7-21 ~]# kubectl get svc -n kube-public
 NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
 nginx-dp   ClusterIP   192.168.98.18   <none>        80/TCP    4h24m
@@ -724,31 +670,6 @@ spec:
     targetPort: 80
   selector:
     app: nginx-dp
-  sessionAffinity: None
-  type: ClusterIP
-status:
-  loadBalancer: {}
-
-[root@hdss7-21 ~]# kubectl get svc web-dp -o yaml -n kube-public
-apiVersion: v1
-kind: Service
-metadata:
-  creationTimestamp: "2021-02-14T08:43:35Z"
-  labels:
-    app: web-dp
-  name: web-dp
-  namespace: kube-public
-  resourceVersion: "168636"
-  selfLink: /api/v1/namespaces/kube-public/services/web-dp
-  uid: c85ddc5e-b291-410c-bfaa-007f119c8f9b
-spec:
-  clusterIP: 192.168.62.62
-  ports:
-  - port: 80
-    protocol: TCP
-    targetPort: 80
-  selector:
-    app: web-dp
   sessionAffinity: None
   type: ClusterIP
 status:
@@ -891,6 +812,7 @@ CNI (Container Network Interface), a Cloud Native Computing Foundation project, 
   * [Container Networking on Github](https://github.com/containernetworking/cni)
   * [Understanding CNI (Container Networking Interface)](https://www.dasblinkenlichten.com/understanding-cni-container-networking-interface/)
 ***
+#### [hdss7-21]
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl create deployment nginx-ds --image=harbor.od.com/public/nginx:1.7.9 -n kube-public
 deployment.apps/nginx-ds created
@@ -923,6 +845,7 @@ PING 172.7.21.2 (172.7.21.2) 56(84) bytes of data.
 --- 172.7.21.2 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 0.145/0.145/0.145/0.000 ms
+# 100% packet loss
 [root@hdss7-21 ~]# ping -c 1 172.7.22.2
 PING 172.7.22.2 (172.7.22.2) 56(84) bytes of data.
 
@@ -937,12 +860,13 @@ PING 172.7.22.2 (172.7.22.2) 56(84) bytes of data.
     inet6 fe80::42:85ff:fe71:1f22/64 scope link
        valid_lft forever preferred_lft forever
 ```
+#### [hdss7-22]
 ````buildoutcfg
-# hdss7-22
 [root@hdss7-22 ~]# kubectl get pods -o wide -n kube-public
 NAME                        READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-ds-7bc4d86467-cd8wz   1/1     Running   0          2m59s   172.7.21.2   hdss7-21.host.com   <none>           <none>
 nginx-ds-7bc4d86467-jv4pb   1/1     Running   0          4m18s   172.7.22.2   hdss7-22.host.com   <none>           <none>
+# 100% packet loss
 [root@hdss7-22 ~]# ping -c 1 172.7.21.2
 PING 172.7.21.2 (172.7.21.2) 56(84) bytes of data.
 
@@ -965,28 +889,8 @@ rtt min/avg/max/mdev = 0.074/0.074/0.074/0.000 ms
     inet6 fe80::42:c0ff:fe0b:32f5/64 scope link
        valid_lft forever preferred_lft forever
 ````
-```buildoutcfg
-[root@hdss7-21 ~]# docker ps -a
-CONTAINER ID   IMAGE                               COMMAND                  CREATED         STATUS         PORTS     NAMES
-74353f9950d1   84581e99d807                        "nginx -g 'daemon of…"   6 minutes ago   Up 6 minutes             k8s_nginx_nginx-ds-7bc4d86467-cd8wz_kube-public_8e2c7c14-922a-4cc4-af65-f1f360d64d33_0
-dcab32c048b0   harbor.od.com/public/pause:latest   "/pause"                 6 minutes ago   Up 6 minutes             k8s_POD_nginx-ds-7bc4d86467-cd8wz_kube-public_8e2c7c14-922a-4cc4-af65-f1f360d64d33_0
-[root@hdss7-21 ~]# docker exec -it 74353f9950d1 bash
-root@nginx-ds-7bc4d86467-cd8wz:/# ip a s
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-26: eth0@if27: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP
-    link/ether 02:42:ac:07:15:02 brd ff:ff:ff:ff:ff:ff
-    inet 172.7.21.2/24 brd 172.7.21.255 scope global eth0
-       valid_lft forever preferred_lft forever
-
-root@nginx-ds-7bc4d86467-cd8wz:/# ping -c 1 172.7.22.2
-PING 172.7.22.2 (172.7.22.2): 48 data bytes
---- 172.7.22.2 ping statistics ---
-1 packets transmitted, 0 packets received, 100% packet loss
-```
 ***
+
 #### [Common CNI network plugins](https://www.cni.dev/plugins)
 * [Flannel](https://github.com/coreos/flannel/releases)
 * [Calico](https://github.com/projectcalico/calico)
@@ -1498,6 +1402,7 @@ CoreDNS chains plugins. Each plugin performs a DNS function, such as Kubernetes 
 #### Service Discovery
 CoreDNS integrates with Kubernetes via the Kubernetes plugin, or with etcd with the etcd plugin. All major cloud providers have plugins too: Microsoft Azure DNS, CGP Cloud DNS and AWS Route53.
 ***
+
 
 
 
