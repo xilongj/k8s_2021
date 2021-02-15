@@ -1335,10 +1335,6 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 #### flannel networking
 * https://mvallim.github.io/kubernetes-under-the-hood/documentation/kube-flannel.html
 * https://github.com/mvallim/kubernetes-under-the-hood/blob/master/documentation/networking.md
-```html
-[root@hdss7-21 ~]# route add -net 172.7.22.0/24 gw 10.4.7.22 dev eth0
-[root@hdss7-22 ~]# route add -net 172.7.21.0/24 gw 10.4.7.21 dev eth0
-```
 ```buildoutcfg
 [root@hdss7-21 ~]# route add -net 172.7.22.0/24 gw 10.4.7.22 dev eth0
 [root@hdss7-22 ~]# route add -net 172.7.21.0/24 gw 10.4.7.21 dev eth0
