@@ -1332,10 +1332,10 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 172.7.21.0      10.4.7.21       255.255.255.0   UG    0      0        0 eth0
 172.7.22.0      0.0.0.0         255.255.255.0   U     0      0        0 docker0
 ```
-```html
-https://mvallim.github.io/kubernetes-under-the-hood/documentation/kube-flannel.html
-https://github.com/mvallim/kubernetes-under-the-hood/blob/master/documentation/networking.md
-```
+### Kubernetes under the hood
+* https://mvallim.github.io/kubernetes-under-the-hood/documentation/kube-flannel.html
+* https://github.com/mvallim/kubernetes-under-the-hood/blob/master/documentation/networking.md
+
 
 
 
