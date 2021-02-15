@@ -1296,7 +1296,7 @@ kube-scheduler-7-22              RUNNING   pid 34991, uptime 2 days, 0:59:34
 NAME                        READY   STATUS    RESTARTS   AGE    IP           NODE                NOMINATED NODE   READINESS GATES
 nginx-ds-7bc4d86467-cd8wz   1/1     Running   0          3h3m   172.7.21.2   hdss7-21.host.com   <none>           <none>
 nginx-ds-7bc4d86467-jv4pb   1/1     Running   0          3h4m   172.7.22.2   hdss7-22.host.com   <none>           <none>
-[root@hdss7-22 ~]#
+
 [root@hdss7-22 ~]# ping -c 1 172.7.22.2
 PING 172.7.22.2 (172.7.22.2) 56(84) bytes of data.
 64 bytes from 172.7.22.2: icmp_seq=1 ttl=64 time=0.039 ms
@@ -1313,7 +1313,25 @@ PING 172.7.21.2 (172.7.21.2) 56(84) bytes of data.
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 0.253/0.253/0.253/0.000 ms
 ```
+```buildoutcfg
+# hdss7-21.host.com
+[root@hdss7-21 ~]# route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         10.4.7.254      0.0.0.0         UG    100    0        0 eth0
+10.4.7.0        0.0.0.0         255.255.255.0   U     100    0        0 eth0
+172.7.21.0      0.0.0.0         255.255.255.0   U     0      0        0 docker0
+172.7.22.0      10.4.7.22       255.255.255.0   UG    0      0        0 eth0
 
+# hdss7-22.host.com
+[root@hdss7-22 ~]# route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         10.4.7.254      0.0.0.0         UG    100    0        0 eth0
+10.4.7.0        0.0.0.0         255.255.255.0   U     100    0        0 eth0
+172.7.21.0      10.4.7.21       255.255.255.0   UG    0      0        0 eth0
+172.7.22.0      0.0.0.0         255.255.255.0   U     0      0        0 docker0
+```
 
 
 
