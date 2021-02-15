@@ -1254,9 +1254,9 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 [root@hdss7-21 etcd]# ./etcdctl set /coreos.com/network/config '{"Network": "172.7.0.0/16", "Backend": {"Type": "VxLAN", "Directrouting": "true"}}'
 ```
 ```buildoutcfg
-  https://github.com/coreos/flannel/blob/master/Documentation/backends.md
-  https://mvallim.github.io/kubernetes-under-the-hood/documentation/kube-flannel.html
-  https://github.com/mvallim/kubernetes-under-the-hood/blob/master/documentation/networking.md
+ https://github.com/coreos/flannel/blob/master/Documentation/backends.md
+ https://mvallim.github.io/kubernetes-under-the-hood/documentation/kube-flannel.html
+ https://github.com/mvallim/kubernetes-under-the-hood/blob/master/documentation/networking.md
 ```
 ***
 ```buildoutcfg
