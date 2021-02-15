@@ -987,6 +987,187 @@ PING 172.7.22.2 (172.7.22.2): 48 data bytes
 1 packets transmitted, 0 packets received, 100% packet loss
 ```
 ***
+#### [Common CNI network plugins](https://www.cni.dev/plugins)
+* [Flannel](https://github.com/coreos/flannel/releases)
+* Calico
+* Canal
+...
+***
+
+Hostname | Role | IP
+:-----: | :-----: | :-----:
+hdss7-21.host.com  | fannel | 10.4.7.21
+hdss7-22.host.com  | fannel | 10.4.7.22
+
+```buildoutcfg
+# download flannel
+[root@hdss7-21 src]# wget https://github.com/coreos/flannel/releases/download/v0.12.0/flannel-v0.12.0-linux-amd64.tar.gz
+
+# decompressing files
+[root@hdss7-21 src]# mkdir -p /opt/flannel-v0.12.0
+[root@hdss7-21 src]# tar xvf flannel-v0.12.0-linux-amd64.tar.gz -C /opt/flannel-v0.12.0/
+flanneld
+mk-docker-opts.sh
+README.md
+
+# create soft link
+[root@hdss7-21 ~]# ln -s /opt/flannel-v0.12.0/ /opt/flannel
+```
+```buildoutcfg
+[root@hdss7-21 ~]# cd /opt/flannel
+[root@hdss7-21 flannel]# mkdir certs
+[root@hdss7-21 certs]# scp hdss7-200:/opt/certs/ca.pem .
+[root@hdss7-21 certs]# scp hdss7-200:/opt/certs/client.pem .
+[root@hdss7-21 certs]# scp hdss7-200:/opt/certs/client-key.pem .                                                           
+```
+```buildoutcfg
+[root@hdss7-21 ~]# tree -L 2 /opt/
+/opt/
+├── containerd
+│   ├── bin
+│   └── lib
+├── etcd -> /opt/etcd-v3.1.20/
+├── etcd-v3.1.20
+│   ├── certs
+│   ├── Documentation
+│   ├── etcd
+│   ├── etcdctl
+│   ├── etcd-server-startup.sh
+│   ├── README-etcdctl.md
+│   ├── README.md
+│   └── READMEv2-etcdctl.md
+├── flannel -> /opt/flannel-v0.12.0/
+├── flannel-v0.12.0
+│   ├── certs
+│   ├── flanneld
+│   ├── mk-docker-opts.sh
+│   └── README.md
+├── kubernetes -> /opt/kubernetes-v1.15.2/
+├── kubernetes-v1.15.2
+│   ├── addons
+│   ├── LICENSES
+│   └── server
+└── src
+    ├── etcd-v3.1.20-linux-amd64.tar.gz
+    ├── flannel-v0.12.0-linux-amd64.tar.gz
+    └── kubernetes-server-linux-amd64.tar.gz
+
+15 directories, 13 files
+```
+```buildoutcfg
+[root@hdss7-21 flannel]# cat subnet.env
+FLANNEL_NETWORK=172.7.0.0/16
+FLANNEL_SUBNET=172.7.21.1/24
+FLANNEL_MTU=1500
+FLANNEL_IPMASQ=false
+```
+```buildoutcfg
+[root@hdss7-21 flannel]# cat flanneld.sh
+#!/bin/sh
+./flanneld \
+  --public-ip=10.4.7.21 \
+  --etcd-endpoints=https://10.4.7.12:2379,https://10.4.7.21:2379,https://10.4.7.22:2379 \
+  --etcd-keyfile=./certs/client-key.pem \
+  --etcd-certfile=./certs/client.pem \
+  --etcd-cafile=./certs/ca.pem \
+  --iface=eth0 \
+  --subnet-file=./subnet.env \
+  --healthz-port=2401
+```
+```buildoutcfg
+[root@hdss7-21 flannel]# chmod +x flanneld.sh
+
+[root@hdss7-21 flannel]# ls -l
+total 34448
+drwxr-xr-x 2 root root       60 Feb 15 11:17 certs
+-rwxr-xr-x 1 root root 35253112 Mar 13  2020 flanneld
+-rwxr-xr-x 1 root root      323 Feb 15 11:26 flanneld.sh
+-rwxr-xr-x 1 root root     2139 May 29  2019 mk-docker-opts.sh
+-rw-r--r-- 1 root root     4300 May 29  2019 README.md
+-rw-r--r-- 1 root root       96 Feb 15 11:23 subnet.env
+```
+```buildoutcfg
+[root@hdss7-21 flannel]# mkdir -p /data/logs/flanneld
+```
+#### Add host-gw
+```buildoutcfg
+[root@hdss7-21 ~]# cd /opt/etcd
+[root@hdss7-21 etcd]# ./etcdctl member list
+988139385f78284: name=etcd-server-7-22 peerURLs=https://10.4.7.22:2380 clientURLs=http://127.0.0.1:2379,https://10.4.7.22:2379 isLeader=false
+5a0ef2a004fc4349: name=etcd-server-7-21 peerURLs=https://10.4.7.21:2380 clientURLs=http://127.0.0.1:2379,https://10.4.7.21:2379 isLeader=true
+f4a0cb0a765574a8: name=etcd-server-7-12 peerURLs=https://10.4.7.12:2380 clientURLs=http://127.0.0.1:2379,https://10.4.7.12:2379 isLeader=false
+
+[root@hdss7-21 etcd]# ./etcdctl set /coreos.com/network/config '{"Network": "172.7.0.0/16", "Backend": {"Type": "host-gw"}}'
+{"Network": "172.7.0.0/16", "Backend": {"Type": "host-gw"}}
+
+[root@hdss7-21 etcd]# ./etcdctl get /coreos.com/network/config
+{"Network": "172.7.0.0/16", "Backend": {"Type": "host-gw"}}
+```
+```buildoutcfg
+[root@hdss7-21 ~]# cat /etc/supervisord.d/flanneld.ini
+[program:flanneld-7-21]
+command=/opt/flannel/flanneld.sh                             ; the program (relative uses PATH, can take args)
+numprocs=1                                                   ; number of processes copies to start (def 1)
+directory=/opt/flannel                                       ; directory to cwd to before exec (def no cwd)
+autostart=true                                               ; start at supervisord start (default: true)
+autorestart=true                                             ; retstart at unexpected quit (default: true)
+startsecs=30                           ; number of secs prog must stay running (def. 1)
+startretries=3                       ; max # of serial start failures (default 3)
+exitcodes=0,2                        ; 'expected' exit codes for process (default 0,2)
+stopsignal=QUIT                      ; signal used to kill process (default TERM)
+stopwaitsecs=10                      ; max num secs to wait b4 SIGKILL (default 10)
+user=root                                                    ; setuid to this UNIX account to run the program
+redirect_stderr=true                                         ; redirect proc stderr to stdout (default false)
+stderr_logfile=/data/logs/flanneld/flanneld.stdout.log       ; stderr log path, NONE for none; default AUTO
+stderr_logfile_maxbytes=64MB                                 ; max # logfile bytes b4 rotation (default 50MB)
+stderr_logfile_backups=4                                     ; # of stderr logfile backups (default 10)
+stderr_capture_maxbytes=1MB                                  ; number of bytes in 'capturemode' (default 0)
+stderr_events_enabled=false                                  ; emit events on stderr writes (default false)
+```
+```buildoutcfg
+[root@hdss7-21 ~]# supervisorctl update
+flanneld-7-21: added process group
+
+[root@hdss7-21 ~]# supervisorctl status
+etcd-server-7-21                 RUNNING   pid 12063, uptime 3 days, 0:31:09
+flanneld-7-21                    RUNNING   pid 47167, uptime 0:00:46
+kube-apiserver-7-21              RUNNING   pid 38810, uptime 2 days, 22:35:15
+kube-controller-manager-7-21     RUNNING   pid 37008, uptime 1 day, 19:55:31
+kube-kubelet-7-21                RUNNING   pid 73965, uptime 2 days, 10:47:25
+kube-proxy-7-21                  RUNNING   pid 27587, uptime 1 day, 20:13:13
+kube-scheduler-7-21              RUNNING   pid 37007, uptime 1 day, 19:55:31
+```
+```buildoutcfg
+# error
+[root@hdss7-21 flanneld]# supervisorctl start flanneld-7-21
+flanneld-7-21: ERROR (spawn error)
+
+[root@hdss7-21 flanneld]# netstat -lntup | grep flannel
+tcp6       0      0 :::2401                 :::*                    LISTEN      47168/./flanneld
+
+[root@hdss7-21 flanneld]# kill -9 47168
+[root@hdss7-21 flanneld]# ps -ef | grep flannel
+root      52289 116228  0 11:50 pts/0    00:00:00 grep --color=auto flannel
+
+[root@hdss7-21 ~]# supervisorctl start flanneld-7-21
+flanneld-7-21: started
+[root@hdss7-21 ~]# supervisorctl status
+etcd-server-7-21                 RUNNING   pid 12063, uptime 3 days, 0:38:10
+flanneld-7-21                    RUNNING   pid 52394, uptime 0:00:40
+kube-apiserver-7-21              RUNNING   pid 38810, uptime 2 days, 22:42:16
+kube-controller-manager-7-21     RUNNING   pid 37008, uptime 1 day, 20:02:32
+kube-kubelet-7-21                RUNNING   pid 73965, uptime 2 days, 10:54:26
+kube-proxy-7-21                  RUNNING   pid 27587, uptime 1 day, 20:20:14
+kube-scheduler-7-21              RUNNING   pid 37007, uptime 1 day, 20:02:32
+```
+
+
+
+
+
+
+
+
 
 ## coredns
 
