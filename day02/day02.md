@@ -1595,7 +1595,7 @@ spec:
       serviceAccountName: coredns
       containers:
       - name: coredns
-        image: harbor.od.com/k8s/coredns:1.6.1
+        image: harbor.od.com/public/coredns:1.6.1
         args:
         - -conf
         - /etc/coredns/Corefile
@@ -1671,6 +1671,184 @@ deployment.apps/coredns created
 [root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/coredns/svc.yaml
 service/coredns created
 ```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get all -n kube-system
+NAME                           READY   STATUS    RESTARTS   AGE
+pod/coredns-6c87bf5d98-7mfvb   1/1     Running   0          4m42s
+
+
+NAME              TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)                  AGE
+service/coredns   ClusterIP   192.168.0.2   <none>        53/UDP,53/TCP,9153/TCP   80m
+
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/coredns   1/1     1            1           4m42s
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/coredns-6c87bf5d98   1         1         1       4m42s
+
+
+
+[root@hdss7-21 ~]# kubectl get pods -n kube-system
+NAME                       READY   STATUS    RESTARTS   AGE
+coredns-6c87bf5d98-7mfvb   1/1     Running   0          4m52s
+```
+#### Cluster DNS
+```buildoutcfg
+[root@hdss7-21 ~]# grep 'cluster-dns' /opt/kubernetes/server/bin/kubelet.sh
+  --cluster-dns 192.168.0.2 \
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get all -o wide -n kube-system
+NAME                           READY   STATUS    RESTARTS   AGE    IP           NODE                NOMINATED NODE   READINESS GATES
+pod/coredns-6c87bf5d98-7mfvb   1/1     Running   0          9m9s   172.7.22.3   hdss7-22.host.com   <none>           <none>
+
+
+NAME              TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)                  AGE   SELECTOR
+service/coredns   ClusterIP   192.168.0.2   <none>        53/UDP,53/TCP,9153/TCP   84m   k8s-app=coredns
+
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS   IMAGES                               SELECTOR
+deployment.apps/coredns   1/1     1            1           9m9s   coredns      harbor.od.com/public/coredns:1.6.1   k8s-app=coredns
+
+NAME                                 DESIRED   CURRENT   READY   AGE    CONTAINERS   IMAGES                               SELECTOR
+replicaset.apps/coredns-6c87bf5d98   1         1         1       9m9s   coredns      harbor.od.com/public/coredns:1.6.1   k8s-app=coredns,pod-template-hash=6c87bf5d98
+
+
+
+[root@hdss7-21 ~]# cat /opt/kubernetes/server/bin/kubelet.sh
+#!/bin/sh
+./kubelet \
+  --anonymous-auth=false \
+  --cgroup-driver systemd \
+  --cluster-dns 192.168.0.2 \
+  --cluster-domain cluster.local \
+  --runtime-cgroups=/systemd/system.slice \
+  --kubelet-cgroups=/systemd/system.slice \
+  --fail-swap-on="false" \
+  --client-ca-file ./certs/ca.pem \
+  --tls-cert-file ./certs/kubelet.pem \
+  --tls-private-key-file ./certs/kubelet-key.pem \
+  --hostname-override hdss7-21.host.com \
+  --image-gc-high-threshold 20 \
+  --image-gc-low-threshold 10 \
+  --kubeconfig ./conf/kubelet.kubeconfig \
+  --log-dir /data/logs/kubernetes/kube-kubelet \
+  --pod-infra-container-image harbor.od.com/public/pause:latest \
+  --root-dir /data/kubelet
+```
+```buildoutcfg
+[root@hdss7-21 ~]# dig -t A www.baidu.com @192.168.0.2 +short
+www.a.shifen.com.
+110.242.68.4
+110.242.68.3
+[root@hdss7-21 ~]# dig -t A hdss7-21.host.com @192.168.0.2 +short
+10.4.7.21
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get svc -o wide
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE    SELECTOR
+kubernetes   ClusterIP   192.168.0.1   <none>        443/TCP   4d2h   <none>
+[root@hdss7-21 ~]# kubectl get svc -o wide -n kube-system
+NAME      TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)                  AGE   SELECTOR
+coredns   ClusterIP   192.168.0.2   <none>        53/UDP,53/TCP,9153/TCP   92m   k8s-app=coredns
+[root@hdss7-21 ~]# kubectl get svc -o wide -n kube-public
+No resources found.
+
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+No resources found.
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-system
+NAME                       READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+coredns-6c87bf5d98-7mfvb   1/1     Running   0          24m   172.7.22.3   hdss7-22.host.com   <none>           <none>
+```
+#### Verify CoreDNS
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+No resources found.
+[root@hdss7-21 ~]# kubectl create deployment nginx-dp --image=harbor.od.com/public/nginx:1.7.9 -n kube-public
+deployment.apps/nginx-dp created
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-dp-656b87bf6d-gbvpm   1/1     Running   0          8s    172.7.21.2   hdss7-21.host.com   <none>           <none>
+[root@hdss7-21 ~]# kubectl get svc -o wide -n kube-public
+No resources found.
+[root@hdss7-21 ~]# kubectl expose deployment nginx-dp --port=80 -n kube-public
+service/nginx-dp exposed
+[root@hdss7-21 ~]# kubectl get svc -o wide -n kube-public
+NAME       TYPE        CLUSTER-IP        EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+nginx-dp   ClusterIP   192.168.150.147   <none>        80/TCP    2s    app=nginx-dp
+```
+#### FQDN
+```buildoutcfg
+[root@hdss7-21 ~]# dig -t A nginx-dp.kube-public.svc.cluster.local. @192.168.0.2 +short
+192.168.150.147
+```
+```buildoutcfg
+[root@hdss7-21 ~]# dig -t A nginx-dp.kube-public.svc.cluster.local. @192.168.0.2
+
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.3 <<>> -t A nginx-dp.kube-public.svc.cluster.local. @192.168.0.2
+;; global options: +cmd
+;; Got answer:
+;; WARNING: .local is reserved for Multicast DNS
+;; You are currently testing what happens when an mDNS query is leaked to DNS
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 43952
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;nginx-dp.kube-public.svc.cluster.local.        IN A
+
+;; ANSWER SECTION:
+nginx-dp.kube-public.svc.cluster.local. 5 IN A  192.168.150.147
+
+;; Query time: 0 msec
+;; SERVER: 192.168.0.2#53(192.168.0.2)
+;; WHEN: Tue Feb 16 15:35:07 CST 2021
+;; MSG SIZE  rcvd: 121
+
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get pods -o wide -n kube-public
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+nginx-dp-656b87bf6d-gbvpm   1/1     Running   0          12m   172.7.21.2   hdss7-21.host.com   <none>           <none>
+[root@hdss7-21 ~]# kubectl exec -it nginx-dp-656b87bf6d-gbvpm bash -n kube-public
+root@nginx-dp-656b87bf6d-gbvpm:/# ip a s
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+50: eth0@if51: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP
+    link/ether 02:42:ac:07:15:02 brd ff:ff:ff:ff:ff:ff
+    inet 172.7.21.2/24 brd 172.7.21.255 scope global eth0
+       valid_lft forever preferred_lft forever
+root@nginx-dp-656b87bf6d-gbvpm:/# ping -c 2 nginx-dp.kube-public
+PING nginx-dp.kube-public.svc.cluster.local (192.168.150.147): 48 data bytes
+56 bytes from 192.168.150.147: icmp_seq=0 ttl=64 time=0.032 ms
+56 bytes from 192.168.150.147: icmp_seq=1 ttl=64 time=0.065 ms
+--- nginx-dp.kube-public.svc.cluster.local ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max/stddev = 0.032/0.049/0.065/0.000 ms
+root@nginx-dp-656b87bf6d-gbvpm:/# exit
+exit
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get svc -o wide -n kube-public
+NAME       TYPE        CLUSTER-IP        EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+nginx-dp   ClusterIP   192.168.150.147   <none>        80/TCP    28m   app=nginx-dp
+[root@hdss7-21 ~]# curl -sIL -w "%{http_code}\n" -o /dev/null 192.168.150.147
+200
+[root@hdss7-21 ~]# curl nginx-dp.kube-public.svc.cluster.local.
+curl: (6) Could not resolve host: nginx-dp.kube-public.svc.cluster.local.; Unknown error
+```
+
+
+
+
+
+
+
 
 
 
