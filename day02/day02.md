@@ -1656,6 +1656,23 @@ spec:
     port: 9153
     protocol: TCP
 ```
+#### [hdss7-21]
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/coredns/rbac.yaml
+serviceaccount/coredns created
+clusterrole.rbac.authorization.k8s.io/system:coredns created
+clusterrolebinding.rbac.authorization.k8s.io/system:coredns created
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/coredns/configmap.yaml
+configmap/coredns created
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/coredns/deployment.yaml
+deployment.apps/coredns created
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/coredns/svc.yaml
+service/coredns created
+```
+
+
 
 ## traefik
 
