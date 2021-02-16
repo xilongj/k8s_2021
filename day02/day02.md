@@ -1488,8 +1488,8 @@ da1ec456edc8: Pushed
 
 1.6.1: digest: sha256:c7bf0ce4123212c87db74050d4cbab77d8f7e0b49c041e894a35ef15827cf938 size: 739
 ```
-#### make resource list
-![CoreDNS Resource](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns/coredns)
+### [CoreDNS Resource](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns/coredns)
+#### [hdss7-200]
 ```buildoutcfg
 [root@hdss7-200 ~]# ls -l /data/k8s-yaml/coredns/
 total 16
