@@ -1,4 +1,4 @@
-### Kubernetes Certs
+### Kubernetes Certifications
 #### [hdss7-200]
 ```buildoutcfg
 [root@hdss7-200 ~]# ls -l /opt/certs/
