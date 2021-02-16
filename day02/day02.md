@@ -1404,12 +1404,258 @@ CoreDNS chains plugins. Each plugin performs a DNS function, such as Kubernetes 
 CoreDNS integrates with Kubernetes via the Kubernetes plugin, or with etcd with the etcd plugin. All major cloud providers have plugins too: Microsoft Azure DNS, CGP Cloud DNS and AWS Route53.
 ***
 
+####[hdss7-200]
+```buildoutcfg
+[root@hdss7-200 ~]# vim /etc/nginx/conf.d/k8s-yaml.od.com.conf
+[root@hdss7-200 ~]# cat /etc/nginx/conf.d/k8s-yaml.od.com.conf
+server {
+    listen       80;
+    server_name  k8s-yaml.od.com;
 
+    location / {
+        autoindex on;
+        default_type text/plain;
+        root /data/k8s-yaml;
+    }
+}
+```
+```buildoutcfg
+[root@hdss7-200 ~]# mkdir -p /data/k8s-yaml
 
+[root@hdss7-200 ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
 
+[root@hdss7-200 ~]# nginx -s reload
 
+[root@hdss7-200 ~]# ls -l /data/k8s-yaml/
+total 0
+[root@hdss7-200 ~]# mkdir /data/k8s-yaml/coredns
+```
+#### [hdss7-11]
+```buildoutcfg
+# add k8s-yaml A record
+[root@hdss7-11 ~]# cat /var/named/od.com.zone
+$ORIGIN od.com.
+$TTL 600        ; 10 minutes
+@       IN SOA dns.od.com. dnsadmin.od.com. (
+                        2021021003      ; serial
+                        10800           ; refresh (3 hours)
+                        900             ; retry (15 minutes)
+                        604800          ; expire (1 week)
+                        86400           ; minimum (1 day)
+                        )
+                        NS      dns.od.com.
+$TTL 60 ; 1 minute
+dns             A       10.4.7.11
+harbor          A       10.4.7.200
+k8s-yaml        A       10.4.7.200
+```
+```buildoutcfg
+[root@hdss7-11 ~]# systemctl restart named
+[root@hdss7-11 ~]#
+[root@hdss7-11 ~]# dig -t A k8s-yaml.od.com @10.4.7.11 +short
+10.4.7.200
+```
+```buildoutcfg
+# disable network card
+chrome: http://k8s-yaml.od.com/
 
+[root@hdss7-200 ~]# curl -sIL -w "%{http_code}\n" -o /dev/null http://k8s-yaml.od.com/
+200
+```
+#### [hdss7-200]
+```buildoutcfg
+[root@hdss7-200 ~]# cd /data/k8s-yaml/coredns/
+[root@hdss7-200 coredns]# docker pull coredns/coredns:1.6.1
+[root@hdss7-200 coredns]# docker images | grep coredns
+coredns/coredns                 1.6.1     c0f6e815079e   18 months ago   42.2MB
+```
+```buildoutcfg
+[root@hdss7-200 coredns]# docker tag c0f6e815079e harbor.od.com/public/coredns:1.6.1
 
+[root@hdss7-200 coredns]# docker images | grep coredns
+coredns/coredns                 1.6.1     c0f6e815079e   18 months ago   42.2MB
+harbor.od.com/public/coredns    1.6.1     c0f6e815079e   18 months ago   42.2MB
+```
+```buildoutcfg
+[root@hdss7-200 coredns]# docker login harbor.od.com
+Login Succeeded
+[root@hdss7-200 coredns]# docker push harbor.od.com/public/coredns:1.6.1
+The push refers to repository [harbor.od.com/public/coredns]
+da1ec456edc8: Pushed
+225df95e717c: Pushed
+
+1.6.1: digest: sha256:c7bf0ce4123212c87db74050d4cbab77d8f7e0b49c041e894a35ef15827cf938 size: 739
+```
+#### make resource list
+![CoreDNS Resource](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns/coredns)
+```buildoutcfg
+[root@hdss7-200 ~]# ls -l /data/k8s-yaml/coredns/
+total 16
+-rw-r--r-- 1 root root  319 Feb 16 13:07 configmap.yaml
+-rw-r--r-- 1 root root 1290 Feb 16 13:33 deployment.yaml
+-rw-r--r-- 1 root root  954 Feb 16 13:07 rbac.yaml
+-rw-r--r-- 1 root root  387 Feb 16 13:11 svc.yaml
+```
+```buildoutcfg
+# rbac.yaml
+[root@hdss7-200 coredns]# cat rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: coredns
+  namespace: kube-system
+  labels:
+      kubernetes.io/cluster-service: "true"
+      addonmanager.kubernetes.io/mode: Reconcile
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+    addonmanager.kubernetes.io/mode: Reconcile
+  name: system:coredns
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  - services
+  - pods
+  - namespaces
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+    addonmanager.kubernetes.io/mode: EnsureExists
+  name: system:coredns
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:coredns
+subjects:
+- kind: ServiceAccount
+  name: coredns
+  namespace: kube-system
+```
+```buildoutcfg
+# configmap.yaml
+[root@hdss7-200 coredns]# cat configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        errors
+        log
+        health
+        ready
+        kubernetes cluster.local 192.168.0.0/16
+        forward . 10.4.7.11
+        cache 30
+        loop
+        reload
+        loadbalance
+       }
+```
+```buildoutcfg
+# deployment.yaml
+[root@hdss7-200 coredns]# cat deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coredns
+  namespace: kube-system
+  labels:
+    k8s-app: coredns
+    kubernetes.io/name: "CoreDNS"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: coredns
+  template:
+    metadata:
+      labels:
+        k8s-app: coredns
+    spec:
+      priorityClassName: system-cluster-critical
+      serviceAccountName: coredns
+      containers:
+      - name: coredns
+        image: harbor.od.com/k8s/coredns:1.6.1
+        args:
+        - -conf
+        - /etc/coredns/Corefile
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/coredns
+        ports:
+        - containerPort: 53
+          name: dns
+          protocol: UDP
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+        - containerPort: 9153
+          name: metrics
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+      dnsPolicy: Default
+      volumes:
+        - name: config-volume
+          configMap:
+            name: coredns
+            items:
+            - key: Corefile
+              path: Corefile
+```
+```buildoutcfg
+# svc.yaml
+[root@hdss7-200 coredns]# cat svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: coredns
+  namespace: kube-system
+  labels:
+    k8s-app: coredns
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "CoreDNS"
+spec:
+  selector:
+    k8s-app: coredns
+  clusterIP: 192.168.0.2
+  ports:
+  - name: dns
+    port: 53
+    protocol: UDP
+  - name: dns-tcp
+    port: 53
+  - name: metrics
+    port: 9153
+    protocol: TCP
+```
 
 ## traefik
 
