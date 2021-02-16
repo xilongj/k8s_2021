@@ -1842,17 +1842,282 @@ nginx-dp   ClusterIP   192.168.150.147   <none>        80/TCP    28m   app=nginx
 [root@hdss7-21 ~]# curl nginx-dp.kube-public.svc.cluster.local.
 curl: (6) Could not resolve host: nginx-dp.kube-public.svc.cluster.local.; Unknown error
 ```
+***
+## [traefik](https://github.com/traefik/traefik)
+### What is traefik?
+Traefik (pronounced traffic) is a modern HTTP reverse proxy and load balancer that makes deploying microservices easy. Traefik integrates with your existing infrastructure components (Docker, Swarm mode, Kubernetes, Marathon, Consul, Etcd, Rancher, Amazon ECS, ...) and configures itself automatically and dynamically. Pointing Traefik at your orchestrator should be the only configuration step you need.
+### What is Ingress?
+Ingress exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the Ingress resource.
+
+#### [hdss7-200]
+```buildoutcfg
+[root@hdss7-200 ~]# docker pull traefik:1.7.2-alpine
+
+[root@hdss7-200 ~]# docker images | grep traefik
+traefik                         1.7.2-alpine   add5fac61ae5   2 years ago     72.4MB
+
+[root@hdss7-200 ~]# docker tag add5fac61ae5 harbor.od.com/public/traefik:1.7.2
+
+[root@hdss7-200 ~]# docker images | grep traefik
+traefik                         1.7.2-alpine   add5fac61ae5   2 years ago     72.4MB
+harbor.od.com/public/traefik    1.7.2          add5fac61ae5   2 years ago     72.4MB
+[root@hdss7-200 ~]# docker push harbor.od.com/public/traefik:1.7.2
+The push refers to repository [harbor.od.com/public/traefik]
+a02beb48577f: Pushed
+ca22117205f4: Pushed
+3563c211d861: Pushed
+df64d3292fd6: Pushed
+1.7.2: digest: sha256:6115155b261707b642341b065cd3fac2b546559ba035d0262650b3b3bbdd10ea size: 1157
+```
+### [Traefik Resource](https://github.com/traefik/traefik/tree/v1.7/examples/k8s)
+#### [hdss7-200]
+```buildoutcfg
+[root@hdss7-200 ~]# mkdir -p /data/k8s-yaml/traefik && cd /data/k8s-yaml/traefik
+[root@hdss7-200 traefik]# vim rbac.yaml
+```
+```buildoutcfg
+[root@hdss7-200 ~]# ls -l /data/k8s-yaml/traefik/
+total 16
+-rw-r--r-- 1 root root 1099 Feb 16 18:38 ds.yaml
+-rw-r--r-- 1 root root  330 Feb 16 18:41 ingress.yaml
+-rw-r--r-- 1 root root  800 Feb 16 18:29 rbac.yaml
+-rw-r--r-- 1 root root  269 Feb 16 18:40 svc.yaml
+```
+```buildoutcfg
+# create rbac.yaml
+[root@hdss7-200 traefik]# cat rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik-ingress-controller
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: traefik-ingress-controller
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - endpoints
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: traefik-ingress-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik-ingress-controller
+subjects:
+- kind: ServiceAccount
+  name: traefik-ingress-controller
+  namespace: kube-system
+```
+```buildoutcfg
+# create ds.yaml
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: traefik-ingress
+  namespace: kube-system
+  labels:
+    k8s-app: traefik-ingress
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: traefik-ingress
+        name: traefik-ingress
+    spec:
+      serviceAccountName: traefik-ingress-controller
+      terminationGracePeriodSeconds: 60
+      containers:
+      - image: harbor.od.com/public/traefik:1.7.2
+        name: traefik-ingress
+        ports:
+        - name: controller
+          containerPort: 80
+          hostPort: 81
+        - name: admin-web
+          containerPort: 8080
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+        args:
+        - --api
+        - --kubernetes
+        - --logLevel=INFO
+        - --insecureskipverify=true
+        - --kubernetes.endpoint=https://10.4.7.10:7443
+        - --accesslog
+        - --accesslog.filepath=/var/log/traefik_access.log
+        - --traefiklog
+        - --traefiklog.filepath=/var/log/traefik.log
+        - --metrics.prometheus
+```
+```buildoutcfg
+# create svc.yaml
+[root@hdss7-200 traefik]# cat svc.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefik-ingress-service
+  namespace: kube-system
+spec:
+  selector:
+    k8s-app: traefik-ingress
+  ports:
+    - protocol: TCP
+      port: 80
+      name: controller
+    - protocol: TCP
+      port: 8080
+      name: admin-web
+```
+```buildoutcfg
+# create ingress.yaml
+[root@hdss7-200 traefik]# cat ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: traefik-web-ui
+  namespace: kube-system
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: traefik.od.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: traefik-ingress-service
+          servicePort: 8080
+```
+#### [hdss7-22]
+```buildoutcfg
+# apply rbac.yaml
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/traefik/rbac.yaml
+serviceaccount/traefik-ingress-controller created
+clusterrole.rbac.authorization.k8s.io/traefik-ingress-controller created
+clusterrolebinding.rbac.authorization.k8s.io/traefik-ingress-controller created
+```
+```buildoutcfg
+# apply ds.yaml
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/traefik/ds.yaml
+daemonset.extensions/traefik-ingress created
+# apply svc.yaml
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/traefik/svc.yaml
+service/traefik-ingress-service created
+# apply ingress.yaml
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/traefik/ingress.yaml
+ingress.extensions/traefik-web-ui created
+```
+```buildoutcfg
+[root@hdss7-22 ~]# kubectl get pods -o wide -n kube-system
+NAME                       READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+coredns-6c87bf5d98-7mfvb   1/1     Running   0          5h31m   172.7.22.3   hdss7-22.host.com   <none>           <none>
+traefik-ingress-fwtww      1/1     Running   0          12m     172.7.21.3   hdss7-21.host.com   <none>           <none>
+traefik-ingress-k9fkz      1/1     Running   0          92m     172.7.22.2   hdss7-22.host.com   <none>           <none>
+```
+```buildoutcfg
+[root@hdss7-21 ~]# netstat -lntup | grep 81
+tcp        0      0 0.0.0.0:81              0.0.0.0:*               LISTEN      80711/docker-proxy
+```
+#### [hdss7-11]
+```buildoutcfg
+[root@hdss7-11 ~]# cat /etc/nginx/conf.d/od.com.conf
+upstream default_backend_traefik {
+    server 10.4.7.21:81    max_fails=3 fail_timeout=10s;
+    server 10.4.7.22:81    max_fails=3 fail_timeout=10s;
+}
+server {
+    server_name *.od.com;
+
+    location / {
+        proxy_pass http://default_backend_traefik;
+        proxy_set_header Host       $http_host;
+        proxy_set_header x-forwarded-for $proxy_add_x_forwarded_for;
+    }
+}
+[root@hdss7-11 ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+[root@hdss7-11 ~]# nginx -s reload
+```
+#### [hdss7-12]
+```buildoutcfg
+[root@hdss7-12 ~]# cat /etc/nginx/conf.d/od.com.conf
+upstream default_backend_traefik {
+    server 10.4.7.21:81    max_fails=3 fail_timeout=10s;
+    server 10.4.7.22:81    max_fails=3 fail_timeout=10s;
+}
+server {
+    server_name *.od.com;
+
+    location / {
+        proxy_pass http://default_backend_traefik;
+        proxy_set_header Host       $http_host;
+        proxy_set_header x-forwarded-for $proxy_add_x_forwarded_for;
+    }
+}
+[root@hdss7-12 ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+[root@hdss7-12 ~]# nginx -s reload
+```
+#### Update A record
+```buildoutcfg
+[root@hdss7-11 ~]# cat /var/named/od.com.zone
+$ORIGIN od.com.
+$TTL 600        ; 10 minutes
+@       IN SOA dns.od.com. dnsadmin.od.com. (
+                        2021021004      ; serial
+                        10800           ; refresh (3 hours)
+                        900             ; retry (15 minutes)
+                        604800          ; expire (1 week)
+                        86400           ; minimum (1 day)
+                        )
+                        NS      dns.od.com.
+$TTL 60 ; 1 minute
+dns             A       10.4.7.11
+harbor          A       10.4.7.200
+k8s-yaml        A       10.4.7.200
+traefik         A       10.4.7.10
+
+[root@hdss7-11 ~]# systemctl restart named
+```
+```buildoutcfg
+Chrome: http://traefik.od.com
+[root@hdss7-200 ~]# curl http://traefik.od.com
+<a href="/dashboard/">Found</a>.
+```
 
 
 
 
 
-
-
-
-
-
-## traefik
 
 ## dashboard
 

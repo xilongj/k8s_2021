@@ -122,3 +122,27 @@ deployment.apps/coredns   1/1     1            1           5s
 NAME                                 DESIRED   CURRENT   READY   AGE
 replicaset.apps/coredns-6c87bf5d98   1         1         1       5s
 ```
+
+### Error response from daemon
+```buildoutcfg
+Warning  FailedCreatePodSandBox  3m34s  kubelet, hdss7-21.host.com  Failed create pod sandbox: rpc error: code = Unknown desc = failed to start sandbox container for pod "traefik-ingress-fwtww": Error response from daemon: driver failed programming external connectivity on endpoint k8s_POD_traefik-ingress-fwtww_kube-system_9ca6378a-f855-42da-8e12-9ac40935b01f_1 (acd6e27836ac2a7a9c1f8b60121cea61ab997ca70c4dbe6da682da9b2e98d495):  (iptables failed: iptables --wait -t filter -A DOCKER ! -i docker0 -o docker0 -p tcp -d 172.7.21.3 --dport 80 -j ACCEPT: iptables: No chain/target/match by that name.
+(exit status 1))
+```
+```buildoutcfg
+[root@hdss7-22 ~]# kubectl get pods -o wide -n kube-system
+NAME                       READY   STATUS              RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+coredns-6c87bf5d98-7mfvb   1/1     Running             0          5h19m   172.7.22.3   hdss7-22.host.com   <none>           <none>
+traefik-ingress-fwtww      0/1     ContainerCreating   0          5s      <none>       hdss7-21.host.com   <none>           <none>
+traefik-ingress-k9fkz      1/1     Running             0          80m     172.7.22.2   hdss7-22.host.com   <none>           <none>
+```
+```buildoutcfg
+# solutions
+[root@hdss7-21 ~]# systemctl restart docker
+
+#Output
+[root@hdss7-22 ~]# kubectl get pods -o wide -n kube-system
+NAME                       READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+coredns-6c87bf5d98-7mfvb   1/1     Running   0          5h31m   172.7.22.3   hdss7-22.host.com   <none>           <none>
+traefik-ingress-fwtww      1/1     Running   0          12m     172.7.21.3   hdss7-21.host.com   <none>           <none>
+traefik-ingress-k9fkz      1/1     Running   0          92m     172.7.22.2   hdss7-22.host.com   <none>           <none>
+```
