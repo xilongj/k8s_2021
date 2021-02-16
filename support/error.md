@@ -103,8 +103,8 @@ coredns   0/1     1            0           72m
 [root@hdss7-21 ~]# kubectl delete deployment coredns -n kube-system
 deployment.extensions "coredns" deleted
 ```
-#### apply updated deployment.yaml
 ```buildoutcfg
+# apply updated deployment.yaml
 [root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/coredns/deployment.yaml
 deployment.apps/coredns created
 [root@hdss7-21 ~]# kubectl get all -n kube-system
