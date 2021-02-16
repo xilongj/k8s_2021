@@ -2113,14 +2113,4 @@ Chrome: http://traefik.od.com
 [root@hdss7-200 ~]# curl http://traefik.od.com
 <a href="/dashboard/">Found</a>.
 ```
-
-
-
-
-
-
-## dashboard
-
-## heapster
-
-## k8s maintenance
+***
