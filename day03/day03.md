@@ -790,7 +790,7 @@ hdss7-22.host.com   Ready    master,node   4d23h   v1.15.2   10.4.7.22     <none
 ```
 
 ***
-## [Dubbo + Kubernetes](https://github.com/apache/dubbo)
+## [Apache Dubbo](https://github.com/apache/dubbo)
 Apache Dubbo is a high-performance, java based open source RPC framework.
 Dubbo |ˈdʌbəʊ| offers six key functionalities, which include transparent interface based RPC, intelligent load balancing, automatic service registration and discovery, high extensibility, runtime traffic routing, and visualized service governance.
 * Transparent interface based RPC
