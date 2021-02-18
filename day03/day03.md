@@ -788,3 +788,15 @@ NAME                STATUS   ROLES         AGE     VERSION   INTERNAL-IP   EXTER
 hdss7-21.host.com   Ready    master,node   5d3h    v1.15.2   10.4.7.21     <none>        CentOS Linux 7 (Core)   3.10.0-1160.el7.x86_64   docker://20.10.3
 hdss7-22.host.com   Ready    master,node   4d23h   v1.15.2   10.4.7.22     <none>        CentOS Linux 7 (Core)   3.10.0-1160.el7.x86_64   docker://20.10.3
 ```
+
+***
+### [Dubbo](https://github.com/apache/dubbo)
+Apache Dubbo is a high-performance, java based open source RPC framework.
+Dubbo |ˈdʌbəʊ| offers six key functionalities, which include transparent interface based RPC, intelligent load balancing, automatic service registration and discovery, high extensibility, runtime traffic routing, and visualized service governance.
+* Transparent interface based RPC
+  * Dubbo provides high performance interface based RPC, which is transparent to users.
+* Intelligent load balancing
+* Automatic service registration and discovery
+* High extensibility
+* Runtime traffic routing
+* Visualized service governance
