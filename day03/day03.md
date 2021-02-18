@@ -796,7 +796,13 @@ Dubbo |ˈdʌbəʊ| offers six key functionalities, which include transparent int
 * Transparent interface based RPC
   * Dubbo provides high performance interface based RPC, which is transparent to users.
 * Intelligent load balancing
+  * Dubbo supports multiple load balancing strategies out of the box, which perceives downstream service status to reduce overall latency and improve system throughput.
 * Automatic service registration and discovery
+  * Dubbo supports multiple service registries, which can detect service online/offline instantly.
 * High extensibility
+  * Dubbo’s micro-kernel and plugin design ensures that it can easily be extended by third party implementation across core features like Protocol, Transport, and Serialization.
 * Runtime traffic routing
+  * Dubbo can be configured at runtime so that traffic can be routed according to different rules, which makes it easy to support features like blue-green deployment, data center aware routing, etc.
 * Visualized service governance
+  * Dubbo provides rich tools for service governance and maintenance such as querying service metadata, health status and statistics.
+  
