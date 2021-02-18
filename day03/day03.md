@@ -790,7 +790,7 @@ hdss7-22.host.com   Ready    master,node   4d23h   v1.15.2   10.4.7.22     <none
 ```
 
 ***
-### [Dubbo](https://github.com/apache/dubbo)
+## [Dubbo Deployment](https://github.com/apache/dubbo)
 Apache Dubbo is a high-performance, java based open source RPC framework.
 Dubbo |ˈdʌbəʊ| offers six key functionalities, which include transparent interface based RPC, intelligent load balancing, automatic service registration and discovery, high extensibility, runtime traffic routing, and visualized service governance.
 * Transparent interface based RPC
@@ -806,3 +806,11 @@ Dubbo |ˈdʌbəʊ| offers six key functionalities, which include transparent int
 * Visualized service governance
   * Dubbo provides rich tools for service governance and maintenance such as querying service metadata, health status and statistics.
   
+### Infrastructure
+Hostname | Role | IP
+:-----: | :----: | :-----:
+hdss7-11.host.com  | zk1 | 10.4.7.11
+hdss7-12.host.com  | zk2 | 10.4.7.12
+hdss7-21.host.com  | zk2 | 10.4.7.21
+hdss7-22.host.com  | jenkins | 10.4.7.22
+hdss7-200.host.com | harbor | 10.4.7.200
