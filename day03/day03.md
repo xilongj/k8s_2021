@@ -1016,8 +1016,8 @@ The leading open source automation server, Jenkins provides hundreds of plugins 
 ### Install Jenkins
 #### [hdss7-200]
 ```buildoutcfg
-[root@hdss7-200 ~]# docker pull jenkins/jenkins:2.190.3
-docker.io/jenkins/jenkins:2.190.3
+[root@hdss7-200 ~]# docker pull jenkins/jenkins:2.60.2
+docker.io/jenkins/jenkins:2.60.2
 [root@hdss7-200 ~]# docker images | grep jenkins
 jenkins/jenkins                    2.190.3        22b8b9a84dbe   15 months ago   568MB
 [root@hdss7-200 ~]# docker tag 22b8b9a84dbe harbor.od.com/public/jenkins:v2.190.3
