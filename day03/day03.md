@@ -1561,3 +1561,4 @@ Password: admin123
 * Manage Plugins
   * Available
     * [Y] Blue Ocean (Download now and install after restart)
+  *
