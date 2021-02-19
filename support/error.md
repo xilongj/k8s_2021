@@ -122,6 +122,7 @@ deployment.apps/coredns   1/1     1            1           5s
 NAME                                 DESIRED   CURRENT   READY   AGE
 replicaset.apps/coredns-6c87bf5d98   1         1         1       5s
 ```
+***
 
 ### Error response from daemon
 ```buildoutcfg
@@ -146,3 +147,31 @@ coredns-6c87bf5d98-7mfvb   1/1     Running   0          5h31m   172.7.22.3   hds
 traefik-ingress-fwtww      1/1     Running   0          12m     172.7.21.3   hdss7-21.host.com   <none>           <none>
 traefik-ingress-k9fkz      1/1     Running   0          92m     172.7.22.2   hdss7-22.host.com   <none>           <none>
 ```
+***
+
+### wrong fs type, bad option, bad superblock
+```buildoutcfg
+Events:
+  Type     Reason       Age   From                        Message
+  ----     ------       ----  ----                        -------
+  Normal   Scheduled    118s  default-scheduler           Successfully assigned infra/jenkins-576b469db4-cfbb7 to hdss7-22.host.com
+  Warning  FailedMount  114s  kubelet, hdss7-22.host.com  MountVolume.SetUp failed for volume "data" : mount failed: exit status 32
+Mounting command: systemd-run
+Mounting arguments: --description=Kubernetes transient mount for /data/kubelet/pods/5114ccb4-5c3b-47eb-8382-cd38a1615232/volumes/kubernetes.io~nfs/data --scope -- mount -t nfs hdss7-200:/data/xsj-storage/jenkins_home /data/kubelet/pods/5114ccb4-5c3b-47eb-8382-cd38a1615232/volumes/kubernetes.io~nfs/data
+Output: Running scope as unit run-128825.scope.
+mount: wrong fs type, bad option, bad superblock on hdss7-200:/data/xsj-storage/jenkins_home,
+       missing codepage or helper program, or other error
+       (for several filesystems (e.g. nfs, cifs) you might
+       need a /sbin/mount.<type> helper program)
+
+       In some cases useful info is found in syslog - try
+       dmesg | tail or so.
+```
+```buildoutcfg
+[root@hdss7-21 ~]# yum -y install nfs-utils
+[root@hdss7-21 ~]# rpm -qa nfs-utils
+nfs-utils-1.3.0-0.68.el7.x86_64
+[root@hdss7-21 ~]# systemctl start nfs
+[root@hdss7-21 ~]# systemctl enable nfs
+```
+***

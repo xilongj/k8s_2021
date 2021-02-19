@@ -806,11 +806,762 @@ Dubbo |ˈdʌbəʊ| offers six key functionalities, which include transparent int
 * Visualized service governance
   * Dubbo provides rich tools for service governance and maintenance such as querying service metadata, health status and statistics.
   
-### Infrastructure Map
+## Infrastructure Map
 Hostname | Role | IP
 :-----: | :----: | :-----:
-hdss7-11.host.com  | zk1 | 10.4.7.11
-hdss7-12.host.com  | zk2 | 10.4.7.12
-hdss7-21.host.com  | zk2 | 10.4.7.21
-hdss7-22.host.com  | Jenkins | 10.4.7.22
-hdss7-200.host.com | Harbor  | 10.4.7.200
+hdss7-11.host.com  | zookeeper1 | 10.4.7.11
+hdss7-12.host.com  | zookeeper2 | 10.4.7.12
+hdss7-21.host.com  | zookeeper3 | 10.4.7.21
+hdss7-22.host.com  |  Jenkins   | 10.4.7.22
+hdss7-200.host.com |  Harbor    | 10.4.7.200
+
+### Install JDK
+#### [hdss7-11]
+```buildoutcfg
+[root@hdss7-11 ~]# mkdir /opt/src
+[root@hdss7-11 ~]# mv jdk-8u281-linux-x64.tar.gz /opt/src
+[root@hdss7-11 ~]# mkdir -p /usr/java
+[root@hdss7-11 ~]# cd /opt/src/
+[root@hdss7-11 src]# tar xvf jdk-8u281-linux-x64.tar.gz -C /usr/java/
+[root@hdss7-11 ~]# ln -s /usr/java/jdk1.8.0_281/ /usr/java/jdk
+[root@hdss7-11 ~]# tail -3 /etc/profile
+export JAVA_HOME=/usr/java/jdk
+export PATH=$JAVA_HOME/bin:$JAVA_HOME/bin:$PATH
+export CLASSPATH=$CLASSPATH:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+
+[root@hdss7-11 ~]# source /etc/profile
+[root@hdss7-11 ~]# java -version
+java version "1.8.0_281"
+Java(TM) SE Runtime Environment (build 1.8.0_281-b09)
+Java HotSpot(TM) 64-Bit Server VM (build 25.281-b09, mixed mode)
+```
+#### [hdss7-12]
+```buildoutcfg
+[root@hdss7-12 ~]# scp hdss7-11:/opt/src/jdk-8u281-linux-x64.tar.gz .
+[root@hdss7-12 ~]# mv jdk-8u281-linux-x64.tar.gz /opt/src/
+[root@hdss7-12 ~]# mkdir -p /usr/java
+[root@hdss7-12 ~]# cd /opt/src/
+[root@hdss7-12 src]# tar xvf jdk-8u281-linux-x64.tar.gz -C /usr/java/
+[root@hdss7-12 ~]# ln -s /usr/java/jdk1.8.0_281/ /usr/java/jdk
+[root@hdss7-12 ~]# tail -3 /etc/profile
+export JAVA_HOME=/usr/java/jdk
+export PATH=$JAVA_HOME/bin:$JAVA_HOME/bin:$PATH
+export CLASSPATH=$CLASSPATH:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+
+[root@hdss7-12 ~]# source /etc/profile
+[root@hdss7-12 ~]# java -version
+java version "1.8.0_281"
+Java(TM) SE Runtime Environment (build 1.8.0_281-b09)
+Java HotSpot(TM) 64-Bit Server VM (build 25.281-b09, mixed mode)
+```
+#### [hdss7-21]
+```buildoutcfg
+[root@hdss7-21 ~]# scp hdss7-11:/opt/src/jdk-8u281-linux-x64.tar.gz .
+[root@hdss7-21 ~]# mv jdk-8u281-linux-x64.tar.gz /opt/src/
+[root@hdss7-21 ~]# mkdir -p /usr/java
+[root@hdss7-21 ~]# cd /opt/src/
+[root@hdss7-21 src]# tar xf jdk-8u281-linux-x64.tar.gz -C /usr/java/
+[root@hdss7-21 src]# ln -s /usr/java/jdk1.8.0_281/ /usr/java/jdk
+[root@hdss7-21 ~]# tail -3 /etc/profile
+export JAVA_HOME=/usr/java/jdk
+export PATH=$JAVA_HOME/bin:$JAVA_HOME/bin:$PATH
+export CLASSPATH=$CLASSPATH:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+
+[root@hdss7-21 ~]# source /etc/profile
+[root@hdss7-21 ~]# java -version
+java version "1.8.0_281"
+Java(TM) SE Runtime Environment (build 1.8.0_281-b09)
+Java HotSpot(TM) 64-Bit Server VM (build 25.281-b09, mixed mode)
+```
+### ZooKeeper(https://zookeeper.apache.org/index.html)
+Welcome to Apache ZooKeeper™
+Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination.
+
+What is ZooKeeper?
+ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services. All of these kinds of services are used in some form or another by distributed applications. Each time they are implemented there is a lot of work that goes into fixing the bugs and race conditions that are inevitable. Because of the difficulty of implementing these kinds of services, applications initially usually skimp on them, which make them brittle in the presence of change and difficult to manage. Even when done correctly, different implementations of these services lead to management complexity when the applications are deployed.
+
+#### Download Zookeeper
+```buildoutcfg
+[root@hdss7-11 ~]# wget http://archive.apache.org/dist/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz -P /opt/src/
+
+[root@hdss7-11 ~]# md5sum /opt/src/zookeeper-3.4.14.tar.gz
+b0ecf30e2cd83eac8de3454e06bcae28  /opt/src/zookeeper-3.4.14.tar.gz
+```
+```buildoutcfg
+[root@hdss7-12 ~]# wget http://archive.apache.org/dist/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz -P /opt/src/
+
+[root@hdss7-12 ~]# md5sum /opt/src/zookeeper-3.4.14.tar.gz
+b0ecf30e2cd83eac8de3454e06bcae28  /opt/src/zookeeper-3.4.14.tar.gz
+```
+```buildoutcfg
+[root@hdss7-21 ~]# wget http://archive.apache.org/dist/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz -P /opt/src/
+
+[root@hdss7-21 ~]# md5sum /opt/src/zookeeper-3.4.14.tar.gz
+b0ecf30e2cd83eac8de3454e06bcae28  /opt/src/zookeeper-3.4.14.tar.gz
+```
+#### Install ZooKeeper
+```buildoutcfg
+[root@hdss7-11 src]# tar xvf zookeeper-3.4.14.tar.gz -C /opt/
+[root@hdss7-11 ~]# ln -s /opt/zookeeper-3.4.14/ /opt/zookeeper
+[root@hdss7-11 ~]# mkdir -pv /data/zookeeper/data /data/zookeeper/logs
+[root@hdss7-11 ~]# cat /opt/zookeeper/conf/zoo.cfg
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/data/zookeeper/data
+dataLogDir=/data/zookeeper/logs
+clientPort=2181
+server.1=zk1.od.com:2888:3888
+server.2=zk2.od.com:2888:3888
+server.3=zk3.od.com:2888:3888
+```
+```buildoutcfg
+[root@hdss7-12 ~]# cd /opt/src/ && tar xvf zookeeper-3.4.14.tar.gz -C /opt/
+[root@hdss7-12 ~]# ln -s /opt/zookeeper-3.4.14/ /opt/zookeeper
+[root@hdss7-12 ~]# mkdir -pv /data/zookeeper/data /data/zookeeper/logs
+[root@hdss7-12 ~]# cat /opt/zookeeper/conf/zoo.cfg
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/data/zookeeper/data
+dataLogDir=/data/zookeeper/logs
+clientPort=2181
+server.1=zk1.od.com:2888:3888
+server.2=zk2.od.com:2888:3888
+server.3=zk3.od.com:2888:3888
+```
+```buildoutcfg
+[root@hdss7-21 ~]# cd /opt/src/ && tar xvf zookeeper-3.4.14.tar.gz -C /opt/
+[root@hdss7-21 ~]# ln -s /opt/zookeeper-3.4.14/ /opt/zookeeper
+[root@hdss7-21 ~]# mkdir -pv /data/zookeeper/data /data/zookeeper/logs
+[root@hdss7-21 ~]# cat /opt/zookeeper/conf/zoo.cfg
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/data/zookeeper/data
+dataLogDir=/data/zookeeper/logs
+clientPort=2181
+server.1=zk1.od.com:2888:3888
+server.2=zk2.od.com:2888:3888
+server.3=zk3.od.com:2888:3888
+```
+#### [hdss7-11]
+```buildoutcfg
+[root@hdss7-11 ~]# cat /var/named/od.com.zone
+$ORIGIN od.com.
+$TTL 600        ; 10 minutes
+@       IN SOA dns.od.com. dnsadmin.od.com. (
+                        2021021006      ; serial
+                        10800           ; refresh (3 hours)
+                        900             ; retry (15 minutes)
+                        604800          ; expire (1 week)
+                        86400           ; minimum (1 day)
+                        )
+                        NS      dns.od.com.
+$TTL 60 ; 1 minute
+dns             A       10.4.7.11
+harbor          A       10.4.7.200
+k8s-yaml        A       10.4.7.200
+traefik         A       10.4.7.10
+dashboard       A       10.4.7.10
+zk1             A       10.4.7.11
+zk2             A       10.4.7.12
+zk3             A       10.4.7.21
+
+[root@hdss7-11 ~]# systemctl restart named
+```
+```buildoutcfg
+[root@hdss7-12 ~]# dig -t A zk1.od.com @10.4.7.11 +short
+10.4.7.11
+[root@hdss7-12 ~]# dig -t A zk2.od.com @10.4.7.11 +short
+10.4.7.12
+[root@hdss7-12 ~]# dig -t A zk3.od.com @10.4.7.11 +short
+10.4.7.21
+```
+```buildoutcfg
+[root@hdss7-11 ~]# echo 1 > /data/zookeeper/data/myid
+[root@hdss7-11 ~]# cat /data/zookeeper/data/myid
+1
+[root@hdss7-12 ~]# echo 2 > /data/zookeeper/data/myid
+[root@hdss7-12 ~]# cat /data/zookeeper/data/myid
+2
+[root@hdss7-21 ~]# echo 3 > /data/zookeeper/data/myid
+[root@hdss7-21 ~]# cat /data/zookeeper/data/myid
+3
+```
+```buildoutcfg
+[root@hdss7-11 ~]# /opt/zookeeper/bin/zkServer.sh start
+[root@hdss7-11 ~]# /opt/zookeeper/bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: follower
+
+[root@hdss7-12 ~]# /opt/zookeeper/bin/zkServer.sh start
+[root@hdss7-12 ~]# /opt/zookeeper/bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: leader
+
+[root@hdss7-21 ~]# /opt/zookeeper/bin/zkServer.sh start
+[root@hdss7-21 ~]# /opt/zookeeper/bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: follower
+```
+***
+
+## [Jenkins](https://www.jenkins.io/)
+The leading open source automation server, Jenkins provides hundreds of plugins to support building, deploying and automating any project.
+
+### Install Jenkins
+#### [hdss7-200]
+```buildoutcfg
+[root@hdss7-200 ~]# docker pull jenkins/jenkins:2.190.3
+docker.io/jenkins/jenkins:2.190.3
+[root@hdss7-200 ~]# docker images | grep jenkins
+jenkins/jenkins                    2.190.3        22b8b9a84dbe   15 months ago   568MB
+[root@hdss7-200 ~]# docker tag 22b8b9a84dbe harbor.od.com/public/jenkins:v2.190.3
+[root@hdss7-200 ~]# docker images | grep jenkins
+jenkins/jenkins                    2.190.3        22b8b9a84dbe   15 months ago   568MB
+harbor.od.com/public/jenkins       v2.190.3       22b8b9a84dbe   15 months ago   568MB
+
+[root@hdss7-200 ~]# docker push harbor.od.com/public/jenkins:v2.190.3
+```
+#### Generate Private Key
+```buildoutcfg
+[root@hdss7-200 ~]# ssh-keygen -t rsa -b 2048 -C "xilongus@gmail.com" -N "" -f /root/.ssh/id_rsa
+Generating public/private rsa key pair.
+Created directory '/root/.ssh'.
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:12y/zJ0ZBfZYfdCwAHSca0X1BCsDZ0cGaFH3CSaHRYY xilongus@gmail.com
+The key's randomart image is:
++---[RSA 2048]----+
+|         .=B%%X=o|
+|          oEB=o*=|
+|         .  oo=.*|
+|           oo+ =.|
+|        S ..+ . o|
+|         . . .  .|
+|              .. |
+|             o o+|
+|              +o.|
++----[SHA256]-----+
+
+[root@hdss7-200 ~]# ls -l .ssh
+total 8
+-rw------- 1 root root 1679 Feb 18 14:11 id_rsa
+-rw-r--r-- 1 root root  400 Feb 18 14:11 id_rsa.pub
+```
+```buildoutcfg
+[root@hdss7-200 ~]# mkdir -p /data/dockerfile
+[root@hdss7-200 ~]# cd /data/dockerfile
+[root@hdss7-200 dockerfile]# mkdir jenkins
+[root@hdss7-200 dockerfile]# cd jenkins/
+```
+```buildoutcfg
+# Dockerfile
+[root@hdss7-200 jenkins]# cat Dockerfile
+FROM harbor.od.com/public/jenkins:v2.190.3
+USER root
+RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo 'Asia/Shanghai' > /etc/timezone
+ADD id_rsa /root/.ssh/id_rsa
+ADD config.json /root/.docker/config.json
+ADD get-docker.sh /get-docker.sh
+RUN echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
+    /get-docker.sh
+```
+```buildoutcfg
+[root@hdss7-200 jenkins]# cp /root/.ssh/id_rsa .
+[root@hdss7-200 jenkins]# cp /root/.docker/config.json .
+[root@hdss7-200 jenkins]# curl -fsSL get.docker.com -o get-docker.sh
+[root@hdss7-200 jenkins]# chmod +x get-docker.sh
+```
+```buildoutcfg
+[root@hdss7-200 jenkins]# cat config.json
+{
+        "auths": {
+                "harbor.od.com": {
+                        "auth": "YWRtaW46eGxueEAyMDIx"
+                }
+        }
+}
+```
+```buildoutcfg
+[root@hdss7-200 jenkins]# cat config.json
+{
+        "auths": {
+                "harbor.od.com": {
+                        "auth": "YWRtaW46eGxueEAyMDIx"
+                }
+        }
+}
+
+[root@hdss7-200 jenkins]# echo YWRtaW46eGxueEAyMDIx | base64 -d
+admin:xlnx@2021
+```
+```buildoutcfg
+[root@hdss7-200 jenkins]# ls -l /data/dockerfile/jenkins/
+total 28
+-rw------- 1 root root    77 Feb 18 14:25 config.json
+-rw-r--r-- 1 root root   352 Feb 18 14:24 Dockerfile
+-rwxr-xr-x 1 root root 13857 Feb 18 14:26 get-docker.sh
+-rw------- 1 root root  1679 Feb 18 14:24 id_rsa
+```
+#### Create Private Project
+```buildoutcfg
+# login harbor.od.com
+# create new project as infra & Private
+```
+#### build log
+```buildoutcfg
+[root@hdss7-200 jenkins]# docker build . -t harbor.od.com/infra/jenkins:v2.190.3
+Sending build context to Docker daemon  20.48kB
+Step 1/7 : FROM harbor.od.com/public/jenkins:v2.190.3
+ ---> 22b8b9a84dbe
+Step 2/7 : USER root
+ ---> Using cache
+ ---> d197ff9fc121
+Step 3/7 : RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &&     echo 'Asia/Shanghai' > /etc/timezone
+ ---> Using cache
+ ---> 2b7b703f273e
+Step 4/7 : ADD id_rsa /root/.ssh/id_rsa
+ ---> Using cache
+ ---> 26ea744560d7
+Step 5/7 : ADD config.json /root/.docker/config.json
+ ---> Using cache
+ ---> 7b99a3f5afe4
+Step 6/7 : ADD get-docker.sh /get-docker.sh
+ ---> Using cache
+ ---> 9bb9cf91d820
+Step 7/7 : RUN echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config &&     /get-docker.sh
+ ---> Running in cf216a4f2401
+# Executing docker install script, commit: 3d8fe77c2c46c5b7571f94b42793905e5b3e42e4
++ sh -c apt-get update -qq >/dev/null
++ sh -c DEBIAN_FRONTEND=noninteractive apt-get install -y -qq apt-transport-https ca-certificates curl >/dev/null
+debconf: delaying package configuration, since apt-utils is not installed
++ sh -c curl -fsSL "https://download.docker.com/linux/debian/gpg" | apt-key add -qq - >/dev/null
+Warning: apt-key output should not be parsed (stdout is not a terminal)
++ sh -c echo "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable" > /etc/apt/sources.list.d/docker.list
++ sh -c apt-get update -qq >/dev/null
++ [ -n  ]
++ sh -c apt-get install -y -qq --no-install-recommends docker-ce >/dev/null
+debconf: delaying package configuration, since apt-utils is not installed
+If you would like to use Docker as a non-root user, you should now consider
+adding your user to the "docker" group with something like:
+
+  sudo usermod -aG docker your-user
+
+Remember that you will have to log out and back in for this to take effect!
+
+WARNING: Adding a user to the "docker" group will grant the ability to run
+         containers which can be used to obtain root privileges on the
+         docker host.
+         Refer to https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
+         for more information.
+Removing intermediate container cf216a4f2401
+ ---> 6ed14fcfb081
+Successfully built 6ed14fcfb081
+Successfully tagged harbor.od.com/infra/jenkins:v2.190.3
+```
+```buildoutcfg
+[root@hdss7-200 jenkins]# docker push harbor.od.com/infra/jenkins:v2.190.3
+The push refers to repository [harbor.od.com/infra/jenkins]
+281af236df81: Pushed
+f127106cfd86: Pushed
+819040809720: Pushed
+a718a9c3025d: Pushed
+2ee0e38a5c12: Pushed
+e0485b038afa: Mounted from public/jenkins
+2950fdd45d03: Mounted from public/jenkins
+cfc53f61da25: Mounted from public/jenkins
+29c489ae7aae: Mounted from public/jenkins
+473b7de94ea9: Mounted from public/jenkins
+6ce697717948: Mounted from public/jenkins
+0fb3a3c5199f: Mounted from public/jenkins
+23257f20fce5: Mounted from public/jenkins
+b48320151ebb: Mounted from public/jenkins
+911119b5424d: Mounted from public/jenkins
+5051dc7ca502: Mounted from public/jenkins
+a8902d6047fe: Mounted from public/jenkins
+99557920a7c5: Mounted from public/jenkins
+7e3c900343d0: Mounted from public/jenkins
+b8f8aeff56a8: Mounted from public/jenkins
+687890749166: Mounted from public/jenkins
+2f77733e9824: Mounted from public/jenkins
+97041f29baff: Mounted from public/jenkins
+v2.190.3: digest: sha256:53d6f3a507b87b2fdae88533d8389a977273cfabc3269fd63a02477e0d484af8 size: 5130
+```
+```buildoutcfg
+[root@hdss7-200 jenkins]# docker images | grep jenkins
+harbor.od.com/infra/jenkins        v2.190.3       6ed14fcfb081   2 minutes ago   1.02GB
+jenkins/jenkins                    2.190.3        22b8b9a84dbe   15 months ago   568MB
+harbor.od.com/public/jenkins       v2.190.3       22b8b9a84dbe   15 months ago   568MB
+```
+### Add Key on Gitee
+```buildoutcfg
+[root@hdss7-200 jenkins]# cat /root/.ssh/id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD*****************************************************Ty2DAZaP4hQGj/FbZb2PnhUviT4QS7IZSkekfYdx4idR0ENki1FqCbWWA8NkPot3YfkBXh4wW75V1DS1eMzIf8RX2M4W/M0Q9Zym2nLyXyffaU8fqNXzAO8pgK8+3ZfTksxz5q8FnjVTWraOUnQ/U9b/8OL9DNsmNBi3UTNAjtCSZXChNb1uTcrntQRsSqEP9csAfdoJ1yqpSH/O1/FfqknC7b1AQLVgMfrwWSHXdyqc7U6A4TqweJgDB3HUV4q/0XSwAWP4jEJUyy34CyqSAYWBNb xilongus@gmail.com
+
+# https://gitee.com
+# Settings --> Key manages --> Add key
+```
+```buildoutcfg
+[root@hdss7-200 jenkins]# docker run --rm harbor.od.com/infra/jenkins:v2.190.3 ssh -i /root/.ssh/id_rsa -T git@gitee.com
+Warning: Permanently added 'gitee.com,212.64.62.183' (ECDSA) to the list of known hosts.
+Hi Xilong Jin (DeployKey)! You've successfully authenticated, but GITEE.COM does not provide shell access.
+Note: Perhaps the current use is DeployKey.
+Note: DeployKey only supports pull/fetch operations
+```
+### Create Namespace infra
+#### [hdss7-21]
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl create ns infra
+[root@hdss7-21 ~]# kubectl create secret docker-registry harbor --docker-server=harbor.od.com --docker-username=admin --docker-password=xlnx@2021 -n infra
+secret/harbor created
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get secret -n infra
+NAME                  TYPE                                  DATA   AGE
+default-token-cqfh7   kubernetes.io/service-account-token   3      101m
+harbor                kubernetes.io/dockerconfigjson        1      4m29s
+```
+```buildoutcfg
+# https://dashboard.od.com
+# Namespace: infra  
+# Config and Storage: Secrets
+ .dockerconfigjson:
+{"auths":{"harbor.od.com":{"username":"admin","password":"xlnx@2021","auth":"YWRtaW46eGxueEAyMDIx"}}}
+```
+```buildoutcfg
+# base64
+[root@hdss7-21 ~]# echo "YWRtaW46eGxueEAyMDIx" | base64 -d
+admin:xlnx@2021
+```
+### Install NFS
+#### [hdss7-200]
+```buildoutcfg
+[root@hdss7-200 ~]# yum -y install nfs-utils
+[root@hdss7-200 ~]# rpm -qa nfs-utils
+nfs-utils-1.3.0-0.68.el7.x86_64
+```
+```buildoutcfg
+[root@hdss7-200 ~]# cat /etc/exports
+/data/xsj-storage       10.4.7.0/24(rw,no_root_squash)
+[root@hdss7-200 ~]# mkdir -p /data/xsj-storage
+
+[root@hdss7-200 ~]# systemctl start nfs
+[root@hdss7-200 ~]# systemctl enable nfs
+```
+```buildoutcfg
+# man exports
+   User ID Mapping
+       nfsd bases its access control to files on the server machine on the uid and gid provided in each NFS RPC request. The normal behavior  a  user  would
+       expect  is  that she can access her files on the server just as she would on a normal file system. This requires that the same uids and gids are used
+       on the client and the server machine. This is not always true, nor is it always desirable.
+
+       Very often, it is not desirable that the root user on a client machine is also treated as root when accessing files on the NFS server. To  this  end,
+       uid  0  is normally mapped to a different id: the so-called anonymous or nobody uid. This mode of operation (called `root squashing') is the default,
+       and can be turned off with no_root_squash.
+
+       By default, exportfs chooses a uid and gid of 65534 for squashed access. These values can also be overridden by  the  anonuid  and  anongid  options.
+       Finally, you can map all user requests to the anonymous uid by specifying the all_squash option.
+
+       Here's the complete list of mapping options:
+
+       root_squash
+              Map requests from uid/gid 0 to the anonymous uid/gid. Note that this does not apply to any other uids or gids that might be equally sensitive,
+              such as user bin or group staff.
+
+       no_root_squash
+              Turn off root squashing. This option is mainly useful for diskless clients.
+
+       all_squash
+              Map all uids and gids to the anonymous user. Useful for NFS-exported public FTP directories, news spool directories, etc. The opposite  option
+              is no_all_squash, which is the default setting.
+
+       anonuid and anongid
+              These  options  explicitly  set the uid and gid of the anonymous account.  This option is primarily useful for PC/NFS clients, where you might
+              want all requests appear to be from one user. As an example, consider the export entry for /home/joe in the example section below, which  maps
+              all requests to uid 150 (which is supposedly that of user joe).
+```
+```buildoutcfg
+# deployment.yaml
+[root@hdss7-200 jenkins]# cat deployment.yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: jenkins
+  namespace: infra
+  labels:
+    name: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+        name: jenkins
+    spec:
+      volumes:
+      - name: data
+        nfs:
+          server: hdss7-200
+          path: /data/xsj-storage/jenkins_home        # /data/xsj-storage
+      - name: docker
+        hostPath:
+          path: /run/docker.sock
+          type: ''
+      containers:
+      - name: jenkins
+        image: harbor.od.com/infra/jenkins:v2.190.3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m -Xms512m
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+        volumeMounts:
+        - name: data
+          mountPath: /var/jenkins_home
+        - name: docker
+          mountPath: /run/docker.sock
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      imagePullSecrets:
+      - name: harbor
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+```
+```buildoutcfg
+[root@hdss7-21 ~]# file /run/docker.sock
+/run/docker.sock: socket
+[root@hdss7-22 ~]# file /run/docker.sock
+/run/docker.sock: socket
+```
+```buildoutcfg
+# svc.yaml
+[root@hdss7-200 jenkins]# cat svc.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: jenkins
+  namespace: infra
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  selector:
+    app: jenkins
+```
+```buildoutcfg
+# ingress.yaml
+[root@hdss7-200 jenkins]# cat ingress.yaml
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: jenkins
+  namespace: infra
+spec:
+  rules:
+  - host: jenkins.od.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: jenkins
+          servicePort: 80
+```
+```buildoutcfg
+[root@hdss7-200 ~]# mkdir -p /data/xsj-storage/jenkins_home
+```
+#### [hdss7-21]
+```buildoutcfg
+[root@hdss7-21 ~]# yum -y install nfs-utils
+[root@hdss7-21 ~]# rpm -qa nfs-utils
+nfs-utils-1.3.0-0.68.el7.x86_64
+[root@hdss7-21 ~]# systemctl start nfs
+[root@hdss7-21 ~]# systemctl enable nfs
+[root@hdss7-21 ~]# #kubectl apply -f http://k8s-yaml.od.com/jenkins/deployment.yaml
+[root@hdss7-21 ~]# #kubectl apply -f http://k8s-yaml.od.com/jenkins/svc.yaml
+[root@hdss7-21 ~]# #kubectl apply -f http://k8s-yaml.od.com/jenkins/ingress.yaml
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get pods -o wide -n infra
+NAME                       READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+jenkins-576b469db4-9tmth   1/1     Running   0          7m17s   172.7.21.4   hdss7-21.host.com   <none>           <none>
+# jenkins logs
+[root@hdss7-21 ~]# kubectl describe pod jenkins-576b469db4-9tmth -n infra
+Name:           jenkins-576b469db4-9tmth
+Namespace:      infra
+Priority:       0
+Node:           hdss7-21.host.com/10.4.7.21
+Start Time:     Fri, 19 Feb 2021 02:14:55 +0800
+Labels:         app=jenkins
+                name=jenkins
+                pod-template-hash=576b469db4
+Annotations:    <none>
+Status:         Running
+IP:             172.7.21.4
+Controlled By:  ReplicaSet/jenkins-576b469db4
+Containers:
+  jenkins:
+    Container ID:   docker://4dfd7c3c7cccf622d3dff27f3e6d76f6b9b5466ee2e4f7c2b665c0847d526d4c
+    Image:          harbor.od.com/infra/jenkins:v2.190.3
+    Image ID:       docker-pullable://harbor.od.com/infra/jenkins@sha256:53d6f3a507b87b2fdae88533d8389a977273cfabc3269fd63a02477e0d484af8
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 19 Feb 2021 02:14:57 +0800
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  1Gi
+    Requests:
+      cpu:     500m
+      memory:  1Gi
+    Environment:
+      JAVA_OPTS:  -Xmx512m -Xms512m
+    Mounts:
+      /run/docker.sock from docker (rw)
+      /var/jenkins_home from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-cqfh7 (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  data:
+    Type:      NFS (an NFS mount that lasts the lifetime of a pod)
+    Server:    hdss7-200
+    Path:      /data/xsj-storage/jenkins_home
+    ReadOnly:  false
+  docker:
+    Type:          HostPath (bare host directory volume)
+    Path:          /run/docker.sock
+    HostPathType:
+  default-token-cqfh7:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-cqfh7
+    Optional:    false
+QoS Class:       Guaranteed
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age    From                        Message
+  ----    ------     ----   ----                        -------
+  Normal  Scheduled  7m23s  default-scheduler           Successfully assigned infra/jenkins-576b469db4-9tmth to hdss7-21.host.com
+  Normal  Pulled     7m22s  kubelet, hdss7-21.host.com  Container image "harbor.od.com/infra/jenkins:v2.190.3" already present on machine
+  Normal  Created    7m22s  kubelet, hdss7-21.host.com  Created container jenkins
+  Normal  Started    7m21s  kubelet, hdss7-21.host.com  Started container jenkins
+```
+#### [hdss7-200]
+```buildoutcfg
+# jenkins storage
+[root@hdss7-200 ~]# ls -l /data/xsj-storage/
+total 4
+drwxr-xr-x 13 root root 4096 Feb 19 02:15 jenkins_home
+[root@hdss7-200 ~]#
+[root@hdss7-200 ~]# ls -l /data/xsj-storage/jenkins_home/
+total 36
+-rw-r--r--  1 root root 1643 Feb 19 02:15 config.xml
+-rw-r--r--  1 root root   50 Feb 19 02:14 copy_reference_file.log
+-rw-r--r--  1 root root  156 Feb 19 02:15 hudson.model.UpdateCenter.xml
+-rw-------  1 root root 1712 Feb 19 02:15 identity.key.enc
+-rw-r--r--  1 root root    7 Feb 19 02:15 jenkins.install.UpgradeWizard.state
+-rw-r--r--  1 root root  171 Feb 19 02:15 jenkins.telemetry.Correlator.xml
+drwxr-xr-x  2 root root    6 Feb 19 02:14 jobs
+drwxr-xr-x  3 root root   19 Feb 19 02:15 logs
+-rw-r--r--  1 root root  907 Feb 19 02:15 nodeMonitors.xml
+drwxr-xr-x  2 root root    6 Feb 19 02:15 nodes
+drwxr-xr-x  2 root root    6 Feb 19 02:14 plugins
+-rw-r--r--  1 root root   64 Feb 19 02:14 secret.key
+-rw-r--r--  1 root root    0 Feb 19 02:14 secret.key.not-so-secret
+drwx------  4 root root  265 Feb 19 02:15 secrets
+drwxr-xr-x  2 root root   67 Feb 19 02:16 updates
+drwxr-xr-x  2 root root   24 Feb 19 02:15 userContent
+drwxr-xr-x  3 root root   56 Feb 19 02:15 users
+drwxr-xr-x 11 root root 4096 Feb 19 02:14 war
+```
+#### [hdss7-11]
+```buildoutcfg
+[root@hdss7-11 ~]# cat /var/named/od.com.zone
+$ORIGIN od.com.
+$TTL 600        ; 10 minutes
+@       IN SOA dns.od.com. dnsadmin.od.com. (
+                        2021021007      ; serial
+                        10800           ; refresh (3 hours)
+                        900             ; retry (15 minutes)
+                        604800          ; expire (1 week)
+                        86400           ; minimum (1 day)
+                        )
+                        NS      dns.od.com.
+$TTL 60 ; 1 minute
+dns             A       10.4.7.11
+harbor          A       10.4.7.200
+k8s-yaml        A       10.4.7.200
+traefik         A       10.4.7.10
+dashboard       A       10.4.7.10
+zk1             A       10.4.7.11
+zk2             A       10.4.7.12
+zk3             A       10.4.7.21
+jenkins         A       10.4.7.10
+
+[root@hdss7-11 ~]# systemctl restart named
+[root@hdss7-11 ~]# dig -t A jenkins.od.com @10.4.7.11 +short
+10.4.7.10
+```
+#### Windows hosts
+```buildoutcfg
+# Windows hosts (C:\Windows\System32\drivers\etc)
+10.4.7.10		dashboard.od.com  harbor.od.com	 traefik.od.com  jenkins.od.com
+10.4.7.200		k8s-yaml.od.com
+```
+
+#### Jenkins initial password
+```buildoutcfg
+[root@hdss7-200 ~]# cat /data/xsj-storage/jenkins_home/secrets/initialAdminPassword
+90cafb5fddc743a690bd552641df70a0
+```
+```buildoutcfg
+URL: http://jenkins.od.com/
+Username: admin
+Password: admin123
+```
+#### Manage Jenkins
+* Configure Global Security
+  * Authorization
+    * [check] Allow anonymous read access
+  * CSRF Protection
+    * [uncheck] Prevent Cross Site Request Forgery exploits
+* Manage Plugins
+  * Available
+    * [check] Blue Ocean (Download now and install after restart)
