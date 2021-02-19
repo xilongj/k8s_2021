@@ -1088,16 +1088,6 @@ RUN echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
                 }
         }
 }
-```
-```buildoutcfg
-[root@hdss7-200 jenkins]# cat config.json
-{
-        "auths": {
-                "harbor.od.com": {
-                        "auth": "YWRtaW46eGxueEAyMDIx"
-                }
-        }
-}
 
 [root@hdss7-200 jenkins]# echo YWRtaW46eGxueEAyMDIx | base64 -d
 admin:xlnx@2021
@@ -1406,9 +1396,9 @@ spec:
 nfs-utils-1.3.0-0.68.el7.x86_64
 [root@hdss7-21 ~]# systemctl start nfs
 [root@hdss7-21 ~]# systemctl enable nfs
-[root@hdss7-21 ~]# #kubectl apply -f http://k8s-yaml.od.com/jenkins/deployment.yaml
-[root@hdss7-21 ~]# #kubectl apply -f http://k8s-yaml.od.com/jenkins/svc.yaml
-[root@hdss7-21 ~]# #kubectl apply -f http://k8s-yaml.od.com/jenkins/ingress.yaml
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/jenkins/deployment.yaml
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/jenkins/svc.yaml
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/jenkins/ingress.yaml
 ```
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl get pods -o wide -n infra
@@ -1565,8 +1555,3 @@ Password: admin123
 * Manage Plugins
   * Available
     * [Y] Blue Ocean (Download now and install after restart)
-
-### BlueOcean Aggregator  
-Warning: <br>
-This plugin requires dependent plugins that require Jenkins 2.204.1 or newer. Jenkins will refuse to load the dependent plugins requiring a newer version of Jenkins, and in turn loading this plugin will fail.
-#### Upgrade Jenkins
