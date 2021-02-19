@@ -1016,16 +1016,21 @@ The leading open source automation server, Jenkins provides hundreds of plugins 
 ### Install Jenkins
 #### [hdss7-200]
 ```buildoutcfg
-[root@hdss7-200 ~]# docker pull jenkins/jenkins:2.60.2
-docker.io/jenkins/jenkins:2.60.2
+[root@hdss7-200 ~]# docker pull jenkins/jenkins
 [root@hdss7-200 ~]# docker images | grep jenkins
-jenkins/jenkins                    2.190.3        22b8b9a84dbe   15 months ago   568MB
-[root@hdss7-200 ~]# docker tag 22b8b9a84dbe harbor.od.com/public/jenkins:v2.190.3
-[root@hdss7-200 ~]# docker images | grep jenkins
-jenkins/jenkins                    2.190.3        22b8b9a84dbe   15 months ago   568MB
-harbor.od.com/public/jenkins       v2.190.3       22b8b9a84dbe   15 months ago   568MB
+jenkins/jenkins                    latest         10fafa8484ea   5 weeks ago     721MB
+[root@hdss7-200 ~]# docker image inspect jenkins/jenkins | grep -i jenkins_version
+                "JENKINS_VERSION=2.275",
+                "JENKINS_VERSION=2.275",
 
-[root@hdss7-200 ~]# docker push harbor.od.com/public/jenkins:v2.190.3
+[root@hdss7-200 ~]# docker tag 10fafa8484ea harbor.od.com/public/jenkins:2.275
+
+[root@hdss7-200 ~]# docker images | grep jenkins
+jenkins/jenkins                    latest         10fafa8484ea   5 weeks ago     721MB
+harbor.od.com/public/jenkins       2.275          10fafa8484ea   5 weeks ago     721MB
+
+[root@hdss7-200 ~]# docker push harbor.od.com/public/jenkins:2.275
+
 ```
 #### Generate Private Key
 ```buildoutcfg
@@ -1063,7 +1068,7 @@ total 8
 ```buildoutcfg
 # Dockerfile
 [root@hdss7-200 jenkins]# cat Dockerfile
-FROM harbor.od.com/public/jenkins:v2.190.3
+FROM harbor.od.com/public/jenkins:2.275
 USER root
 RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo 'Asia/Shanghai' > /etc/timezone
@@ -1107,31 +1112,29 @@ total 28
 ```
 #### build log
 ```buildoutcfg
-[root@hdss7-200 jenkins]# docker build . -t harbor.od.com/infra/jenkins:v2.190.3
+[root@hdss7-200 jenkins]# docker build . -t harbor.od.com/infra/jenkins:2.275
 Sending build context to Docker daemon  20.48kB
-Step 1/7 : FROM harbor.od.com/public/jenkins:v2.190.3
- ---> 22b8b9a84dbe
+Step 1/7 : FROM harbor.od.com/public/jenkins:2.275
+ ---> 10fafa8484ea
 Step 2/7 : USER root
- ---> Using cache
- ---> d197ff9fc121
+ ---> Running in 0d449d5e3ef1
+Removing intermediate container 0d449d5e3ef1
+ ---> 952b700338a8
 Step 3/7 : RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &&     echo 'Asia/Shanghai' > /etc/timezone
- ---> Using cache
- ---> 2b7b703f273e
+ ---> Running in 7b8b68c2b588
+Removing intermediate container 7b8b68c2b588
+ ---> d63bd1e60566
 Step 4/7 : ADD id_rsa /root/.ssh/id_rsa
- ---> Using cache
- ---> 26ea744560d7
+ ---> 131dd4bcb1ff
 Step 5/7 : ADD config.json /root/.docker/config.json
- ---> Using cache
- ---> 7b99a3f5afe4
+ ---> 055d254ed773
 Step 6/7 : ADD get-docker.sh /get-docker.sh
- ---> Using cache
- ---> 9bb9cf91d820
+ ---> 96b6ea668e3e
 Step 7/7 : RUN echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config &&     /get-docker.sh
- ---> Running in cf216a4f2401
+ ---> Running in fdd6f1e7a7ed
 # Executing docker install script, commit: 3d8fe77c2c46c5b7571f94b42793905e5b3e42e4
 + sh -c apt-get update -qq >/dev/null
 + sh -c DEBIAN_FRONTEND=noninteractive apt-get install -y -qq apt-transport-https ca-certificates curl >/dev/null
-debconf: delaying package configuration, since apt-utils is not installed
 + sh -c curl -fsSL "https://download.docker.com/linux/debian/gpg" | apt-key add -qq - >/dev/null
 Warning: apt-key output should not be parsed (stdout is not a terminal)
 + sh -c echo "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable" > /etc/apt/sources.list.d/docker.list
@@ -1151,44 +1154,46 @@ WARNING: Adding a user to the "docker" group will grant the ability to run
          docker host.
          Refer to https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
          for more information.
-Removing intermediate container cf216a4f2401
- ---> 6ed14fcfb081
-Successfully built 6ed14fcfb081
-Successfully tagged harbor.od.com/infra/jenkins:v2.190.3
+Removing intermediate container fdd6f1e7a7ed
+ ---> d790d2173e7b
+Successfully built d790d2173e7b
+Successfully tagged harbor.od.com/infra/jenkins:2.275
 ```
 ```buildoutcfg
-[root@hdss7-200 jenkins]# docker push harbor.od.com/infra/jenkins:v2.190.3
+[root@hdss7-200 jenkins]# docker push harbor.od.com/infra/jenkins:2.275
 The push refers to repository [harbor.od.com/infra/jenkins]
-281af236df81: Pushed
-f127106cfd86: Pushed
-819040809720: Pushed
-a718a9c3025d: Pushed
-2ee0e38a5c12: Pushed
-e0485b038afa: Mounted from public/jenkins
-2950fdd45d03: Mounted from public/jenkins
-cfc53f61da25: Mounted from public/jenkins
-29c489ae7aae: Mounted from public/jenkins
-473b7de94ea9: Mounted from public/jenkins
-6ce697717948: Mounted from public/jenkins
-0fb3a3c5199f: Mounted from public/jenkins
-23257f20fce5: Mounted from public/jenkins
-b48320151ebb: Mounted from public/jenkins
-911119b5424d: Mounted from public/jenkins
-5051dc7ca502: Mounted from public/jenkins
-a8902d6047fe: Mounted from public/jenkins
-99557920a7c5: Mounted from public/jenkins
-7e3c900343d0: Mounted from public/jenkins
-b8f8aeff56a8: Mounted from public/jenkins
-687890749166: Mounted from public/jenkins
-2f77733e9824: Mounted from public/jenkins
-97041f29baff: Mounted from public/jenkins
-v2.190.3: digest: sha256:53d6f3a507b87b2fdae88533d8389a977273cfabc3269fd63a02477e0d484af8 size: 5130
+f29f79c4f32b: Pushed
+f127106cfd86: Layer already exists
+92d6fc533316: Pushed
+d1fe205309ff: Pushed
+34da0cc20363: Pushed
+19412a66aaee: Layer already exists
+f1bd73eaefb0: Layer already exists
+4d016378c3c1: Layer already exists
+4a90843d8f45: Layer already exists
+dfcc6ab2bd07: Layer already exists
+c11406ec15d4: Layer already exists
+2bab4f9da3e7: Layer already exists
+aee815dec61e: Layer already exists
+60863b4a1d35: Layer already exists
+04b999873568: Layer already exists
+42f827e1a3dd: Layer already exists
+b5fb418b14f9: Layer already exists
+5a61379a8e62: Layer already exists
+d81d8fa6dfd4: Layer already exists
+bd76253da83a: Layer already exists
+e43c0c41b833: Layer already exists
+01727b1a72df: Layer already exists
+69dfa7bd7a92: Layer already exists
+4d1ab3827f6b: Layer already exists
+7948c3e5790c: Layer already exists
+2.275: digest: sha256:91a9fa393256ecb06b54c81993712614661db555a8118fdd1cf990a1f7cab466 size: 5552
 ```
 ```buildoutcfg
 [root@hdss7-200 jenkins]# docker images | grep jenkins
-harbor.od.com/infra/jenkins        v2.190.3       6ed14fcfb081   2 minutes ago   1.02GB
-jenkins/jenkins                    2.190.3        22b8b9a84dbe   15 months ago   568MB
-harbor.od.com/public/jenkins       v2.190.3       22b8b9a84dbe   15 months ago   568MB
+harbor.od.com/infra/jenkins        2.275          d790d2173e7b   12 minutes ago   1.17GB
+jenkins/jenkins                    latest         10fafa8484ea   5 weeks ago      721MB
+harbor.od.com/public/jenkins       2.275          10fafa8484ea   5 weeks ago      721MB
 ```
 ### Add Key on Gitee
 ```buildoutcfg
@@ -1199,7 +1204,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD*****************************************
 # Settings --> Key manages --> Add key
 ```
 ```buildoutcfg
-[root@hdss7-200 jenkins]# docker run --rm harbor.od.com/infra/jenkins:v2.190.3 ssh -i /root/.ssh/id_rsa -T git@gitee.com
+[root@hdss7-200 jenkins]# docker run --rm harbor.od.com/infra/jenkins:v2.60.2 ssh -i /root/.ssh/id_rsa -T git@gitee.com
 Warning: Permanently added 'gitee.com,212.64.62.183' (ECDSA) to the list of known hosts.
 Hi Xilong Jin (DeployKey)! You've successfully authenticated, but GITEE.COM does not provide shell access.
 Note: Perhaps the current use is DeployKey.
@@ -1215,8 +1220,8 @@ secret/harbor created
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl get secret -n infra
 NAME                  TYPE                                  DATA   AGE
-default-token-cqfh7   kubernetes.io/service-account-token   3      101m
-harbor                kubernetes.io/dockerconfigjson        1      4m29s
+default-token-rrxk4   kubernetes.io/service-account-token   3      30s
+harbor                kubernetes.io/dockerconfigjson        1      17s
 ```
 ```buildoutcfg
 # https://dashboard.od.com
@@ -1309,7 +1314,7 @@ spec:
           type: ''
       containers:
       - name: jenkins
-        image: harbor.od.com/infra/jenkins:v2.190.3
+        image: harbor.od.com/infra/jenkins:2.275
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -1402,31 +1407,32 @@ nfs-utils-1.3.0-0.68.el7.x86_64
 ```
 ```buildoutcfg
 [root@hdss7-21 ~]# kubectl get pods -o wide -n infra
-NAME                       READY   STATUS    RESTARTS   AGE     IP           NODE                NOMINATED NODE   READINESS GATES
-jenkins-576b469db4-9tmth   1/1     Running   0          7m17s   172.7.21.4   hdss7-21.host.com   <none>           <none>
+NAME                       READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+jenkins-56cfb9c479-fqksc   1/1     Running   0          29s   172.7.21.4   hdss7-21.host.com   <none>           <none>
+
 # jenkins logs
-[root@hdss7-21 ~]# kubectl describe pod jenkins-576b469db4-9tmth -n infra
-Name:           jenkins-576b469db4-9tmth
+[root@hdss7-21 ~]# kubectl describe pod jenkins-56cfb9c479-fqksc -n infra
+Name:           jenkins-56cfb9c479-fqksc
 Namespace:      infra
 Priority:       0
 Node:           hdss7-21.host.com/10.4.7.21
-Start Time:     Fri, 19 Feb 2021 02:14:55 +0800
+Start Time:     Fri, 19 Feb 2021 13:15:48 +0800
 Labels:         app=jenkins
                 name=jenkins
-                pod-template-hash=576b469db4
+                pod-template-hash=56cfb9c479
 Annotations:    <none>
 Status:         Running
 IP:             172.7.21.4
-Controlled By:  ReplicaSet/jenkins-576b469db4
+Controlled By:  ReplicaSet/jenkins-56cfb9c479
 Containers:
   jenkins:
-    Container ID:   docker://4dfd7c3c7cccf622d3dff27f3e6d76f6b9b5466ee2e4f7c2b665c0847d526d4c
-    Image:          harbor.od.com/infra/jenkins:v2.190.3
-    Image ID:       docker-pullable://harbor.od.com/infra/jenkins@sha256:53d6f3a507b87b2fdae88533d8389a977273cfabc3269fd63a02477e0d484af8
+    Container ID:   docker://9459b6e1faff352956e9997d46c7876336d56c06aa92e38c0543578a6d11fb73
+    Image:          harbor.od.com/infra/jenkins:2.275
+    Image ID:       docker-pullable://harbor.od.com/infra/jenkins@sha256:91a9fa393256ecb06b54c81993712614661db555a8118fdd1cf990a1f7cab466
     Port:           8080/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Fri, 19 Feb 2021 02:14:57 +0800
+      Started:      Fri, 19 Feb 2021 13:15:56 +0800
     Ready:          True
     Restart Count:  0
     Limits:
@@ -1440,7 +1446,7 @@ Containers:
     Mounts:
       /run/docker.sock from docker (rw)
       /var/jenkins_home from data (rw)
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-cqfh7 (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-rrxk4 (ro)
 Conditions:
   Type              Status
   Initialized       True
@@ -1457,21 +1463,22 @@ Volumes:
     Type:          HostPath (bare host directory volume)
     Path:          /run/docker.sock
     HostPathType:
-  default-token-cqfh7:
+  default-token-rrxk4:
     Type:        Secret (a volume populated by a Secret)
-    SecretName:  default-token-cqfh7
+    SecretName:  default-token-rrxk4
     Optional:    false
 QoS Class:       Guaranteed
 Node-Selectors:  <none>
 Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
                  node.kubernetes.io/unreachable:NoExecute for 300s
 Events:
-  Type    Reason     Age    From                        Message
-  ----    ------     ----   ----                        -------
-  Normal  Scheduled  7m23s  default-scheduler           Successfully assigned infra/jenkins-576b469db4-9tmth to hdss7-21.host.com
-  Normal  Pulled     7m22s  kubelet, hdss7-21.host.com  Container image "harbor.od.com/infra/jenkins:v2.190.3" already present on machine
-  Normal  Created    7m22s  kubelet, hdss7-21.host.com  Created container jenkins
-  Normal  Started    7m21s  kubelet, hdss7-21.host.com  Started container jenkins
+  Type    Reason     Age   From                        Message
+  ----    ------     ----  ----                        -------
+  Normal  Pulling    98s   kubelet, hdss7-21.host.com  Pulling image "harbor.od.com/infra/jenkins:2.275"
+  Normal  Scheduled  95s   default-scheduler           Successfully assigned infra/jenkins-56cfb9c479-fqksc to hdss7-21.host.com
+  Normal  Pulled     91s   kubelet, hdss7-21.host.com  Successfully pulled image "harbor.od.com/infra/jenkins:2.275"
+  Normal  Created    90s   kubelet, hdss7-21.host.com  Created container jenkins
+  Normal  Started    90s   kubelet, hdss7-21.host.com  Started container jenkins
 ```
 #### [hdss7-200]
 ```buildoutcfg
@@ -1479,27 +1486,27 @@ Events:
 [root@hdss7-200 ~]# ls -l /data/xsj-storage/
 total 4
 drwxr-xr-x 13 root root 4096 Feb 19 02:15 jenkins_home
-[root@hdss7-200 ~]#
+
 [root@hdss7-200 ~]# ls -l /data/xsj-storage/jenkins_home/
 total 36
--rw-r--r--  1 root root 1643 Feb 19 02:15 config.xml
--rw-r--r--  1 root root   50 Feb 19 02:14 copy_reference_file.log
--rw-r--r--  1 root root  156 Feb 19 02:15 hudson.model.UpdateCenter.xml
--rw-------  1 root root 1712 Feb 19 02:15 identity.key.enc
--rw-r--r--  1 root root    7 Feb 19 02:15 jenkins.install.UpgradeWizard.state
--rw-r--r--  1 root root  171 Feb 19 02:15 jenkins.telemetry.Correlator.xml
-drwxr-xr-x  2 root root    6 Feb 19 02:14 jobs
-drwxr-xr-x  3 root root   19 Feb 19 02:15 logs
--rw-r--r--  1 root root  907 Feb 19 02:15 nodeMonitors.xml
-drwxr-xr-x  2 root root    6 Feb 19 02:15 nodes
-drwxr-xr-x  2 root root    6 Feb 19 02:14 plugins
--rw-r--r--  1 root root   64 Feb 19 02:14 secret.key
--rw-r--r--  1 root root    0 Feb 19 02:14 secret.key.not-so-secret
-drwx------  4 root root  265 Feb 19 02:15 secrets
-drwxr-xr-x  2 root root   67 Feb 19 02:16 updates
-drwxr-xr-x  2 root root   24 Feb 19 02:15 userContent
-drwxr-xr-x  3 root root   56 Feb 19 02:15 users
-drwxr-xr-x 11 root root 4096 Feb 19 02:14 war
+-rw-r--r--  1 root root 1641 Feb 19 23:40 config.xml
+-rw-r--r--  1 root root   50 Feb 19 23:38 copy_reference_file.log
+-rw-r--r--  1 root root  156 Feb 19 23:38 hudson.model.UpdateCenter.xml
+-rw-------  1 root root 1712 Feb 19 23:38 identity.key.enc
+-rw-r--r--  1 root root    5 Feb 19 23:38 jenkins.install.UpgradeWizard.state
+-rw-r--r--  1 root root  171 Feb 19 23:38 jenkins.telemetry.Correlator.xml
+drwxr-xr-x  2 root root    6 Feb 19 23:38 jobs
+drwxr-xr-x  3 root root   19 Feb 19 23:38 logs
+-rw-r--r--  1 root root  907 Feb 19 23:38 nodeMonitors.xml
+drwxr-xr-x  2 root root    6 Feb 19 23:38 nodes
+drwxr-xr-x  2 root root    6 Feb 19 23:38 plugins
+-rw-r--r--  1 root root   64 Feb 19 23:38 secret.key
+-rw-r--r--  1 root root    0 Feb 19 23:38 secret.key.not-so-secret
+drwx------  4 root root  265 Feb 19 23:38 secrets
+drwxr-xr-x  2 root root   67 Feb 19 23:40 updates
+drwxr-xr-x  2 root root   24 Feb 19 23:38 userContent
+drwxr-xr-x  3 root root   56 Feb 19 23:38 users
+drwxr-xr-x 11 root root 4096 Feb 19 23:38 war
 ```
 #### [hdss7-11]
 ```buildoutcfg
@@ -1532,20 +1539,20 @@ jenkins         A       10.4.7.10
 #### Windows hosts
 ```buildoutcfg
 # Windows hosts (C:\Windows\System32\drivers\etc)
-10.4.7.10		dashboard.od.com  harbor.od.com	 traefik.od.com  jenkins.od.com
-10.4.7.200		k8s-yaml.od.com
+10.4.7.10		dashboard.od.com  traefik.od.com  jenkins.od.com
+10.4.7.200		k8s-yaml.od.com  harbor.od.com
 ```
 #### Jenkins initial password
 ```buildoutcfg
 [root@hdss7-200 ~]# cat /data/xsj-storage/jenkins_home/secrets/initialAdminPassword
-90cafb5fddc743a690bd552641df70a0
+8f69708357ae4324a15542d82baa5ad3
 ```
 ```buildoutcfg
 URL: http://jenkins.od.com/
 Username: admin
 Password: admin123
 ```
-#### Manage Jenkins
+#### Manage Jenkins v2.275
 * Configure Global Security
   * Authorization
     * [Y] Allow anonymous read access
@@ -1554,5 +1561,3 @@ Password: admin123
 * Manage Plugins
   * Available
     * [Y] Blue Ocean (Download now and install after restart)
-  
-##
