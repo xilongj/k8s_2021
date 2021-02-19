@@ -1565,3 +1565,8 @@ Password: admin123
 * Manage Plugins
   * Available
     * [Y] Blue Ocean (Download now and install after restart)
+
+#### BlueOcean Aggregator  
+```buildoutcfg
+Warning: This plugin requires dependent plugins that require Jenkins 2.204.1 or newer. Jenkins will refuse to load the dependent plugins requiring a newer version of Jenkins, and in turn loading this plugin will fail.
+```
