@@ -1535,7 +1535,6 @@ jenkins         A       10.4.7.10
 10.4.7.10		dashboard.od.com  harbor.od.com	 traefik.od.com  jenkins.od.com
 10.4.7.200		k8s-yaml.od.com
 ```
-
 #### Jenkins initial password
 ```buildoutcfg
 [root@hdss7-200 ~]# cat /data/xsj-storage/jenkins_home/secrets/initialAdminPassword
@@ -1555,3 +1554,5 @@ Password: admin123
 * Manage Plugins
   * Available
     * [Y] Blue Ocean (Download now and install after restart)
+  
+##
