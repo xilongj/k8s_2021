@@ -1559,9 +1559,9 @@ Password: admin123
 #### Manage Jenkins
 * Configure Global Security
   * Authorization
-    * [check] Allow anonymous read access
+    * [Y] Allow anonymous read access
   * CSRF Protection
-    * [uncheck] Prevent Cross Site Request Forgery exploits
+    * [N] Prevent Cross Site Request Forgery exploits
 * Manage Plugins
   * Available
-    * [check] Blue Ocean (Download now and install after restart)
+    * [Y] Blue Ocean (Download now and install after restart)
