@@ -644,11 +644,11 @@ harbor.od.com/public/dashboard     v1.8.3         fcac9aa03fd6   2 years ago    
 ---
 >         image: harbor.od.com/public/dashboard:v1.8.3
 ```
-#### Homework - create devops account
+#### Homework - Create devops account
 ```buildoutcfg
 We are building an Adaptable Intelligent World!
 ```
-### [heapster](https://github.com/kubernetes-retired/heapster)
+### [Heapster](https://github.com/kubernetes-retired/heapster)
 #### [hdss7-200]
 ```buildoutcfg
 [root@hdss7-200 ~]# mkdir -p /data/k8s-yaml/dashboard/heapster/
@@ -815,7 +815,7 @@ hdss7-21.host.com  | zookeeper3 | 10.4.7.21
 hdss7-22.host.com  |  Jenkins   | 10.4.7.22
 hdss7-200.host.com |  Harbor    | 10.4.7.200
 
-### Install JDK
+### Install Oracle JDK
 #### [hdss7-11]
 ```buildoutcfg
 [root@hdss7-11 ~]# mkdir /opt/src
@@ -873,7 +873,7 @@ java version "1.8.0_281"
 Java(TM) SE Runtime Environment (build 1.8.0_281-b09)
 Java HotSpot(TM) 64-Bit Server VM (build 25.281-b09, mixed mode)
 ```
-### ZooKeeper(https://zookeeper.apache.org/index.html)
+### [ZooKeeper](https://zookeeper.apache.org/index.html)
 Welcome to Apache ZooKeeper™
 Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination.
 
@@ -1110,7 +1110,7 @@ total 28
 # login harbor.od.com
 # create new project as infra & Private
 ```
-#### build log
+#### Build log
 ```buildoutcfg
 [root@hdss7-200 jenkins]# docker build . -t harbor.od.com/infra/jenkins:2.275
 Sending build context to Docker daemon  20.48kB
@@ -1203,8 +1203,9 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD*****************************************
 # https://gitee.com
 # Settings --> Key manages --> Add key
 ```
+#### Login Test
 ```buildoutcfg
-[root@hdss7-200 jenkins]# docker run --rm harbor.od.com/infra/jenkins:v2.60.2 ssh -i /root/.ssh/id_rsa -T git@gitee.com
+[root@hdss7-200 jenkins]# docker run --rm harbor.od.com/infra/jenkins:2.275 ssh -i /root/.ssh/id_rsa -T git@gitee.com
 Warning: Permanently added 'gitee.com,212.64.62.183' (ECDSA) to the list of known hosts.
 Hi Xilong Jin (DeployKey)! You've successfully authenticated, but GITEE.COM does not provide shell access.
 Note: Perhaps the current use is DeployKey.
@@ -1561,3 +1562,9 @@ Password: admin123
 * Manage Plugins
   * Available
     * [Y] Blue Ocean (Download now and install after restart)
+  
+#### Create new jobs
+```buildoutcfg
+Enter an item name: dubbo-demo
+```
+***
