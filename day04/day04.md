@@ -194,3 +194,58 @@ harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago   
     --> select String Parameter --> Name: image_name --> Description: Docker Image Name, ex. app/dubbo-demo-service --> check Trim the string 
     --> 
 ```
+* New Item or Create a Job
+  * Enter an item name: dubbo-demo
+  * Select Pipeline then click ok
+
+* General
+  * check Discard old builds
+    * Days to keep builds: 3
+    * Max # of builds to keep: 30
+  * check This project is parameterized
+    * String Parameter
+      * Name: 
+      * Description: 
+      * check Trim the string
+      
+  * check This project is parameterized
+    * String Parameter
+      * Name: 
+      * Description: 
+      * check Trim the string
+      
+  * check This project is parameterized
+    * String Parameter
+      * Name: 
+      * Description: 
+      * check Trim the string
+
+  * check This project is parameterized
+    * String Parameter
+      * Name: 
+      * Description: 
+      * check Trim the string 
+        
+  * check This project is parameterized
+    * String Parameter
+      * Name: 
+      * Description: 
+      * check Trim the string
+    
+  * check This project is parameterized
+    * String Parameter
+      * Name: 
+      * Description: 
+      * check Trim the string
+    
+  * check This project is parameterized
+    * String Parameter
+      * Name: 
+      * Description: 
+      * check Trim the string
+    
+  * check This project is parameterized
+    * String Parameter
+      * Name: 
+      * Description: 
+      * check Trim the string
