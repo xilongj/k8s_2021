@@ -1481,6 +1481,16 @@ Events:
   Normal  Created    90s   kubelet, hdss7-21.host.com  Created container jenkins
   Normal  Started    90s   kubelet, hdss7-21.host.com  Started container jenkins
 ```
+```text
+[root@hdss7-21 ~]# kubectl get pods -o wide -n infra
+NAME                       READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+jenkins-56cfb9c479-fqksc   1/1     Running   0          33h   172.7.21.4   hdss7-21.host.com   <none>           <none>
+[root@hdss7-21 ~]#
+[root@hdss7-21 ~]# kubectl get ingress -n infra
+NAME      HOSTS            ADDRESS   PORTS   AGE
+jenkins   jenkins.od.com             80      33h
+```
+
 #### [hdss7-200]
 ```buildoutcfg
 # jenkins storage

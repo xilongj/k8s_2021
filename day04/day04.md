@@ -34,7 +34,7 @@ drwxrwxr-x 4 xilongj xilongj  4096 Feb 20 01:19 lib
 -rw-rw-r-- 1 xilongj xilongj   182 Aug 27  2019 NOTICE
 -rw-rw-r-- 1 xilongj xilongj  2533 Aug 27  2019 README.txt
 ```
-#### Setup Aliyun Source
+#### Setup aliyun
 ```buildoutcfg
 [root@hdss7-200 maven-3.6.2-8u242]# cat -n conf/settings.xml
    152      <mirror>
@@ -183,17 +183,6 @@ harbor.od.com/base/jre8            8u112           c59cb4d34024   About a minute
 stanleyws/jre8                     8u112           fa3a085d6ef1   3 years ago          363MB
 harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago          363MB
 ```
-#### Create a job
-```buildoutcfg
-# click New Item or Create a Job
-# Enter an item name: dubbo-demo 
-# select Pipeline then click OK
-# General --> check Discard old builds --> Days to keep builds: 3 --> Max # of builds to keep: 30
-# check This project is parameterized 
-    --> select String Parameter --> Name: app_name --> Description: Project Name, ex. dubbo-demo-service --> check Trim the string
-    --> select String Parameter --> Name: image_name --> Description: Docker Image Name, ex. app/dubbo-demo-service --> check Trim the string 
-    --> 
-```
 ***
 
 ### Setup pipeline on Jenkins
@@ -253,14 +242,14 @@ harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago   
       * Name: base_image
       * Choices: 
         * base/jre7:7u80
-        * *base/jre8:8u112*
+        * base/jre8:8u112
       * Description: Docker base image for project
     
     * Choice Parameter [10]
       * Name: maven
       * Choices: 
         * 3.6.1-8u232
-        * *3.6.2-8u242*
+        * 3.6.2-8u242
         * 3.2.5-7u045
         * 2.2.1-6u025
       * Description: Maven version for executing compilation
@@ -307,4 +296,130 @@ ADD ${params.target_dir}/project_dir /opt/project_dir"""
 08. mvn_cmd: mvn clean package -Dmaven.test.skip=true
 09. base_image: base/jre8:8u112
 10. maven: 3.6.2-8u242
+```
+### Create deployment.yaml
+#### [hdss7-200]
+```text
+[root@hdss7-200 ~]# mkdir -p /data/k8s-yaml/dubbo-demo-service
+[root@hdss7-200 ~]# cd /data/k8s-yaml/dubbo-demo-service
+```
+```buildoutcfg
+# deployment.yaml
+[root@hdss7-200 dubbo-demo-service]# cat deployment.yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: dubbo-demo-service
+  namespace: app
+  labels:
+    name: dubbo-demo-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: dubbo-demo-service
+  template:
+    metadata:
+      labels:
+        app: dubbo-demo-service
+        name: dubbo-demo-service
+    spec:
+      containers:
+      - name: dubbo-demo-service
+        image: harbor.od.com/app/dubbo-demo-service:master_210220_2227
+        ports:
+        - containerPort: 20880
+          protocol: TCP
+        env:
+        - name: JAR_BALL
+          value: dubbo-server.jar
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: harbor
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+```
+#### [hdss7-21]
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl create ns app
+namespace/app created
+[root@hdss7-21 ~]# kubectl create secret docker-registry harbor --docker-server=harbor.od.com --docker-username=admin --docker-password=xlnx@2021 -n app
+secret/harbor created
+```
+#### [hdss7-11]
+```buildoutcfg
+[root@hdss7-11 ~]# cd /opt/zookeeper
+[root@hdss7-11 zookeeper]# bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: follower
+```
+#### Login ZooKeeper
+```buildoutcfg
+[root@hdss7-11 zookeeper]# bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: follower
+[root@hdss7-11 zookeeper]# bin/zkCli.sh -server localhost:2181
+Connecting to localhost:2181
+2021-02-20 15:03:09,083 [myid:] - INFO  [main:Environment@100] - Client environment:zookeeper.version=3.4.14-4c25d480e66aadd371de8bd2fd8da255ac140bcf, built on 03/06/2019 16:18 GMT
+2021-02-20 15:03:09,087 [myid:] - INFO  [main:Environment@100] - Client environment:host.name=hdss7-11.host.com
+2021-02-20 15:03:09,087 [myid:] - INFO  [main:Environment@100] - Client environment:java.version=1.8.0_281
+2021-02-20 15:03:09,088 [myid:] - INFO  [main:Environment@100] - Client environment:java.vendor=Oracle Corporation
+2021-02-20 15:03:09,088 [myid:] - INFO  [main:Environment@100] - Client environment:java.home=/usr/java/jdk1.8.0_281/jre
+2021-02-20 15:03:09,088 [myid:] - INFO  [main:Environment@100] - Client environment:java.class.path=/opt/zookeeper/bin/../zookeeper-server/target/classes:/opt/zookeeper/bin/../build/classes:/opt/zookeeper/bin/../zookeeper-server/target/lib/*.jar:/opt/zookeeper/bin/../build/lib/*.jar:/opt/zookeeper/bin/../lib/slf4j-log4j12-1.7.25.jar:/opt/zookeeper/bin/../lib/slf4j-api-1.7.25.jar:/opt/zookeeper/bin/../lib/netty-3.10.6.Final.jar:/opt/zookeeper/bin/../lib/log4j-1.2.17.jar:/opt/zookeeper/bin/../lib/jline-0.9.94.jar:/opt/zookeeper/bin/../lib/audience-annotations-0.5.0.jar:/opt/zookeeper/bin/../zookeeper-3.4.14.jar:/opt/zookeeper/bin/../zookeeper-server/src/main/resources/lib/*.jar:/opt/zookeeper/bin/../conf::/usr/java/jdk/lib:/usr/java/jdk/lib/tools.jar
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:java.library.path=/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:java.io.tmpdir=/tmp
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:java.compiler=<NA>
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:os.name=Linux
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:os.arch=amd64
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:os.version=3.10.0-1160.el7.x86_64
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:user.name=root
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:user.home=/root
+2021-02-20 15:03:09,089 [myid:] - INFO  [main:Environment@100] - Client environment:user.dir=/opt/zookeeper-3.4.14
+2021-02-20 15:03:09,090 [myid:] - INFO  [main:ZooKeeper@442] - Initiating client connection, connectString=localhost:2181 sessionTimeout=30000 watcher=org.apache.zookeeper.ZooKeeperMain$MyWatcher@25f38edc
+Welcome to ZooKeeper!
+2021-02-20 15:03:09,111 [myid:] - INFO  [main-SendThread(localhost:2181):ClientCnxn$SendThread@1025] - Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181. Will not attempt to authenticate using SASL (unknown error)
+JLine support is enabled
+2021-02-20 15:03:09,117 [myid:] - INFO  [main-SendThread(localhost:2181):ClientCnxn$SendThread@879] - Socket connection established to localhost/0:0:0:0:0:0:0:1:2181, initiating session
+2021-02-20 15:03:09,125 [myid:] - INFO  [main-SendThread(localhost:2181):ClientCnxn$SendThread@1299] - Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, sessionid = 0x100265e51e90001, negotiated timeout = 30000
+
+WATCHER::
+
+WatchedEvent state:SyncConnected type:None path:null
+[zk: localhost:2181(CONNECTED) 0] ls /
+[zookeeper]
+```
+#### [hdss7-22]
+```buildoutcfg
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-demo-service/deployment.yaml
+deployment.extensions/dubbo-demo-service created
+
+[root@hdss7-22 ~]# kubectl get pods -o wide -n app
+NAME                                  READY   STATUS    RESTARTS   AGE   IP            NODE                NOMINATED NODE   READINESS GATES
+dubbo-demo-service-6b596ff655-5lq9s   1/1     Running   0          13s   172.7.21.13   hdss7-21.host.com   <none>           <none>
+
+[root@hdss7-22 ~]# kubectl describe pod dubbo-demo-service-6b596ff655-5lq9s -n app
+```
+#### Dashboard
+```buildoutcfg
+# Namespace: app
+Dubbo server started
+```
+#### [hdss7-11]
+```buildoutcfg
+[zk: localhost:2181(CONNECTED) 0] ls /
+[dubbo, zookeeper]
+[zk: localhost:2181(CONNECTED) 1] ls /dubbo
+[com.od.dubbotest.api.HelloService]
 ```
