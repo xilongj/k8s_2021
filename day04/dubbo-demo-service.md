@@ -1,16 +1,17 @@
 ```text
-app_name: dubbo-demo-service
-image_name: app/dubbo-demo-service
-git_repo: https://gitee.com/xilongj/dubbo-demo-service.git
-git_ver: master
-add_tag: 210220_22:36
-mvn_dir: ./
-target_dir: ./dubbo-server/target
-mvn_cmd: mvn clean package -Dmaven.test.skip=true
-base_image: base/jre8:8u112
-maven: 3.6.2-8u242
+01. app_name: dubbo-demo-service
+02. image_name: app/dubbo-demo-service
+03. git_repo: https://gitee.com/xilongj/dubbo-demo-service.git
+04. git_ver: master
+05. add_tag: 210220_22:36
+06. mvn_dir: ./
+07. target_dir: ./dubbo-server/target
+08. mvn_cmd: mvn clean package -Dmaven.test.skip=true
+09. base_image: base/jre8:8u112
+10. maven: 3.6.2-8u242
 ```
 ```text
+# dubbo-demo-service.log
 Started by user admin
 Running in Durability level: MAX_SURVIVABILITY
 [Pipeline] Start of Pipeline
