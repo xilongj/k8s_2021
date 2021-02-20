@@ -213,7 +213,8 @@ harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago   
     
     * String Parameter [2]
       * Name: image_name
-      * Description: Docker image name, ex. app/dubbo-demo-service
+      * Description: Docker image name, ex. app/dubbo-demo-service;   
+                     Create private project on harbor.
       * check Trim the string
     
     * String Parameter [3]
@@ -259,6 +260,7 @@ harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago   
       * Name: maven
       * Choices: 
         * 3.6.1-8u232
+        * 3.6.2-8u242  
         * 3.2.5-7u045
         * 2.2.1-6u025
       * Description: Maven version for executing compilation

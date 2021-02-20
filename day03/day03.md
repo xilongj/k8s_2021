@@ -1567,4 +1567,16 @@ Password: admin123
 ```buildoutcfg
 Enter an item name: dubbo-demo
 ```
+
+```buildoutcfg
+# Namespace: infra
+# Shell in Jenkins
+
+root@jenkins-56cfb9c479-fqksc:/# ssh -i /root/.ssh/id_rsa -T git@gitee.com
+Warning: Permanently added 'gitee.com,212.64.62.183' (ECDSA) to the list of known hosts.
+Hi Xilong Jin (DeployKey)! You've successfully authenticated, but GITEE.COM does not provide shell access.
+Note: Perhaps the current use is DeployKey.
+Note: DeployKey only supports pull/fetch operations
+root@jenkins-56cfb9c479-fqksc:/# 
+```
 ***
