@@ -194,6 +194,9 @@ harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago   
     --> select String Parameter --> Name: image_name --> Description: Docker Image Name, ex. app/dubbo-demo-service --> check Trim the string 
     --> 
 ```
+***
+
+### Setup pipeline on Jenkins
 * New Item or Create a Job
   * Enter an item name: dubbo-demo
   * Select Pipeline then click ok
@@ -203,49 +206,91 @@ harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago   
     * Days to keep builds: 3
     * Max # of builds to keep: 30
   * check This project is parameterized
-    * String Parameter
-      * Name: 
-      * Description: 
+    * String Parameter [1]
+      * Name: app_name
+      * Description: Project Name, ex. dubbo-demo-service
       * check Trim the string
-      
-  * check This project is parameterized
-    * String Parameter
-      * Name: 
-      * Description: 
+    
+    * String Parameter [2]
+      * Name: image_name
+      * Description: Docker image name, ex. app/dubbo-demo-service
       * check Trim the string
-      
-  * check This project is parameterized
-    * String Parameter
-      * Name: 
-      * Description: 
+    
+    * String Parameter [3]
+      * Name: git_repo
+      * Description: Git central warehouse address， ex. https://gitee.com/xilongj/dubbo-demo-service.git
       * check Trim the string
-
-  * check This project is parameterized
-    * String Parameter
-      * Name: 
-      * Description: 
+    
+    * String Parameter [4]
+      * Name: git_ver
+      * Description: Project branch or version number
       * check Trim the string 
-        
-  * check This project is parameterized
-    * String Parameter
-      * Name: 
-      * Description: 
+    
+    * String Parameter [5]
+      * Name: add_tag
+      * Description: Part of docker image tag, date stamp, ex. 21/02/20_16:21
       * check Trim the string
     
-  * check This project is parameterized
-    * String Parameter
-      * Name: 
-      * Description: 
+    * String Parameter [6]
+      * Name: mvn_dir
+      * Default value: ./  
+      * Description: Project compile directory, default value is root
       * check Trim the string
     
-  * check This project is parameterized
-    * String Parameter
-      * Name: 
-      * Description: 
+    * String Parameter [7]
+      * Name: target_dir
+      * Default value: ./target
+      * Description: Directory where the jar/war package generated after compiling the project.
       * check Trim the string
     
-  * check This project is parameterized
-    * String Parameter
-      * Name: 
-      * Description: 
-      * check Trim the string
+    * String Parameter [8]
+      * Name: mvn_cmd
+      * Default value: mvn clean package -Dmaven.test.skip=true
+      * Description: Execute commands used for compilation, ex. mvn clean package -Dmaven.test.skip=true
+    
+    * Choice Parameter [9]
+      * Name: base_image
+      * Choices: 
+        * base/jre7:7u80
+        * base/jre8:8u281
+      * Description: Docker base image for project
+    
+    * Choice Parameter [10]
+      * Name: maven
+      * Choices: 
+        * 3.6.1-8u232
+        * 3.2.5-7u045
+        * 2.2.1-6u025
+      * Description: Maven version for executing compilation
+
+* Advanced Project Options
+    ```buildoutcfg
+    
+    pipeline {
+      agent any 
+        stages {
+          stage('pull') { //get project code from repo 
+            steps {
+              sh "git clone ${params.git_repo} ${params.app_name}/${env.BUILD_NUMBER} && cd ${params.app_name}/${env.BUILD_NUMBER} && git checkout ${params.git_ver}"
+            }
+          }
+          stage('build') { //exec mvn cmd
+            steps {
+              sh "cd ${params.app_name}/${env.BUILD_NUMBER}  && /var/jenkins_home/maven-${params.maven}/bin/${params.mvn_cmd}"
+            }
+          }
+          stage('package') { //move jar file into project_dir
+            steps {
+              sh "cd ${params.app_name}/${env.BUILD_NUMBER} && cd ${params.target_dir} && mkdir project_dir && mv *.jar ./project_dir"
+            }
+          }
+          stage('image') { //build image and push to registry
+            steps {
+              writeFile file: "${params.app_name}/${env.BUILD_NUMBER}/Dockerfile", text: """FROM harbor.od.com/${params.base_image}
+    ADD ${params.target_dir}/project_dir /opt/project_dir"""
+              sh "cd  ${params.app_name}/${env.BUILD_NUMBER} && docker build -t harbor.od.com/${params.image_name}:${params.git_ver}_${params.add_tag} . && docker push harbor.od.com/${params.image_name}:${params.git_ver}_${params.add_tag}"
+            }
+          }
+        }
+    }
+    ```
