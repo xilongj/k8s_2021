@@ -229,7 +229,7 @@ harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago   
     
     * String Parameter [5]
       * Name: add_tag
-      * Description: Part of docker image tag, date stamp, ex. 21/02/20_16:21
+      * Description: Part of docker image tag, date stamp, ex. 210220_1621
       * check Trim the string
     
     * String Parameter [6]
@@ -253,21 +253,20 @@ harbor.od.com/public/jre           8u112           fa3a085d6ef1   3 years ago   
       * Name: base_image
       * Choices: 
         * base/jre7:7u80
-        * base/jre8:8u281
+        * *base/jre8:8u112*
       * Description: Docker base image for project
     
     * Choice Parameter [10]
       * Name: maven
       * Choices: 
         * 3.6.1-8u232
-        * 3.6.2-8u242  
+        * *3.6.2-8u242*
         * 3.2.5-7u045
         * 2.2.1-6u025
       * Description: Maven version for executing compilation
 
 * Advanced Project Options
 ```buildoutcfg
-
 pipeline {
   agent any 
     stages {
