@@ -295,3 +295,16 @@ ADD ${params.target_dir}/project_dir /opt/project_dir"""
     }
 }
 ```
+#### Build with Parameters
+```text
+app_name: dubbo-demo-service
+image_name: app/dubbo-demo-service
+git_repo: https://gitee.com/xilongj/dubbo-demo-service.git
+git_ver: master
+add_tag: 210220_22:36
+mvn_dir: ./
+target_dir: ./dubbo-server/target
+mvn_cmd: mvn clean package -Dmaven.test.skip=true
+base_image: base/jre8:8u112
+maven: 3.6.2-8u242
+```
