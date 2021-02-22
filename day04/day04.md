@@ -775,3 +775,161 @@ Chrome: http://dubbo-monitor.od.com/index.html
 09. base_image: base/jre8:8u112
 10. maven: 3.6.2-8u242
 ```
+#### Jenkins Cache
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get pods -o wide -n infra | grep jenkins
+jenkins-56cfb9c479-fqksc         1/1     Running   0          3d7h   172.7.21.4    hdss7-21.host.com   <none>           <none>
+
+[root@hdss7-21 ~]# docker ps -a | grep jenkins
+9459b6e1faff   harbor.od.com/infra/jenkins         "/sbin/tini -- /usr/…"   3 days ago     Up 3 days                          k8s_jenkins_jenkins-56cfb9c479-fqksc_infra_8aa86371-e17c-418a-aa97-6f409a2116d7_0
+6796e9a5ab4f   harbor.od.com/public/pause:latest   "/pause"                 3 days ago     Up 3 days                          k8s_POD_jenkins-56cfb9c479-fqksc_infra_8aa86371-e17c-418a-aa97-6f409a2116d7_0
+
+[root@hdss7-21 ~]# docker exec -it 9459b6e1faff bash
+root@jenkins-56cfb9c479-fqksc:/# cd /root/.m2/
+root@jenkins-56cfb9c479-fqksc:~/.m2# ls -l
+total 0
+drwxr-xr-x 18 root root 261 Feb 20 20:02 repository
+```
+#### configuration list
+```buildoutcfg
+[root@hdss7-200 ~]# mkdir -p /data/k8s-yaml/dubbo-demo-consumer
+[root@hdss7-200 ~]# cd /data/k8s-yaml/dubbo-demo-consumer
+```
+```buildoutcfg
+# deployment.yaml
+[root@hdss7-200 dubbo-demo-consumer]# cat deployment.yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: dubbo-demo-consumer
+  namespace: app
+  labels:
+    name: dubbo-demo-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: dubbo-demo-consumer
+  template:
+    metadata:
+      labels:
+        app: dubbo-demo-consumer
+        name: dubbo-demo-consumer
+    spec:
+      containers:
+      - name: dubbo-demo-consumer
+        image: harbor.od.com/app/dubbo-demo-consumer:master_210222_2017
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 20880
+          protocol: TCP
+        env:
+        - name: JAR_BALL
+          value: dubbo-client.jar
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: harbor
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+```
+```buildoutcfg
+# svc.yaml
+[root@hdss7-200 dubbo-demo-consumer]# cat svc.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: dubbo-demo-consumer
+  namespace: app
+spec:
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: dubbo-demo-consumer
+  clusterIP: None
+  type: ClusterIP
+  sessionAffinity: None
+```
+```buildoutcfg
+# ingress.yaml
+[root@hdss7-200 dubbo-demo-consumer]# cat ingress.yaml
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: dubbo-demo-consumer
+  namespace: app
+spec:
+  rules:
+  - host: demo.od.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dubbo-demo-consumer
+          servicePort: 8080
+```
+#### Update DNS
+```buildoutcfg
+[root@hdss7-11 ~]# cat /var/named/od.com.zone
+$ORIGIN od.com.
+$TTL 600        ; 10 minutes
+@       IN SOA dns.od.com. dnsadmin.od.com. (
+                        2021021009      ; serial
+                        10800           ; refresh (3 hours)
+                        900             ; retry (15 minutes)
+                        604800          ; expire (1 week)
+                        86400           ; minimum (1 day)
+                        )
+                        NS      dns.od.com.
+$TTL 60 ; 1 minute
+dns             A       10.4.7.11
+harbor          A       10.4.7.200
+k8s-yaml        A       10.4.7.200
+traefik         A       10.4.7.10
+dashboard       A       10.4.7.10
+zk1             A       10.4.7.11
+zk2             A       10.4.7.12
+zk3             A       10.4.7.21
+jenkins         A       10.4.7.10
+dubbo-monitor   A       10.4.7.10
+demo            A       10.4.7.10
+[root@hdss7-11 ~]# systemctl restart named
+```
+```buildoutcfg
+[root@hdss7-11 ~]# dig -t A demo.od.com @10.4.7.11 +short
+10.4.7.10
+# Gateway, prefered DNS
+[root@hdss7-11 ~]# dig -t A demo.od.com @10.4.7.254 +short
+10.4.7.10
+[root@hdss7-11 ~]# dig -t A demo.od.com @10.4.7.11 +short
+10.4.7.10
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-demo-consumer/deployment.yaml
+deployment.extensions/dubbo-demo-consumer created
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-demo-consumer/svc.yaml
+service/dubbo-demo-consumer created
+[root@hdss7-21 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-demo-consumer/ingress.yaml
+ingress.extensions/dubbo-demo-consumer created
+```
+```buildoutcfg
+[root@hdss7-21 ~]# kubectl get pods -o wide -n app
+NAME                                   READY   STATUS    RESTARTS   AGE    IP            NODE                NOMINATED NODE   READINESS GATES
+dubbo-demo-consumer-5b5447d794-cp27h   1/1     Running   0          55s    172.7.21.14   hdss7-21.host.com   <none>           <none>
+dubbo-demo-service-6b596ff655-5lq9s    1/1     Running   0          2d5h   172.7.21.13   hdss7-21.host.com   <none>           <none>
+```
+```buildoutcfg
+Chrome: http://demo.od.com/hello?name=xilongj
+```
