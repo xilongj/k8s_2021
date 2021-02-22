@@ -423,3 +423,355 @@ Dubbo server started
 [zk: localhost:2181(CONNECTED) 1] ls /dubbo
 [com.od.dubbotest.api.HelloService]
 ```
+### [Dubbo Monitor](https://github.com/Jeromefromcn/dubbo-monitor)
+```buildoutcfg
+[root@hdss7-200 ~]# [root@hdss7-200 ~]# git clone https://github.com/Jeromefromcn/dubbo-monitor.git
+[root@hdss7-200 ~]# mv dubbo-monitor /opt/src/
+```
+```buildoutcfg
+[root@hdss7-200 ~]# cat /opt/src/dubbo-monitor/dubbo-monitor-simple/conf/dubbo_origin.properties
+##
+# Copyright 1999-2011 Alibaba Group.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##
+dubbo.container=log4j,spring,registry,jetty
+dubbo.application.name=dubbo-monitor
+dubbo.application.owner=HomeEdu
+dubbo.registry.address=zookeeper://{ZOOKEEPER_ADDRESS}
+dubbo.registry.address=zookeeper://zk1.od.com:2181?backup=zk2.od.com:2181,zk3.od.com:2181
+dubbo.protocol.port=20880
+dubbo.jetty.port=8080
+dubbo.jetty.directory=/dubbo-monitor-simple/monitor
+dubbo.charts.directory=/dubbo-monitor-simple/charts
+dubbo.statistics.directory=/dubbo-monitor-simple/statistics
+dubbo.log4j.file=logs/dubbo-monitor.log
+dubbo.log4j.level=WARN
+```
+```buildoutcfg
+[root@hdss7-200 dubbo-monitor]# sed -r -i -e '/^nohup/{p;:a;N;$!ba;d}'  ./dubbo-monitor-simple/bin/start.sh && sed  -r -i -e "s%^nohup(.*)%exec \1%"  ./dubbo-monitor-simple/bin/start.sh
+[root@hdss7-200 dubbo-monitor]# cat dubbo-monitor-simple/bin/start.sh
+#!/bin/bash
+sed -e "s/{ZOOKEEPER_ADDRESS}/$ZOOKEEPER_ADDRESS/g" /dubbo-monitor-simple/conf/dubbo_origin.properties > /dubbo-monitor-simple/conf/dubbo.properties
+cd `dirname $0`
+BIN_DIR=`pwd`
+cd ..
+DEPLOY_DIR=`pwd`
+CONF_DIR=$DEPLOY_DIR/conf
+
+SERVER_NAME=`sed '/dubbo.application.name/!d;s/.*=//' conf/dubbo.properties | tr -d '\r'`
+SERVER_PROTOCOL=`sed '/dubbo.protocol.name/!d;s/.*=//' conf/dubbo.properties | tr -d '\r'`
+SERVER_PORT=`sed '/dubbo.protocol.port/!d;s/.*=//' conf/dubbo.properties | tr -d '\r'`
+LOGS_FILE=`sed '/dubbo.log4j.file/!d;s/.*=//' conf/dubbo.properties | tr -d '\r'`
+
+if [ -z "$SERVER_NAME" ]; then
+    SERVER_NAME=`hostname`
+fi
+
+PIDS=`ps -f | grep java | grep "$CONF_DIR" |awk '{print $2}'`
+if [ -n "$PIDS" ]; then
+    echo "ERROR: The $SERVER_NAME already started!"
+    echo "PID: $PIDS"
+    exit 1
+fi
+
+if [ -n "$SERVER_PORT" ]; then
+    SERVER_PORT_COUNT=`netstat -tln | grep $SERVER_PORT | wc -l`
+    if [ $SERVER_PORT_COUNT -gt 0 ]; then
+        echo "ERROR: The $SERVER_NAME port $SERVER_PORT already used!"
+        exit 1
+    fi
+fi
+
+LOGS_DIR=""
+if [ -n "$LOGS_FILE" ]; then
+    LOGS_DIR=`dirname $LOGS_FILE`
+else
+    LOGS_DIR=$DEPLOY_DIR/logs
+fi
+if [ ! -d $LOGS_DIR ]; then
+    mkdir $LOGS_DIR
+fi
+STDOUT_FILE=$LOGS_DIR/stdout.log
+
+LIB_DIR=$DEPLOY_DIR/lib
+LIB_JARS=`ls $LIB_DIR|grep .jar|awk '{print "'$LIB_DIR'/"$0}'|tr "\n" ":"`
+
+JAVA_OPTS=" -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true "
+JAVA_DEBUG_OPTS=""
+if [ "$1" = "debug" ]; then
+    JAVA_DEBUG_OPTS=" -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n "
+fi
+JAVA_JMX_OPTS=""
+if [ "$1" = "jmx" ]; then
+    JAVA_JMX_OPTS=" -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false "
+fi
+JAVA_MEM_OPTS=""
+BITS=`java -version 2>&1 | grep -i 64-bit`
+if [ -n "$BITS" ]; then
+    JAVA_MEM_OPTS=" -server -Xmx128m -Xms128m -Xmn32m -XX:PermSize=16m -Xss256k -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+UseCMSCompactAtFullCollection -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 "
+else
+    JAVA_MEM_OPTS=" -server -Xms128m -Xmx128m -XX:PermSize=16m -XX:SurvivorRatio=2 -XX:+UseParallelGC "
+fi
+
+echo -e "Starting the $SERVER_NAME ...\c"
+exec java $JAVA_OPTS $JAVA_MEM_OPTS $JAVA_DEBUG_OPTS $JAVA_JMX_OPTS -classpath $CONF_DIR:$LIB_JARS com.alibaba.dubbo.container.Main > $STDOUT_FILE 2>&1
+```
+```buildoutcfg
+[root@hdss7-200 src]# ls -l
+total 540128
+-rw-r--r-- 1 root root   9142315 Sep  3  2019 apache-maven-3.6.2-bin.tar.gz
+drwxr-xr-x 4 root root        81 Feb 21 15:31 dubbo-monitor
+-rw-r--r-- 1 root root 543943276 Feb 11 13:12 harbor-offline-installer-v2.1.2.tgz
+
+[root@hdss7-200 src]# cp -a dubbo-monitor/ /data/dockerfile/
+
+[root@hdss7-200 src]# cd /data/dockerfile/
+[root@hdss7-200 dockerfile]# ls -l
+total 0
+drwxr-xr-x 4 root root 81 Feb 21 15:31 dubbo-monitor
+drwxr-xr-x 2 root root 78 Feb 19 23:05 jenkins
+drwxr-xr-x 2 root root 94 Feb 20 12:50 jre8
+```
+```buildoutcfg
+[root@hdss7-200 dubbo-monitor]# cat Dockerfile
+FROM jeromefromcn/docker-alpine-java-bash
+MAINTAINER Jerome Jiang
+COPY dubbo-monitor-simple/ /dubbo-monitor-simple/
+CMD /dubbo-monitor-simple/bin/start.sh
+```
+```buildoutcfg
+[root@hdss7-200 dubbo-monitor]# docker build . -t harbor.od.com/infra/dubbo-monitor:latest
+Sending build context to Docker daemon  50.02MB
+Step 1/4 : FROM jeromefromcn/docker-alpine-java-bash
+latest: Pulling from jeromefromcn/docker-alpine-java-bash
+Image docker.io/jeromefromcn/docker-alpine-java-bash:latest uses outdated schema1 manifest format. Please upgrade to a schema2 image for better future compatibility. More information at https://docs.docker.com/registry/spec/deprecated-schema-v1/
+420890c9e918: Pull complete
+a3ed95caeb02: Pull complete
+4a5cf8bc2931: Pull complete
+6a17cae86292: Pull complete
+4729ccfc7091: Pull complete
+Digest: sha256:658f4a5a2f6dd06c4669f8f5baeb85ca823222cb938a15cfb7f6459c8cfe4f91
+Status: Downloaded newer image for jeromefromcn/docker-alpine-java-bash:latest
+ ---> 3114623bb27b
+Step 2/4 : MAINTAINER Jerome Jiang
+ ---> Running in 9756a2738cc9
+Removing intermediate container 9756a2738cc9
+ ---> 572d62c61a11
+Step 3/4 : COPY dubbo-monitor-simple/ /dubbo-monitor-simple/
+ ---> 2ef890e55020
+Step 4/4 : CMD /dubbo-monitor-simple/bin/start.sh
+ ---> Running in aeafff2d86f6
+Removing intermediate container aeafff2d86f6
+ ---> a413ff39101f
+Successfully built a413ff39101f
+Successfully tagged harbor.od.com/infra/dubbo-monitor:latest
+```
+```buildoutcfg
+[root@hdss7-200 dubbo-monitor]# docker images | grep dubbo-monitor
+harbor.od.com/infra/dubbo-monitor      latest          a413ff39101f   About a minute ago   139MB
+[root@hdss7-200 dubbo-monitor]#
+[root@hdss7-200 dubbo-monitor]#
+[root@hdss7-200 dubbo-monitor]#
+[root@hdss7-200 dubbo-monitor]# docker push harbor.od.com/infra/dubbo-monitor:latest
+The push refers to repository [harbor.od.com/infra/dubbo-monitor]
+177505d3b130: Pushed
+6c05aa02bec9: Pushed
+1bdff01a06a9: Pushed
+5f70bf18a086: Mounted from public/pause
+e271a1fb1dfc: Pushed
+c56b7dabbc7a: Pushed
+latest: digest: sha256:075d81653a455a701604ce039ca41173f5ce8dbdd50716df60d64ef29887529e size: 2400
+```
+#### [hdss7-200]
+```buildoutcfg
+[root@hdss7-200 ~]# mkdir -p /data/k8s-yaml/dubbo-monitor
+```
+```buildoutcfg
+# deployment.yaml
+[root@hdss7-200 dubbo-monitor]# cat deployment.yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: dubbo-monitor
+  namespace: infra
+  labels:
+    name: dubbo-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: dubbo-monitor
+  template:
+    metadata:
+      labels:
+        app: dubbo-monitor
+        name: dubbo-monitor
+    spec:
+      containers:
+      - name: dubbo-monitor
+        image: harbor.od.com/infra/dubbo-monitor:latest
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 20880
+          protocol: TCP
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: harbor
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+```
+```buildoutcfg
+# svc.yaml
+[root@hdss7-200 dubbo-monitor]# cat svc.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: dubbo-monitor
+  namespace: infra
+spec:
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: dubbo-monitor
+  clusterIP: None
+  type: ClusterIP
+  sessionAffinity: None
+```
+```buildoutcfg
+# ingress.yaml
+[root@hdss7-200 dubbo-monitor]# cat ingress.yaml
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: dubbo-monitor
+  namespace: infra
+spec:
+  rules:
+  - host: dubbo-monitor.od.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: dubbo-monitor
+          servicePort: 8080
+```
+#### [hdss7-22]
+```buildoutcfg
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-monitor/deployment.yaml
+
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-monitor/svc.yaml
+
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-monitor/ingress.yaml
+```
+```buildoutcfg
+[root@hdss7-22 ~]# kubectl get pods -o wide -n infra
+NAME                             READY   STATUS    RESTARTS   AGE     IP            NODE                NOMINATED NODE   READINESS GATES
+dubbo-monitor-5bb45c8b97-5cvf7   1/1     Running   0          2m55s   172.7.22.17   hdss7-22.host.com   <none>           <none>
+jenkins-56cfb9c479-fqksc         1/1     Running   0          2d4h    172.7.21.4    hdss7-21.host.com   <none>           <none>
+```
+### Update DNS
+#### [hdss7-11]
+```buildoutcfg
+[root@hdss7-11 ~]# cat /var/named/od.com.zone
+$ORIGIN od.com.
+$TTL 600        ; 10 minutes
+@       IN SOA dns.od.com. dnsadmin.od.com. (
+                        2021021008      ; serial
+                        10800           ; refresh (3 hours)
+                        900             ; retry (15 minutes)
+                        604800          ; expire (1 week)
+                        86400           ; minimum (1 day)
+                        )
+                        NS      dns.od.com.
+$TTL 60 ; 1 minute
+dns             A       10.4.7.11
+harbor          A       10.4.7.200
+k8s-yaml        A       10.4.7.200
+traefik         A       10.4.7.10
+dashboard       A       10.4.7.10
+zk1             A       10.4.7.11
+zk2             A       10.4.7.12
+zk3             A       10.4.7.21
+jenkins         A       10.4.7.10
+dubbo-monitor   A       10.4.7.10
+```
+```buildoutcfg
+[root@hdss7-11 ~]# systemctl restart named
+```
+```buildoutcfg
+[root@hdss7-11 ~]# dig -t A dubbo-monitor.od.com @10.4.7.11
+
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.3 <<>> -t A dubbo-monitor.od.com @10.4.7.11
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 9139
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;dubbo-monitor.od.com.          IN      A
+
+;; ANSWER SECTION:
+dubbo-monitor.od.com.   60      IN      A       10.4.7.10
+
+;; AUTHORITY SECTION:
+od.com.                 600     IN      NS      dns.od.com.
+
+;; ADDITIONAL SECTION:
+dns.od.com.             60      IN      A       10.4.7.11
+
+;; Query time: 0 msec
+;; SERVER: 10.4.7.11#53(10.4.7.11)
+;; WHEN: Sun Feb 21 18:13:00 CST 2021
+;; MSG SIZE  rcvd: 99
+
+
+[root@hdss7-11 ~]# dig -t A dubbo-monitor.od.com @10.4.7.11 +short
+10.4.7.10
+```
+```buildoutcfg
+# C:\Windows\System32\drivers\etc\hosts
+10.4.7.10		dashboard.od.com  traefik.od.com  jenkins.od.com  dubbo-monitor.od.com
+10.4.7.200		k8s-yaml.od.com   harbor.od.com
+```
+```buildoutcfg
+Chrome: http://dubbo-monitor.od.com/index.html
+```
+### dubbo-demo-web
+```buildoutcfg
+01. app_name: dubbo-demo-consumer
+02. image_name: app/dubbo-demo-consumer
+03. git_repo: git@gitee.com:xilongj/dubbo-demo-web.git
+04. git_ver: master
+05. add_tag: 210222_20:36
+06. mvn_dir: ./
+07. target_dir: ./dubbo-client/target
+08. mvn_cmd: mvn clean package -e -q -Dmaven.test.skip=true
+09. base_image: base/jre8:8u112
+10. maven: 3.6.2-8u242
+```
