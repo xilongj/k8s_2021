@@ -934,3 +934,19 @@ dubbo-demo-service-6b596ff655-5lq9s    1/1     Running   0          2d5h   172.7
 Chrome: http://demo.od.com/hello?name=xilongj
 ```
 ***
+
+## ConfigMap
+### Build env
+* Namespace: app
+  * dubbo-demo-service: 0
+  * dubbo-demo-consumer: 0
+* Namespace: infra
+  * dubbo-monitor: 0
+
+|Hostname |Role  | IP|
+----- | ----- | -----
+|hdss7-11.host.com|zk1.od.com [dev] |10.4.7.11|
+|hdss7-12.host.com|zk2.od.com [prod]|10.4.7.12|  
+
+
+
