@@ -6,6 +6,7 @@ Kubernetes is a portable, extensible, open-source platform for managing containe
 Site: https://kubernetes.io
 edX: https://kubernetes.io/training
 Github: https://github.com/kubernetes/kubernetes
+Aliyun: https://edu.aliyun.com/roadmap/cloudnative#all
 ```
 
 ### Kubernetes the Hard Way
