@@ -13,7 +13,6 @@ Aliyun: https://edu.aliyun.com/roadmap/cloudnative#all
 * https://acloudguru.com/course/kubernetes-the-hard-way
 * https://github.com/kelseyhightower/kubernetes-the-hard-way
 
-
 ```text
 Author: Xilong Jin
 E-mail: xilongus@gmail.com
