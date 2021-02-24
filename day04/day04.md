@@ -949,7 +949,234 @@ Chrome: http://demo.od.com/hello?name=xilongj
 |hdss7-11.host.com|zk1.od.com [dev] |10.4.7.11|
 |hdss7-12.host.com|zk2.od.com [prod]|10.4.7.12|  
 
+### Rebuild ZooKeeper
 #### [hdss7-21]
+```buildoutcfg
+# stop zookeeper on hdss7-21
+[root@hdss7-21 ~]# cd /opt/zookeeper
+[root@hdss7-21 zookeeper]# bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: follower
+[root@hdss7-21 zookeeper]# bin/zkServer.sh stop
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Stopping zookeeper ... STOPPED
+# clean data and logs
+[root@hdss7-21 ~]# rm -rf /data/zookeeper/data/*
+[root@hdss7-21 ~]# rm -rf /data/zookeeper/logs/*
+# remove server
 
+```
+```buildoutcfg
+# stop zookeeper on hdss7-12
+[root@hdss7-12 ~]# cd /opt/zookeeper
+[root@hdss7-12 zookeeper]# bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: leader
+[root@hdss7-12 zookeeper]# bin/zkServer.sh stop
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Stopping zookeeper ... STOPPED
 
+# clean data and logs
+[root@hdss7-12 ~]# rm -rf /data/zookeeper/data/*
+[root@hdss7-12 ~]# rm -rf /data/zookeeper/logs/*
 
+# clean server
+[root@hdss7-12 ~]# cat /opt/zookeeper/conf/zoo.cfg
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/data/zookeeper/data
+dataLogDir=/data/zookeeper/logs
+clientPort=2181
+#server.1=zk1.od.com:2888:3888
+#server.2=zk2.od.com:2888:3888
+#server.3=zk3.od.com:2888:3888
+```
+```buildoutcfg
+# stop zookeeper on hdss7-11
+[root@hdss7-11 ~]# cd /opt/zookeeper
+[root@hdss7-11 zookeeper]# bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Error contacting service. It is probably not running.
+[root@hdss7-11 zookeeper]# bin/zkServer.sh stop
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Stopping zookeeper ... STOPPED
+
+# clean data and logs
+[root@hdss7-11 ~]# rm -rf /data/zookeeper/data/*
+[root@hdss7-11 ~]# rm -rf /data/zookeeper/logs/*
+
+# remove server
+[root@hdss7-11 ~]# cat /opt/zookeeper/conf/zoo.cfg
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/data/zookeeper/data
+dataLogDir=/data/zookeeper/logs
+clientPort=2181
+#server.1=zk1.od.com:2888:3888
+#server.2=zk2.od.com:2888:3888
+#server.3=zk3.od.com:2888:3888
+```
+#### Start ZooKeeper
+```buildoutcfg
+# hdss7-11
+[root@hdss7-11 ~]# cd /opt/zookeeper
+[root@hdss7-11 zookeeper]# bin/zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[root@hdss7-11 zookeeper]# bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: standalone
+```
+```buildoutcfg
+# hdss7-12
+[root@hdss7-12 ~]# cd /opt/zookeeper
+[root@hdss7-12 zookeeper]# bin/zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[root@hdss7-12 zookeeper]# bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: standalone
+```
+### Create resource allocation list
+#### [hdss7-200]
+```buildoutcfg
+# cm.yaml
+[root@hdss7-200 ~]# cat /data/k8s-yaml/dubbo-monitor/cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dubbo-monitor-cm
+  namespace: infra
+data:
+  dubbo.properties: |
+    dubbo.container=log4j,spring,registry,jetty
+    dubbo.application.name=simple-monitor
+    dubbo.application.owner=HomeEdu
+    dubbo.registry.address=zookeeper://zk1.od.com:2181
+    dubbo.protocol.port=20880
+    dubbo.jetty.port=8080
+    dubbo.jetty.directory=/dubbo-monitor-simple/monitor
+    dubbo.charts.directory=/dubbo-monitor-simple/charts
+    dubbo.statistics.directory=/dubbo-monitor-simple/statistics
+    dubbo.log4j.file=/dubbo-monitor-simple/logs/dubbo-monitor.log
+    dubbo.log4j.level=WARN
+```
+```buildoutcfg
+# deployment_sec.yaml
+[root@hdss7-200 ~]# cat /data/k8s-yaml/dubbo-monitor/deployment_sec.yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: dubbo-monitor
+  namespace: infra
+  labels:
+    name: dubbo-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: dubbo-monitor
+  template:
+    metadata:
+      labels:
+        app: dubbo-monitor
+        name: dubbo-monitor
+    spec:
+      containers:
+      - name: dubbo-monitor
+        image: harbor.od.com/infra/dubbo-monitor:latest
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 20880
+          protocol: TCP
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: configmap-volume
+            mountPath: /dubbo-monitor-simple/conf
+      volumes:
+        - name: configmap-volume
+          configMap:
+            name: dubbo-monitor-cm
+      imagePullSecrets:
+      - name: harbor
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+```
+```buildoutcfg
+[root@hdss7-200 ~]# cd /data/k8s-yaml/dubbo-monitor/
+[root@hdss7-200 dubbo-monitor]# vimdiff deployment.yaml deployment_sec.yaml
+```
+### apply resource allocation list
+```buildoutcfg
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-monitor/cm.yaml
+configmap/dubbo-monitor-cm created
+# dashboard.od.com --> Namespace: infra --> Config Maps
+
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/dubbo-monitor/deployment_sec.yaml
+deployment.extensions/dubbo-monitor configured
+```
+```buildoutcfg
+# exec: dubbo-monitor-6676dd74cc-fr2nq
+bash-4.3# cd /dubbo-monitor-simple/conf/
+bash-4.3# ls -l
+total 0
+lrwxrwxrwx    1 root     root            23 Feb 24 13:50 dubbo.properties -> ..data/dubbo.properties
+bash-4.3# cat dubbo.properties 
+dubbo.container=log4j,spring,registry,jetty
+dubbo.application.name=simple-monitor
+dubbo.application.owner=HomeEdu
+dubbo.registry.address=zookeeper://zk1.od.com:2181
+dubbo.protocol.port=20880
+dubbo.jetty.port=8080
+dubbo.jetty.directory=/dubbo-monitor-simple/monitor
+dubbo.charts.directory=/dubbo-monitor-simple/charts
+dubbo.statistics.directory=/dubbo-monitor-simple/statistics
+dubbo.log4j.file=/dubbo-monitor-simple/logs/dubbo-monitor.log
+dubbo.log4j.level=WARN
+```
+#### switch to zk2[prod] from zk1[dev]
+```buildoutcfg
+Chrome: http://dubbo-monitor.od.com/status.html
+# edit configMap.yaml to connect to zk2.od.com
+```
+```buildoutcfg
+/ # tail -fn 200 /var/log/traefik_access.log | grep -i dubbo-monitor
+
+10.4.7.1 - - [24/Feb/2021:14:15:01 +0000] "GET /status.html HTTP/1.0" 200 3653 "http://dubbo-monitor.od.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36" 13237 "dubbo-monitor.od.com/" "http://172.7.22.17:8080" 2ms
+10.4.7.1 - - [24/Feb/2021:14:15:08 +0000] "GET /status.html HTTP/1.0" 200 3683 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36" 13238 "dubbo-monitor.od.com/" "http://172.7.22.17:8080" 2ms
+```
+```buildoutcfg
+# iptables
+[root@hdss7-21 ~]# iptables-save | grep -i postrouting
+:POSTROUTING ACCEPT [64:3852]
+:KUBE-POSTROUTING - [0:0]
+-A POSTROUTING -s 172.7.21.0/24 ! -o docker0 -j MASQUERADE
+-A POSTROUTING -s 172.7.21.0/24 ! -d 172.7.0.0/16 ! -o docker0 -j MASQUERADE
+-A POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING
+-A POSTROUTING -s 172.7.21.2/32 -d 172.7.21.2/32 -p tcp -m tcp --dport 80 -j MASQUERADE
+-A KUBE-POSTROUTING -m comment --comment "kubernetes service traffic requiring SNAT" -m mark --mark 0x4000/0x4000 -j MASQUERADE
+-A KUBE-POSTROUTING -m comment --comment "Kubernetes endpoints dst ip:port, source ip for solving hairpin purpose" -m set --match-set KUBE-LOOP-BACK dst,dst,src -j MASQUERADE
+```
