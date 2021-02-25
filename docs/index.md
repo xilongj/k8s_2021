@@ -14,7 +14,7 @@ Kubernetes is a portable, extensible, open-source platform for managing containe
   
 
 <details>
-  <summary>Dubbo demo</summary>
+  <summary>Contact Owner</summary>
   <pre><code> 
     Author: Xilong Jin
     E-mail: xilongus@gmail.com
