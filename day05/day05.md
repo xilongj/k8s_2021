@@ -111,8 +111,8 @@ Bye
 ```
 ### DB Script
 ```text
-[root@hdss7-11 ~]# wget URL -O apolloconfigdb.sql
 URL = https://raw.githubusercontent.com/ctripcorp/apollo/1.5.1/scripts/db/migration/configdb/V1.0.0__initialization.sql
+[root@hdss7-11 ~]# wget URL -O apolloconfigdb.sql
 ```
 
 ### Import script
