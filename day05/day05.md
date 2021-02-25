@@ -111,7 +111,7 @@ Bye
 ```
 ### DB Script
 ```text
-[root@hdss7-11 ~]# wget --no-check-certificate https://raw.githubusercontent.com/ctripcorp/apollo/1.5.1/scripts/db/migration/configdb/V1.0.0__initialization.sql -O apolloconfigdb.sql
+[root@hdss7-11 ~]# wget https://raw.githubusercontent.com/ctripcorp/apollo/1.5.1/scripts/db/migration/configdb/V1.0.0__initialization.sql -O apolloconfigdb.sql
 ```
 <details>
   <summary>Apolloconfig.sql</summary>
@@ -497,6 +497,179 @@ Bye
         /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
   </code></pre>
 </details>
+***
 
+### Import script
+```text
+[root@hdss7-11 ~]# ls
+anaconda-ks.cfg  apolloconfig.sql
 
+[root@hdss7-11 ~]# mysql -u root -p < apolloconfig.sql
+Enter password:
+[root@hdss7-11 ~]# mysql -u root -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 10
+Server version: 10.1.48-MariaDB MariaDB Server
 
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| ApolloConfigDB     |
+| information_schema |
+| mysql              |
+| performance_schema |
++--------------------+
+4 rows in set (0.00 sec)
+```
+```text
+MariaDB [(none)]> use ApolloConfigDB;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+MariaDB [ApolloConfigDB]> grant INSERT,DELETE,UPDATE,SELECT on ApollConfigDB.* to "apolloconfig"@"10.4.7.%" identified by "123456";
+Query OK, 0 rows affected (0.01 sec)
+
+MariaDB [ApolloConfigDB]> select user,host from mysql.user;
++--------------+-------------------+
+| user         | host              |
++--------------+-------------------+
+| apolloconfig | 10.4.7.%          |
+| root         | 127.0.0.1         |
+| root         | ::1               |
+|              | hdss7-11.host.com |
+| root         | hdss7-11.host.com |
+|              | localhost         |
+| root         | localhost         |
++--------------+-------------------+
+7 rows in set (0.01 sec)
+```
+```text
+MariaDB [ApolloConfigDB]> show tables;
++--------------------------+
+| Tables_in_ApolloConfigDB |
++--------------------------+
+| App                      |
+| AppNamespace             |
+| Audit                    |
+| Cluster                  |
+| Commit                   |
+| GrayReleaseRule          |
+| Instance                 |
+| InstanceConfig           |
+| Item                     |
+| Namespace                |
+| NamespaceLock            |
+| Release                  |
+| ReleaseHistory           |
+| ReleaseMessage           |
+| ServerConfig             |
++--------------------------+
+15 rows in set (0.00 sec)
+
+MariaDB [ApolloConfigDB]> select * from ServerConfig \G
+*************************** 1. row ***************************
+                       Id: 1
+                      Key: eureka.service.url
+                  Cluster: default
+                    Value: http://localhost:8080/eureka/
+                  Comment: Eureka服务Url，多个service以英文逗号分隔
+                IsDeleted:
+     DataChange_CreatedBy: default
+   DataChange_CreatedTime: 2021-02-26 00:18:49
+DataChange_LastModifiedBy:
+      DataChange_LastTime: 2021-02-26 00:18:49
+*************************** 2. row ***************************
+                       Id: 2
+                      Key: namespace.lock.switch
+                  Cluster: default
+                    Value: false
+                  Comment: 一次发布只能有一个人修改开关
+                IsDeleted:
+     DataChange_CreatedBy: default
+   DataChange_CreatedTime: 2021-02-26 00:18:49
+DataChange_LastModifiedBy:
+      DataChange_LastTime: 2021-02-26 00:18:49
+*************************** 3. row ***************************
+                       Id: 3
+                      Key: item.key.length.limit
+                  Cluster: default
+                    Value: 128
+                  Comment: item key 最大长度限制
+                IsDeleted:
+     DataChange_CreatedBy: default
+   DataChange_CreatedTime: 2021-02-26 00:18:49
+DataChange_LastModifiedBy:
+      DataChange_LastTime: 2021-02-26 00:18:49
+*************************** 4. row ***************************
+                       Id: 4
+                      Key: item.value.length.limit
+                  Cluster: default
+                    Value: 20000
+                  Comment: item value最大长度限制
+                IsDeleted:
+     DataChange_CreatedBy: default
+   DataChange_CreatedTime: 2021-02-26 00:18:49
+DataChange_LastModifiedBy:
+      DataChange_LastTime: 2021-02-26 00:18:49
+*************************** 5. row ***************************
+                       Id: 5
+                      Key: config-service.cache.enabled
+                  Cluster: default
+                    Value: false
+                  Comment: ConfigService是否开启缓存，开启后能提高性能，但是会增大内存消耗！
+                IsDeleted:
+     DataChange_CreatedBy: default
+   DataChange_CreatedTime: 2021-02-26 00:18:49
+DataChange_LastModifiedBy:
+      DataChange_LastTime: 2021-02-26 00:18:49
+5 rows in set (0.00 sec)
+
+MariaDB [ApolloConfigDB]>
+```
+```text
+MariaDB [ApolloConfigDB]> update ApolloConfigDB.ServerConfig set ServerConfig.Value="http://config.od.com/eureka" where ServerConfig.Key="eureka.service.url";
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+```
+### Update DNS
+#### [hdss7-11]
+```text
+[root@hdss7-11 ~]# cat /var/named/od.com.zone
+$ORIGIN od.com.
+$TTL 600        ; 10 minutes
+@       IN SOA dns.od.com. dnsadmin.od.com. (
+                        2021021010      ; serial
+                        10800           ; refresh (3 hours)
+                        900             ; retry (15 minutes)
+                        604800          ; expire (1 week)
+                        86400           ; minimum (1 day)
+                        )
+                        NS      dns.od.com.
+$TTL 60 ; 1 minute
+dns             A       10.4.7.11
+harbor          A       10.4.7.200
+k8s-yaml        A       10.4.7.200
+traefik         A       10.4.7.10
+dashboard       A       10.4.7.10
+zk1             A       10.4.7.11
+zk2             A       10.4.7.12
+zk3             A       10.4.7.21
+jenkins         A       10.4.7.10
+dubbo-monitor   A       10.4.7.10
+demo            A       10.4.7.10
+config          A       10.4.7.10
+```
+```text
+[root@hdss7-11 ~]# systemctl restart named
+
+[root@hdss7-21 ~]# dig -t A config.od.com @192.168.0.2 +short
+10.4.7.10
+```
+37:38
