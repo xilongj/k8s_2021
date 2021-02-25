@@ -46,7 +46,7 @@ Created symlink from /etc/systemd/system/mysql.service to /usr/lib/systemd/syste
 Created symlink from /etc/systemd/system/mysqld.service to /usr/lib/systemd/system/mariadb.service.
 Created symlink from /etc/systemd/system/multi-user.target.wants/mariadb.service to /usr/lib/systemd/system/mariadb.service.
 ```
-### set up password
+### Set up password
 ```text
 [root@hdss7-11 ~]# mysqladmin -u root password
 New password: (123456)
