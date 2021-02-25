@@ -30,6 +30,7 @@ MariaDB-server-10.1.48-1.el7.centos.x86_64
 character_set_server = utf8mb4
 collation_server = utf8mb4_general_ci
 init_connect = "SET NAMES 'utf8mb4'"
+
 [root@hdss7-11 ~]# cat /etc/my.cnf.d/mysql-clients.cnf
 [mysql]
 default-character-set = utf8mb4
