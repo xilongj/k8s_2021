@@ -1,0 +1,281 @@
+Sun Feb 28 23:53:19 CST 2021 ==== Starting ==== 
+Java HotSpot(TM) 64-Bit Server VM warning: UseCMSCompactAtFullCollection is deprecated and will likely be removed in a future release.
+Java HotSpot(TM) 64-Bit Server VM warning: CMSFullGCsBeforeCompaction is deprecated and will likely be removed in a future release.
+Java HotSpot(TM) 64-Bit Server VM warning: Cannot open file /opt/logs/apollo-config-server/gc.log due to No such file or directory
+
+Java HotSpot(TM) 64-Bit Server VM warning: MaxNewSize (262144k) is equal to or greater than the entire heap (131072k).  A new max generation size of 131008k will be used.
+2021-02-28 23:53:21.960  INFO 49 --- [           main] s.c.a.AnnotationConfigApplicationContext : Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@4bfb46a9: startup date [Sun Feb 28 23:53:21 CST 2021]; root of context hierarchy
+2021-02-28 23:53:22.649  INFO 49 --- [           main] f.a.AutowiredAnnotationBeanPostProcessor : JSR-330 'javax.inject.Inject' annotation found and supported for autowiring
+2021-02-28 23:53:22.875  INFO 49 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'configurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$30061fae] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+     _                _ _
+    / \   _ __   ___ | | | ___
+   / _ \ | '_ \ / _ \| | |/ _ \
+  / ___ \| |_) | (_) | | | (_) |
+ /_/   \_\ .__/ \___/|_|_|\___/
+         |_|
+
+:: Spring Boot ::  (v2.0.5.RELEASE)
+
+2021-02-28 23:53:23.284  INFO 49 --- [           main] c.c.f.a.c.ConfigServiceApplication       : The following profiles are active: github
+2021-02-28 23:53:23.308  INFO 49 --- [           main] ConfigServletWebServerApplicationContext : Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1418bc04: startup date [Sun Feb 28 23:53:23 CST 2021]; parent: org.springframework.context.annotation.AnnotationConfigApplicationContext@4bfb46a9
+2021-02-28 23:53:28.370  INFO 49 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : Overriding bean definition for bean 'dataSource' with a different definition: replacing [Root bean: class [null]; scope=refresh; abstract=false; lazyInit=false; autowireMode=3; dependencyCheck=0; autowireCandidate=false; primary=false; factoryBeanName=org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration$Hikari; factoryMethodName=dataSource; initMethodName=null; destroyMethodName=(inferred); defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]] with [Root bean: class [org.springframework.aop.scope.ScopedProxyFactoryBean]; scope=; abstract=false; lazyInit=false; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null; defined in BeanDefinition defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]]
+2021-02-28 23:53:28.960  INFO 49 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=dfe4f679-8fde-3018-92f8-af6b9280411f
+2021-02-28 23:53:29.046  INFO 49 --- [           main] f.a.AutowiredAnnotationBeanPostProcessor : JSR-330 'javax.inject.Inject' annotation found and supported for autowiring
+2021-02-28 23:53:29.780  INFO 49 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$13ec1cb1] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-02-28 23:53:30.222  INFO 49 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration' of type [org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration$$EnhancerBySpringCGLIB$$ac99e4eb] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-02-28 23:53:30.438  INFO 49 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'objectPostProcessor' of type [org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-02-28 23:53:30.441  INFO 49 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler@26524157' of type [org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-02-28 23:53:30.466  INFO 49 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration' of type [org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration$$EnhancerBySpringCGLIB$$d16e879d] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-02-28 23:53:30.485  INFO 49 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'methodSecurityMetadataSource' of type [org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-02-28 23:53:30.543  INFO 49 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$30061fae] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-02-28 23:53:32.590  INFO 49 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2021-02-28 23:53:32.634  INFO 49 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2021-02-28 23:53:32.634  INFO 49 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet Engine: Apache Tomcat/8.5.34
+2021-02-28 23:53:32.655  INFO 49 --- [ost-startStop-1] o.a.catalina.core.AprLifecycleListener   : The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib]
+2021-02-28 23:53:32.810  INFO 49 --- [ost-startStop-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2021-02-28 23:53:32.810  INFO 49 --- [ost-startStop-1] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 9502 ms
+2021-02-28 23:53:34.012  WARN 49 --- [ost-startStop-1] c.n.c.sources.URLConfigurationSource     : No URLs will be polled as dynamic configuration sources.
+2021-02-28 23:53:34.013  INFO 49 --- [ost-startStop-1] c.n.c.sources.URLConfigurationSource     : To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2021-02-28 23:53:34.040  INFO 49 --- [ost-startStop-1] c.netflix.config.DynamicPropertyFactory  : DynamicPropertyFactory is initialized with configuration sources: com.netflix.config.ConcurrentCompositeConfiguration@471348d5
+2021-02-28 23:53:36.058  INFO 49 --- [ost-startStop-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2021-02-28 23:53:36.400  INFO 49 --- [ost-startStop-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2021-02-28 23:53:37.028  INFO 49 --- [ost-startStop-1] j.LocalContainerEntityManagerFactoryBean : Building JPA container EntityManagerFactory for persistence unit 'default'
+2021-02-28 23:53:37.061  INFO 49 --- [ost-startStop-1] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2021-02-28 23:53:37.448  INFO 49 --- [ost-startStop-1] org.hibernate.Version                    : HHH000412: Hibernate Core {5.2.17.Final}
+2021-02-28 23:53:37.451  INFO 49 --- [ost-startStop-1] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2021-02-28 23:53:37.799  INFO 49 --- [ost-startStop-1] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+2021-02-28 23:53:39.135  INFO 49 --- [ost-startStop-1] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+2021-02-28 23:53:42.748  INFO 49 --- [ost-startStop-1] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2021-02-28 23:53:44.270  INFO 49 --- [ost-startStop-1] o.h.h.i.QueryTranslatorFactoryInitiator  : HHH000397: Using ASTQueryTranslatorFactory
+2021-02-28 23:53:45.112  INFO 49 --- [ost-startStop-1] c.c.f.f.i.p.DefaultApplicationProvider   : App ID is set to 100003171 by app.id property from /META-INF/app.properties
+2021-02-28 23:53:45.116  INFO 49 --- [ost-startStop-1] c.c.f.f.i.p.DefaultServerProvider        : Environment is set to null. Because it is not available in either (1) JVM system property 'env', (2) OS env variable 'ENV' nor (3) property 'env' from the properties InputStream.
+2021-02-28 23:53:45.116  INFO 49 --- [ost-startStop-1] c.c.f.a.biz.service.BizDBPropertySource  : Load config from DB : item.key.length.limit = 128
+2021-02-28 23:53:45.117  INFO 49 --- [ost-startStop-1] c.c.f.a.biz.service.BizDBPropertySource  : Load config from DB : item.value.length.limit = 20000
+2021-02-28 23:53:45.117  INFO 49 --- [ost-startStop-1] c.c.f.a.biz.service.BizDBPropertySource  : Load config from DB : eureka.service.url = http://config.od.com/eureka
+2021-02-28 23:53:45.117  INFO 49 --- [ost-startStop-1] c.c.f.a.biz.service.BizDBPropertySource  : Load config from DB : namespace.lock.switch = false
+2021-02-28 23:53:45.117  INFO 49 --- [ost-startStop-1] c.c.f.a.biz.service.BizDBPropertySource  : Load config from DB : config-service.cache.enabled = false
+2021-02-28 23:53:52.102  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'characterEncodingFilter' to: [/*]
+2021-02-28 23:53:52.103  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'webMvcMetricsFilter' to: [/*]
+2021-02-28 23:53:52.104  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2021-02-28 23:53:52.104  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2021-02-28 23:53:52.104  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'requestContextFilter' to: [/*]
+2021-02-28 23:53:52.105  INFO 49 --- [ost-startStop-1] .s.DelegatingFilterProxyRegistrationBean : Mapping filter: 'springSecurityFilterChain' to: [/*]
+2021-02-28 23:53:52.105  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'httpTraceFilter' to: [/*]
+2021-02-28 23:53:52.105  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'encodingFilter' to urls: [/*]
+2021-02-28 23:53:52.105  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'servletContainer' to urls: [/eureka/*]
+2021-02-28 23:53:52.106  INFO 49 --- [ost-startStop-1] o.s.b.w.servlet.ServletRegistrationBean  : Servlet dispatcherServlet mapped to [/]
+2021-02-28 23:53:52.964  INFO 49 --- [ost-startStop-1] c.s.j.s.i.a.WebApplicationImpl           : Initiating Jersey application, version 'Jersey: 1.19.1 03/11/2016 02:08 PM'
+2021-02-28 23:53:53.089  INFO 49 --- [ost-startStop-1] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON encoding codec LegacyJacksonJson
+2021-02-28 23:53:53.089  INFO 49 --- [ost-startStop-1] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON decoding codec LegacyJacksonJson
+2021-02-28 23:53:54.035  INFO 49 --- [ost-startStop-1] c.n.d.provider.DiscoveryJerseyProvider   : Using XML encoding codec XStreamXml
+2021-02-28 23:53:54.035  INFO 49 --- [ost-startStop-1] c.n.d.provider.DiscoveryJerseyProvider   : Using XML decoding codec XStreamXml
+2021-02-28 23:54:05.202  INFO 49 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: org.springframework.security.web.util.matcher.AnyRequestMatcher@1, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@69373aa3, org.springframework.security.web.context.SecurityContextPersistenceFilter@35acb20e, org.springframework.security.web.header.HeaderWriterFilter@12ff3cbd, org.springframework.security.web.authentication.logout.LogoutFilter@59a0876d, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@5cf2d485, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6b3d7987, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2a611007, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@d89c753, org.springframework.security.web.session.SessionManagementFilter@4467eaa5, org.springframework.security.web.access.ExceptionTranslationFilter@2aaf2b2e]
+2021-02-28 23:54:06.171  WARN 49 --- [           main] c.n.c.sources.URLConfigurationSource     : No URLs will be polled as dynamic configuration sources.
+2021-02-28 23:54:06.172  INFO 49 --- [           main] c.n.c.sources.URLConfigurationSource     : To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
+2021-02-28 23:54:07.589  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:08.679  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1418bc04: startup date [Sun Feb 28 23:53:23 CST 2021]; parent: org.springframework.context.annotation.AnnotationConfigApplicationContext@4bfb46a9
+2021-02-28 23:54:08.762  WARN 49 --- [           main] aWebConfiguration$JpaWebMvcConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2021-02-28 23:54:09.363  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/apollo/server]}" onto public java.lang.String com.ctrip.framework.apollo.common.controller.ApolloInfoController.getServer()
+2021-02-28 23:54:09.365  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/apollo/app]}" onto public java.lang.String com.ctrip.framework.apollo.common.controller.ApolloInfoController.getApp()
+2021-02-28 23:54:09.366  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/apollo/net]}" onto public java.lang.String com.ctrip.framework.apollo.common.controller.ApolloInfoController.getNet()
+2021-02-28 23:54:09.366  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/apollo/version]}" onto public java.lang.String com.ctrip.framework.apollo.common.controller.ApolloInfoController.getVersion()
+2021-02-28 23:54:09.373  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/configfiles/{appId}/{clusterName}/{namespace:.+}],methods=[GET]}" onto public org.springframework.http.ResponseEntity<java.lang.String> com.ctrip.framework.apollo.configservice.controller.ConfigFileController.queryConfigAsProperties(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse) throws java.io.IOException
+2021-02-28 23:54:09.374  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/configfiles/json/{appId}/{clusterName}/{namespace:.+}],methods=[GET]}" onto public org.springframework.http.ResponseEntity<java.lang.String> com.ctrip.framework.apollo.configservice.controller.ConfigFileController.queryConfigAsJson(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse) throws java.io.IOException
+2021-02-28 23:54:09.376  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/notifications],methods=[GET]}" onto public org.springframework.web.context.request.async.DeferredResult<org.springframework.http.ResponseEntity<com.ctrip.framework.apollo.core.dto.ApolloConfigNotification>> com.ctrip.framework.apollo.configservice.controller.NotificationController.pollNotification(java.lang.String,java.lang.String,java.lang.String,java.lang.String,long,java.lang.String)
+2021-02-28 23:54:09.377  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/configs/{appId}/{clusterName}/{namespace:.+}],methods=[GET]}" onto public com.ctrip.framework.apollo.core.dto.ApolloConfig com.ctrip.framework.apollo.configservice.controller.ConfigController.queryConfig(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse) throws java.io.IOException
+2021-02-28 23:54:09.378  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/notifications/v2],methods=[GET]}" onto public org.springframework.web.context.request.async.DeferredResult<org.springframework.http.ResponseEntity<java.util.List<com.ctrip.framework.apollo.core.dto.ApolloConfigNotification>>> com.ctrip.framework.apollo.configservice.controller.NotificationControllerV2.pollNotification(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)
+2021-02-28 23:54:09.381  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/services/meta]}" onto public java.util.List<com.ctrip.framework.apollo.core.dto.ServiceDTO> com.ctrip.framework.apollo.metaservice.controller.ServiceController.getMetaService()
+2021-02-28 23:54:09.381  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/services/config]}" onto public java.util.List<com.ctrip.framework.apollo.core.dto.ServiceDTO> com.ctrip.framework.apollo.metaservice.controller.ServiceController.getConfigService(java.lang.String,java.lang.String)
+2021-02-28 23:54:09.382  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/services/admin]}" onto public java.util.List<com.ctrip.framework.apollo.core.dto.ServiceDTO> com.ctrip.framework.apollo.metaservice.controller.ServiceController.getAdminService()
+2021-02-28 23:54:09.389  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2021-02-28 23:54:09.390  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2021-02-28 23:54:09.403  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/lastn],methods=[GET]}" onto public java.lang.String org.springframework.cloud.netflix.eureka.server.EurekaController.lastn(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.Object>)
+2021-02-28 23:54:09.404  INFO 49 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/],methods=[GET]}" onto public java.lang.String org.springframework.cloud.netflix.eureka.server.EurekaController.status(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.Object>)
+2021-02-28 23:54:09.930  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:09.931  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:09.931  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/img/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:09.931  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/vendor/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:09.931  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/scripts/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:09.931  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/styles/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:09.931  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/views/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:09.931  INFO 49 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/i18n/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2021-02-28 23:54:09.972  INFO 49 --- [           main] .m.m.a.ExceptionHandlerExceptionResolver : Detected @ExceptionHandler methods in globalDefaultExceptionHandler
+2021-02-28 23:54:19.483  INFO 49 --- [           main] o.s.ui.freemarker.SpringTemplateLoader   : SpringTemplateLoader for FreeMarker: using resource loader [org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1418bc04: startup date [Sun Feb 28 23:53:23 CST 2021]; parent: org.springframework.context.annotation.AnnotationConfigApplicationContext@4bfb46a9] and template loader path [classpath:/templates/]
+2021-02-28 23:54:19.484  INFO 49 --- [           main] o.s.w.s.v.f.FreeMarkerConfigurer         : ClassTemplateLoader for Spring macros added to FreeMarker configuration
+2021-02-28 23:54:21.111  INFO 49 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoint(s) beneath base path ''
+2021-02-28 23:54:21.140  INFO 49 --- [           main] s.b.a.e.w.s.WebMvcEndpointHandlerMapping : Mapped "{[/health],methods=[GET],produces=[application/vnd.spring-boot.actuator.v2+json || application/json]}" onto public java.lang.Object org.springframework.boot.actuate.endpoint.web.servlet.AbstractWebMvcEndpointHandlerMapping$OperationHandler.handle(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.String>)
+2021-02-28 23:54:21.141  INFO 49 --- [           main] s.b.a.e.w.s.WebMvcEndpointHandlerMapping : Mapped "{[/info],methods=[GET],produces=[application/vnd.spring-boot.actuator.v2+json || application/json]}" onto public java.lang.Object org.springframework.boot.actuate.endpoint.web.servlet.AbstractWebMvcEndpointHandlerMapping$OperationHandler.handle(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.String>)
+2021-02-28 23:54:21.141  INFO 49 --- [           main] s.b.a.e.w.s.WebMvcEndpointHandlerMapping : Mapped "{[/prometheus],methods=[GET],produces=[text/plain;version=0.0.4;charset=utf-8]}" onto public java.lang.Object org.springframework.boot.actuate.endpoint.web.servlet.AbstractWebMvcEndpointHandlerMapping$OperationHandler.handle(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.String>)
+2021-02-28 23:54:21.141  INFO 49 --- [           main] s.b.a.e.w.s.WebMvcEndpointHandlerMapping : Mapped "{[/metrics],methods=[GET],produces=[application/vnd.spring-boot.actuator.v2+json || application/json]}" onto public java.lang.Object org.springframework.boot.actuate.endpoint.web.servlet.AbstractWebMvcEndpointHandlerMapping$OperationHandler.handle(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.String>)
+2021-02-28 23:54:21.142  INFO 49 --- [           main] s.b.a.e.w.s.WebMvcEndpointHandlerMapping : Mapped "{[/metrics/{requiredMetricName}],methods=[GET],produces=[application/vnd.spring-boot.actuator.v2+json || application/json]}" onto public java.lang.Object org.springframework.boot.actuate.endpoint.web.servlet.AbstractWebMvcEndpointHandlerMapping$OperationHandler.handle(javax.servlet.http.HttpServletRequest,java.util.Map<java.lang.String, java.lang.String>)
+2021-02-28 23:54:25.949  INFO 49 --- [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2021-02-28 23:54:26.003  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2021-02-28 23:54:26.778  INFO 49 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON encoding codec LegacyJacksonJson
+2021-02-28 23:54:26.779  INFO 49 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON decoding codec LegacyJacksonJson
+2021-02-28 23:54:26.779  INFO 49 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using XML encoding codec XStreamXml
+2021-02-28 23:54:26.779  INFO 49 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using XML decoding codec XStreamXml
+2021-02-28 23:54:27.433  INFO 49 --- [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2021-02-28 23:54:27.474  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2021-02-28 23:54:27.474  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2021-02-28 23:54:27.474  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2021-02-28 23:54:27.474  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2021-02-28 23:54:27.474  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2021-02-28 23:54:27.475  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2021-02-28 23:54:27.475  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2021-02-28 23:54:28.170  WARN 49 --- [           main] c.n.d.s.t.d.RetryableEurekaHttpClient    : Request execution failure with status code 502; retrying on another server if available
+2021-02-28 23:54:28.173 ERROR 49 --- [           main] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_APOLLO-CONFIGSERVICE/apollo-configservice-5f6555448-6xbwj:apollo-configservice:8080 - was unable to refresh its cache! status = Cannot execute request on any known server
+
+com.netflix.discovery.shared.transport.TransportException: Cannot execute request on any known server
+	at com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient.execute(RetryableEurekaHttpClient.java:112)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.getApplications(EurekaHttpClientDecorator.java:134)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator$6.execute(EurekaHttpClientDecorator.java:137)
+	at com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient.execute(SessionedEurekaHttpClient.java:77)
+	at com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator.getApplications(EurekaHttpClientDecorator.java:134)
+	at com.netflix.discovery.DiscoveryClient.getAndStoreFullRegistry(DiscoveryClient.java:1051)
+	at com.netflix.discovery.DiscoveryClient.fetchRegistry(DiscoveryClient.java:965)
+	at com.netflix.discovery.DiscoveryClient.<init>(DiscoveryClient.java:414)
+	at com.netflix.discovery.DiscoveryClient.<init>(DiscoveryClient.java:269)
+	at org.springframework.cloud.netflix.eureka.CloudEurekaClient.<init>(CloudEurekaClient.java:63)
+	at org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration$RefreshableEurekaClientConfiguration.eurekaClient(EurekaClientAutoConfiguration.java:290)
+	at org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration$RefreshableEurekaClientConfiguration$$EnhancerBySpringCGLIB$$376f18cd.CGLIB$eurekaClient$2(<generated>)
+	at org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration$RefreshableEurekaClientConfiguration$$EnhancerBySpringCGLIB$$376f18cd$$FastClassBySpringCGLIB$$fbca395e.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:228)
+	at org.springframework.context.annotation.ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(ConfigurationClassEnhancer.java:365)
+	at org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration$RefreshableEurekaClientConfiguration$$EnhancerBySpringCGLIB$$376f18cd.eurekaClient(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:154)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:582)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1247)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1096)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:535)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:495)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$1(AbstractBeanFactory.java:353)
+	at org.springframework.cloud.context.scope.GenericScope$BeanLifecycleWrapper.getBean(GenericScope.java:390)
+	at org.springframework.cloud.context.scope.GenericScope.get(GenericScope.java:184)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:350)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.aop.target.SimpleBeanTargetSource.getTarget(SimpleBeanTargetSource.java:35)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:193)
+	at com.sun.proxy.$Proxy143.getApplications(Unknown Source)
+	at org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration.peerAwareInstanceRegistry(EurekaServerAutoConfiguration.java:164)
+	at org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration$$EnhancerBySpringCGLIB$$c97f238f.CGLIB$peerAwareInstanceRegistry$6(<generated>)
+	at org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration$$EnhancerBySpringCGLIB$$c97f238f$$FastClassBySpringCGLIB$$37c5b274.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:228)
+	at org.springframework.context.annotation.ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(ConfigurationClassEnhancer.java:365)
+	at org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration$$EnhancerBySpringCGLIB$$c97f238f.peerAwareInstanceRegistry(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:154)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:582)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1247)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1096)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:535)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:495)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:317)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:315)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:251)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1135)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1062)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:818)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:724)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:474)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1247)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1096)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:535)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:495)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:317)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:315)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:251)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1135)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1062)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:583)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessPropertyValues(AutowiredAnnotationBeanPostProcessor.java:372)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1341)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:572)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:495)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:317)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:315)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:759)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:869)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:550)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:140)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:780)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:412)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:333)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1277)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1265)
+	at com.ctrip.framework.apollo.configservice.ConfigServiceApplication.main(ConfigServiceApplication.java:34)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.boot.loader.MainMethodRunner.run(MainMethodRunner.java:54)
+	at java.lang.Thread.run(Thread.java:745)
+
+2021-02-28 23:54:28.174  WARN 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Using default backup registry implementation which does not do anything.
+2021-02-28 23:54:28.176  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2021-02-28 23:54:28.179  INFO 49 --- [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2021-02-28 23:54:28.185  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1614527668182 with initial instances count: 0
+2021-02-28 23:54:28.723  INFO 49 --- [           main] c.n.eureka.DefaultEurekaServerContext    : Initializing ...
+2021-02-28 23:54:28.726  INFO 49 --- [           main] c.n.eureka.cluster.PeerEurekaNodes       : Adding new peer nodes [http://config.od.com/eureka]
+2021-02-28 23:54:28.734  INFO 49 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON encoding codec LegacyJacksonJson
+2021-02-28 23:54:28.735  INFO 49 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON decoding codec LegacyJacksonJson
+2021-02-28 23:54:28.735  INFO 49 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using XML encoding codec XStreamXml
+2021-02-28 23:54:28.735  INFO 49 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using XML decoding codec XStreamXml
+2021-02-28 23:54:29.349  INFO 49 --- [           main] c.n.eureka.cluster.PeerEurekaNodes       : Replica node URL:  http://config.od.com/eureka
+2021-02-28 23:54:29.363  INFO 49 --- [           main] c.n.e.registry.AbstractInstanceRegistry  : Finished initializing remote region registries. All known remote regions: []
+2021-02-28 23:54:29.366  INFO 49 --- [           main] c.n.eureka.DefaultEurekaServerContext    : Initialized
+2021-02-28 23:54:30.020  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Registering beans for JMX exposure on startup
+2021-02-28 23:54:30.023  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Bean with name 'dataSource' has been autodetected for JMX exposure
+2021-02-28 23:54:30.040  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Bean with name 'environmentManager' has been autodetected for JMX exposure
+2021-02-28 23:54:30.042  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Bean with name 'refreshScope' has been autodetected for JMX exposure
+2021-02-28 23:54:30.044  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Bean with name 'configurationPropertiesRebinder' has been autodetected for JMX exposure
+2021-02-28 23:54:30.048  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Located managed bean 'environmentManager': registering with JMX server as MBean [apollo-configservice:name=environmentManager,type=EnvironmentManager]
+2021-02-28 23:54:30.632  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Located managed bean 'refreshScope': registering with JMX server as MBean [apollo-configservice:name=refreshScope,type=RefreshScope]
+2021-02-28 23:54:30.664  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Located managed bean 'configurationPropertiesRebinder': registering with JMX server as MBean [apollo-configservice:name=configurationPropertiesRebinder,context=1418bc04,type=ConfigurationPropertiesRebinder]
+2021-02-28 23:54:31.158  INFO 49 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Located MBean 'dataSource': registering with JMX server as MBean [apollo-configservice:name=dataSource,type=HikariDataSource]
+2021-02-28 23:54:31.171  INFO 49 --- [           main] o.s.c.support.DefaultLifecycleProcessor  : Starting beans in phase 0
+2021-02-28 23:54:31.185  INFO 49 --- [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application apollo-configservice with eureka with status UP
+2021-02-28 23:54:31.186  INFO 49 --- [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1614527671186, current=UP, previous=STARTING]
+2021-02-28 23:54:31.190  INFO 49 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_APOLLO-CONFIGSERVICE/apollo-configservice-5f6555448-6xbwj:apollo-configservice:8080: registering service...
+2021-02-28 23:54:31.197  INFO 49 --- [      Thread-17] o.s.c.n.e.server.EurekaServerBootstrap   : Setting the eureka configuration..
+2021-02-28 23:54:31.198  INFO 49 --- [      Thread-17] o.s.c.n.e.server.EurekaServerBootstrap   : Eureka data center value eureka.datacenter is not set, defaulting to default
+2021-02-28 23:54:31.199  INFO 49 --- [      Thread-17] o.s.c.n.e.server.EurekaServerBootstrap   : Eureka environment value eureka.environment is not set, defaulting to test
+2021-02-28 23:54:31.228  INFO 49 --- [      Thread-17] o.s.c.n.e.server.EurekaServerBootstrap   : isAws returned false
+2021-02-28 23:54:31.229  INFO 49 --- [      Thread-17] o.s.c.n.e.server.EurekaServerBootstrap   : Initialized server context
+2021-02-28 23:54:31.801  INFO 49 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2021-02-28 23:54:31.804  INFO 49 --- [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8080
+2021-02-28 23:54:31.808  INFO 49 --- [           main] c.c.f.a.c.ConfigServiceApplication       : Started ConfigServiceApplication in 71.371 seconds (JVM running for 72.529)
+2021-02-28 23:54:31.960  INFO 49 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring FrameworkServlet 'dispatcherServlet'
+2021-02-28 23:54:31.960  INFO 49 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization started
+2021-02-28 23:54:32.414  INFO 49 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization completed in 454 ms
+2021-02-28 23:54:33.048  INFO 49 --- [nio-8080-exec-1] c.n.e.registry.AbstractInstanceRegistry  : Registered instance APOLLO-CONFIGSERVICE/apollo-configservice-5f6555448-6xbwj:apollo-configservice:8080 with status UP (replication=false)
+2021-02-28 23:54:33.067  INFO 49 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_APOLLO-CONFIGSERVICE/apollo-configservice-5f6555448-6xbwj:apollo-configservice:8080 - registration status: 204
+2021-02-28 23:54:33.643  INFO 49 --- [nio-8080-exec-2] c.n.e.registry.AbstractInstanceRegistry  : Registered instance APOLLO-CONFIGSERVICE/apollo-configservice-5f6555448-6xbwj:apollo-configservice:8080 with status UP (replication=true)
+2021-02-28 23:54:58.177  INFO 49 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2021-02-28 23:54:58.177  INFO 49 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2021-02-28 23:54:58.177  INFO 49 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2021-02-28 23:54:58.177  INFO 49 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2021-02-28 23:54:58.177  INFO 49 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2021-02-28 23:54:58.177  INFO 49 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2021-02-28 23:54:58.177  INFO 49 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2021-02-28 23:54:58.220  INFO 49 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2021-02-28 23:55:01.236  INFO 49 --- [      Thread-17] c.n.e.registry.AbstractInstanceRegistry  : Registered instance APOLLO-CONFIGSERVICE/apollo-configservice-5f6555448-6xbwj:apollo-configservice:8080 with status UP (replication=true)
+2021-02-28 23:55:01.237  INFO 49 --- [      Thread-17] c.n.e.r.PeerAwareInstanceRegistryImpl    : Got 1 instances from neighboring DS node
+2021-02-28 23:55:01.237  INFO 49 --- [      Thread-17] c.n.e.r.PeerAwareInstanceRegistryImpl    : Renew threshold is: 1
+2021-02-28 23:55:01.237  INFO 49 --- [      Thread-17] c.n.e.r.PeerAwareInstanceRegistryImpl    : Changing status to UP
+2021-02-28 23:55:01.245  INFO 49 --- [      Thread-17] e.s.EurekaServerInitializerConfiguration : Started Eureka Server
