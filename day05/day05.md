@@ -592,5 +592,8 @@ service/apollo-configservice created
 ingress.extensions/apollo-configservice created
 ```
 ```text
+# update C:\Windows\System32\drivers\etc\hosts
+10.4.7.10		dashboard.od.com  traefik.od.com  jenkins.od.com  dubbo-monitor.od.com  config.od.com
+10.4.7.200		k8s-yaml.od.com   harbor.od.com
 Chrome: config.od.com
 ```
