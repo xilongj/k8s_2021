@@ -149,7 +149,7 @@ Reading table information for completion of table and column names
 You can turn off this feature to get a quicker startup with -A
 
 Database changed
-MariaDB [ApolloConfigDB]> grant INSERT,DELETE,UPDATE,SELECT on ApollConfigDB.* to "apolloconfig"@"10.4.7.%" identified by "123456";
+MariaDB [ApolloConfigDB]> grant INSERT,DELETE,UPDATE,SELECT on ApolloConfigDB.* to "apolloconfig"@"10.4.7.%" identified by "123456";
 Query OK, 0 rows affected (0.01 sec)
 
 MariaDB [ApolloConfigDB]> select user,host from mysql.user;
@@ -194,13 +194,13 @@ MariaDB [ApolloConfigDB]> select * from ServerConfig \G
                        Id: 1
                       Key: eureka.service.url
                   Cluster: default
-                    Value: http://localhost:8080/eureka/
+                    Value: http://config.od.com/eureka
                   Comment: Eureka服务Url，多个service以英文逗号分隔
                 IsDeleted:
      DataChange_CreatedBy: default
    DataChange_CreatedTime: 2021-02-26 00:18:49
 DataChange_LastModifiedBy:
-      DataChange_LastTime: 2021-02-26 00:18:49
+      DataChange_LastTime: 2021-02-26 00:32:13
 *************************** 2. row ***************************
                        Id: 2
                       Key: namespace.lock.switch
@@ -246,8 +246,6 @@ DataChange_LastModifiedBy:
 DataChange_LastModifiedBy:
       DataChange_LastTime: 2021-02-26 00:18:49
 5 rows in set (0.00 sec)
-
-MariaDB [ApolloConfigDB]>
 ```
 ```text
 MariaDB [ApolloConfigDB]> update ApolloConfigDB.ServerConfig set ServerConfig.Value="http://config.od.com/eureka" where ServerConfig.Key="eureka.service.url";
@@ -288,4 +286,311 @@ config          A       10.4.7.10
 [root@hdss7-21 ~]# dig -t A config.od.com @192.168.0.2 +short
 10.4.7.10
 ```
-37:38
+### Download Apollo binary package
+#### [hdss7-200]
+```text
+[root@hdss7-200 src]# wget https://github.com/ctripcorp/apollo/releases/download/v1.5.1/apollo-adminservice-1.5.1-github.zip
+[root@hdss7-200 src]# wget https://github.com/ctripcorp/apollo/releases/download/v1.5.1/apollo-configservice-1.5.1-github.zip
+[root@hdss7-200 src]# wget https://github.com/ctripcorp/apollo/releases/download/v1.5.1/apollo-portal-1.5.1-github.zip
+```
+```text
+[root@hdss7-200 src]# mkdir -p /data/dockerfile/apollo-configservice
+[root@hdss7-200 src]# unzip -o apollo-configservice-1.5.1-github.zip -d /data/dockerfile/apollo-configservice/
+```
+```text
+[root@hdss7-200 src]# cd /data/dockerfile/apollo-configservice/
+[root@hdss7-200 apollo-configservice]# mv apollo-configservice-1.5.1-sources.jar /tmp/
+[root@hdss7-200 apollo-configservice]# ls -l
+total 4
+-rwxr-xr-x 1 root root 61991736 Nov  9  2019 apollo-configservice-1.5.1.jar
+-rw-r--r-- 1 root root 57 Apr 20  2017 apollo-configservice.conf
+drwxr-xr-x 2 root root 65 Feb 27 08:40 config
+drwxr-xr-x 2 root root 43 Oct  1  2019 scripts
+```
+#### Update DNS
+```text
+[root@hdss7-11 ~]# cat /var/named/od.com.zone
+$ORIGIN od.com.
+$TTL 600        ; 10 minutes
+@       IN SOA dns.od.com. dnsadmin.od.com. (
+                        2021021011      ; serial
+                        10800           ; refresh (3 hours)
+                        900             ; retry (15 minutes)
+                        604800          ; expire (1 week)
+                        86400           ; minimum (1 day)
+                        )
+                        NS      dns.od.com.
+$TTL 60 ; 1 minute
+dns             A       10.4.7.11
+harbor          A       10.4.7.200
+k8s-yaml        A       10.4.7.200
+traefik         A       10.4.7.10
+dashboard       A       10.4.7.10
+zk1             A       10.4.7.11
+zk2             A       10.4.7.12
+zk3             A       10.4.7.21
+jenkins         A       10.4.7.10
+dubbo-monitor   A       10.4.7.10
+demo            A       10.4.7.10
+config          A       10.4.7.10
+mysql           A       10.4.7.11
+[root@hdss7-11 ~]# systemctl restart named
+
+[root@hdss7-11 ~]# dig -t A mysql.od.com @10.4.7.11 +short
+10.4.7.11
+```
+```text
+[root@hdss7-200 apollo-configservice]# cd config/
+[root@hdss7-200 config]# cat application-github.properties
+# DataSource
+spring.datasource.url = jdbc:mysql://mysql.od.com:3306/ApolloConfigDB?characterEncoding=utf8
+spring.datasource.username = apolloconfig
+spring.datasource.password = 123456
+
+
+#apollo.eureka.server.enabled=true
+#apollo.eureka.client.enabled=true
+[root@hdss7-200 config]# pwd
+/data/dockerfile/apollo-configservice/config
+```
+```text
+[root@hdss7-200 scripts]# cat startup.sh
+#!/bin/bash
+SERVICE_NAME=apollo-configservice
+## Adjust log dir if necessary
+LOG_DIR=/opt/logs/apollo-config-server
+## Adjust server port if necessary
+SERVER_PORT=8080
+APOLLO_CONFIG_SERVICE_NAME=$(hostname -i)
+SERVER_URL="http://${APOLLO_CONFIG_SERVICE_NAME}:${SERVER_PORT}"
+
+## Adjust memory settings if necessary
+export JAVA_OPTS="-Xms128m -Xmx128m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:SurvivorRatio=8"
+
+## Only uncomment the following when you are using server jvm
+#export JAVA_OPTS="$JAVA_OPTS -server -XX:-ReduceInitialCardMarks"
+
+########### The following is the same for configservice, adminservice, portal ###########
+export JAVA_OPTS="$JAVA_OPTS -XX:ParallelGCThreads=4 -XX:MaxTenuringThreshold=9 -XX:+DisableExplicitGC -XX:+ScavengeBeforeFullGC -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+ExplicitGCInvokesConcurrent -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -Duser.timezone=Asia/Shanghai -Dclient.encoding.override=UTF-8 -Dfile.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom"
+export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT -Dlogging.file=$LOG_DIR/$SERVICE_NAME.log -XX:HeapDumpPath=$LOG_DIR/HeapDumpOnOutOfMemoryError/"
+
+# Find Java
+if [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
+    javaexe="$JAVA_HOME/bin/java"
+elif type -p java > /dev/null 2>&1; then
+    javaexe=$(type -p java)
+elif [[ -x "/usr/bin/java" ]];  then
+    javaexe="/usr/bin/java"
+else
+    echo "Unable to find Java"
+    exit 1
+fi
+
+if [[ "$javaexe" ]]; then
+    version=$("$javaexe" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    version=$(echo "$version" | awk -F. '{printf("%03d%03d",$1,$2);}')
+    # now version is of format 009003 (9.3.x)
+    if [ $version -ge 011000 ]; then
+        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+    elif [ $version -ge 010000 ]; then
+        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+    elif [ $version -ge 009000 ]; then
+        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+    else
+        JAVA_OPTS="$JAVA_OPTS -XX:+UseParNewGC"
+        JAVA_OPTS="$JAVA_OPTS -Xloggc:$LOG_DIR/gc.log -XX:+PrintGCDetails"
+        JAVA_OPTS="$JAVA_OPTS -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=60 -XX:+CMSClassUnloadingEnabled -XX:+CMSParallelRemarkEnabled -XX:CMSFullGCsBeforeCompaction=9 -XX:+CMSClassUnloadingEnabled  -XX:+PrintGCDateStamps -XX:+PrintGCApplicationConcurrentTime -XX:+PrintHeapAtGC -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=5M"
+    fi
+fi
+
+printf "$(date) ==== Starting ==== \n"
+
+cd `dirname $0`/..
+chmod 755 $SERVICE_NAME".jar"
+./$SERVICE_NAME".jar" start
+
+rc=$?;
+
+if [[ $rc != 0 ]];
+then
+    echo "$(date) Failed to start $SERVICE_NAME.jar, return code: $rc"
+    exit $rc;
+fi
+
+tail -f /dev/null
+```
+```text
+https://github.com/ctripcorp/apollo/blob/v1.5.1/scripts/apollo-on-kubernetes/apollo-config-server/scripts/startup-kubernetes.sh
+```
+```text
+[root@hdss7-200 apollo-configservice]# pwd
+/data/dockerfile/apollo-configservice
+[root@hdss7-200 apollo-configservice]# cat Dockerfile
+FROM stanleyws/jre8:8u112
+
+ENV VERSION 1.5.1
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &&\
+    echo "Asia/Shanghai" > /etc/timezone
+
+ADD apollo-configservice-${VERSION}.jar /apollo-configservice/apollo-configservice.jar
+ADD config/ /apollo-configservice/config
+ADD scripts/ /apollo-configservice/scripts
+
+CMD ["/apollo-configservice/scripts/startup.sh"]
+```
+#### Build image
+```text
+[root@hdss7-200 apollo-configservice]# docker build . -t harbor.od.com/infra/apollo-configservice:v1.5.1
+Sending build context to Docker daemon     62MB
+Step 1/7 : FROM stanleyws/jre8:8u112
+ ---> fa3a085d6ef1
+Step 2/7 : ENV VERSION 1.5.1
+ ---> Running in b132229f568b
+Removing intermediate container b132229f568b
+ ---> d4a281ac5a60
+Step 3/7 : RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &&    echo "Asia/Shanghai" > /etc/timezone
+ ---> Running in 397b33be0862
+Removing intermediate container 397b33be0862
+ ---> 73938aba034b
+Step 4/7 : ADD apollo-configservice-${VERSION}.jar /apollo-configservice/apollo-configservice.jar
+ ---> 1db45bb21cad
+Step 5/7 : ADD config/ /apollo-configservice/config
+ ---> c878f5d01ab9
+Step 6/7 : ADD scripts/ /apollo-configservice/scripts
+ ---> 208583f39c15
+Step 7/7 : CMD ["/apollo-configservice/scripts/startup.sh"]
+ ---> Running in 327d60dd5489
+Removing intermediate container 327d60dd5489
+ ---> cd5099acae8f
+Successfully built cd5099acae8f
+Successfully tagged harbor.od.com/infra/apollo-configservice:v1.5.1
+
+[root@hdss7-200 apollo-configservice]# docker push harbor.od.com/infra/apollo-configservice:v1.5.1
+```
+```text
+[root@hdss7-200 ~]# mkdir -p /data/k8s-yaml/apollo-configservice
+
+[root@hdss7-200 ~]# cd /data/k8s-yaml/apollo-configservice
+```
+```text
+# deployment.yaml
+[root@hdss7-200 apollo-configservice]# cat deployment.yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: apollo-configservice
+  namespace: infra
+  labels:
+    name: apollo-configservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: apollo-configservice
+  template:
+    metadata:
+      labels:
+        app: apollo-configservice
+        name: apollo-configservice
+    spec:
+      volumes:
+      - name: configmap-volume
+        configMap:
+          name: apollo-configservice-cm
+      containers:
+      - name: apollo-configservice
+        image: harbor.od.com/infra/apollo-configservice:v1.5.1
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: configmap-volume
+          mountPath: /apollo-configservice/config
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: harbor
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 0
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
+```
+```text
+# cm.yaml
+[root@hdss7-200 apollo-configservice]# cat cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apollo-configservice-cm
+  namespace: infra
+data:
+  application-github.properties: |
+    # DataSource
+    spring.datasource.url = jdbc:mysql://mysql.od.com:3306/ApolloConfigDB?characterEncoding=utf8
+    spring.datasource.username = apolloconfig
+    spring.datasource.password = 123456
+    eureka.service.url = http://config.od.com/eureka
+  app.properties: |
+    appId=100003171
+```
+```text
+# svc.yaml
+[root@hdss7-200 apollo-configservice]# cat svc.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: apollo-configservice
+  namespace: infra
+spec:
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: apollo-configservice
+  clusterIP: None
+  type: ClusterIP
+  sessionAffinity: None
+```
+```text
+# ingress.yaml
+[root@hdss7-200 apollo-configservice]# cat ingress.yaml
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: apollo-configservice
+  namespace: infra
+spec:
+  rules:
+  - host: config.od.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: apollo-configservice
+          servicePort: 8080
+```
+#### [hdss7-22]
+```text
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/apollo-configservice/cm.yaml
+configmap/apollo-configservice-cm created
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/apollo-configservice/deployment.yaml
+deployment.extensions/apollo-configservice created
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/apollo-configservice/svc.yaml
+service/apollo-configservice created
+[root@hdss7-22 ~]# kubectl apply -f http://k8s-yaml.od.com/apollo-configservice/ingress.yaml
+ingress.extensions/apollo-configservice created
+```
+```text
+Chrome: config.od.com
+```
